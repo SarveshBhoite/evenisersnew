@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Clock, Plus, Sparkles, Star } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://evenisersnew.onrender.com/api";
 
 export default function ShopPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -77,7 +77,7 @@ export default function ShopPage() {
       {/* 1. SQUARE IMAGE SECTION (1:1 Ratio) */}
       <div className="relative aspect-square overflow-hidden bg-zinc-100">
         <Image
-          src={product.image ? `http://localhost:5000${product.image}` : "/placeholder.svg"}
+          src={product.image ? `https://evenisersnew.onrender.com${product.image}` : "/placeholder.svg"}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"

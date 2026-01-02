@@ -19,7 +19,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users", {
+        const res = await fetch("https://evenisersnew.onrender.com/api/users", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

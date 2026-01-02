@@ -11,7 +11,7 @@ import { ChevronLeft, Save, Loader2, Upload, Clock, ListChecks, Tag, Banknote } 
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://evenisersnew.onrender.com/api";
 
 export default function EditProductPage() {
   const { id } = useParams();
@@ -62,7 +62,7 @@ export default function EditProductPage() {
       if (data.image) {
         const fullImageUrl = data.image.startsWith('http') 
           ? data.image 
-          : `http://localhost:5000${data.image}`;
+          : `https://evenisersnew.onrender.com${data.image}`;
         setPreview(fullImageUrl);
       }
     } catch (err) {

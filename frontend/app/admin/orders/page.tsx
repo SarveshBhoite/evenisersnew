@@ -22,7 +22,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch("https://evenisersnew.onrender.com/api/orders", {
           headers: { Authorization: `Bearer ${token}` }
         })
         const data = await res.json()

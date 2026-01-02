@@ -25,7 +25,7 @@ app.use(cors({
 app.use(express.json());
 
 // 🚨 STATIC FOLDER ACCESS
-// This ensures http://localhost:5000/uploads/image.jpg works
+// This ensures https://evenisersnew.onrender.com/uploads/image.jpg works
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
@@ -44,4 +44,4 @@ app.use("/api/contact", contactRoutes);
 
 app.use("/api/users", userRoutes);
 
-app.listen(5000, () => console.log("🚀 Server running on http://localhost:5000"));
+app.listen(5000, () => console.log("🚀 Server running on https://evenisersnew.onrender.com"));

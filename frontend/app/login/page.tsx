@@ -35,8 +35,8 @@ export default function LoginPage() {
     }
 
     const endpoint = isRegister
-      ? "http://localhost:5000/api/auth/signup"
-      : "http://localhost:5000/api/auth/login"
+      ? "https://evenisersnew.onrender.com/api/auth/signup"
+      : "https://evenisersnew.onrender.com/api/auth/login"
 
     const payload = isRegister
       ? { name: form.name, email: form.email, password: form.password }

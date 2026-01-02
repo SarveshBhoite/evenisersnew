@@ -40,7 +40,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
     try {
       // ✅ FIXED: Changed method back to GET (default)
-      const res = await fetch("http://localhost:5000/api/cart", {
+      const res = await fetch("https://evenisersnew.onrender.com/api/cart", {
         method: "GET", 
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/cart", {
+      const res = await fetch("https://evenisersnew.onrender.com/api/cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     if (!token) return;
     if (newQuantity < 1) return removeFromCart(productId);
     try {
-      const res = await fetch("http://localhost:5000/api/cart/update", {
+      const res = await fetch("https://evenisersnew.onrender.com/api/cart/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const removeFromCart = async (productId: string) => {
     if (!token) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/cart/${productId}`, {
+      const res = await fetch(`https://evenisersnew.onrender.com/api/cart/${productId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
