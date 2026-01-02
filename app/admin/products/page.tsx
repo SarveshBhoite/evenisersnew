@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://evenisersnew.onrender.com/api";
 
 // 1. Define the interface for Decoration Packages
 interface DecorationProduct {
@@ -130,7 +130,7 @@ export default function AdminProductsPage() {
                         <div className="flex items-center gap-5">
                           <div className="w-20 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shadow-inner flex-shrink-0">
                             <img 
-                              src={p.image?.startsWith('http') ? p.image : `http://localhost:5000${p.image}`} 
+                              src={p.image?.startsWith('http') ? p.image : `https://evenisersnew.onrender.com${p.image}`} 
                               alt={p.name} 
                               className="w-full h-full object-cover transition-transform group-hover:scale-110" 
                             />

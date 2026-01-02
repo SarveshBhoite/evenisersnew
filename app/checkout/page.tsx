@@ -54,7 +54,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders", {
+      const res = await fetch("https://evenisersnew.onrender.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -295,7 +295,7 @@ export default function CheckoutPage() {
                         <Image
                           src={
                             item.productId?.image
-                              ? `http://localhost:5000${item.productId.image}`
+                              ? `https://evenisersnew.onrender.com${item.productId.image}`
                               : "/placeholder.svg"
                           }
                           alt={item.productId?.name || "Product"}

@@ -7,7 +7,7 @@ import { ArrowRight, Star, Calendar, MapPin, Users, Sparkles } from "lucide-reac
 import Link from "next/link";
 import Image from "next/image";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://evenisersnew.onrender.com/api";
 
 export default function HomePage() {
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -125,7 +125,7 @@ export default function HomePage() {
                 <Link key={event._id} href={`/product/${event._id}`} className="group">
                   <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-6 shadow-lg">
                     <Image 
-                      src={event.image?.startsWith('http') ? event.image : `http://localhost:5000${event.image}`} 
+                      src={event.image?.startsWith('http') ? event.image : `https://evenisersnew.onrender.com${event.image}`} 
                       alt={event.name} 
                       fill 
                       className="object-cover group-hover:scale-105 transition-all duration-500" 

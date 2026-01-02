@@ -50,7 +50,7 @@ export default function CartPage() {
                 <div key={product._id} className="flex gap-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 items-center transition-all hover:shadow-md">
                   <div className="relative w-28 h-28 rounded-xl overflow-hidden border bg-gray-50 shrink-0">
                     <Image
-                      src={product.image ? `http://localhost:5000${product.image}` : "/placeholder.svg"}
+                      src={product.image ? `https://evenisersnew.onrender.com${product.image}` : "/placeholder.svg"}
                       alt={product.name}
                       fill
                       className="object-cover"
