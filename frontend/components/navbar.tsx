@@ -1,34 +1,30 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, User, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";  // ← Add this
 
-export function Navbar() {
-  const [mounted, setMounted] = useState(false);
+// Internal component that uses useSearchParams
+function NavbarContent() {
   const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category");
 
- const navLinks = [
-  { href: "/", label: "Home", type: "exact" },
-  { href: "/shop", label: "All Packages", type: "shop-all" },
-  { href: "/shop?category=wedding", label: "Wedding", cat: "wedding" },
-  { href: "/shop?category=birthday", label: "Birthday", cat: "birthday" },
-  { href: "/shop?category=haldi", label: "Haldi & Mehendi", cat: "haldi" },
-  { href: "/shop?category=corporate", label: "Corporate", cat: "corporate" },
-  { href: "/shop?category=anniversary", label: "Anniversary", cat: "anniversary" },
-  { href: "/contact", label: "Contact Us", type: "exact" },
-];
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return <div className="h-20" />;
+  const navLinks = [
+    { href: "/", label: "Home", type: "exact" },
+    { href: "/shop", label: "All Packages", type: "shop-all" },
+    { href: "/shop?category=wedding", label: "Wedding", cat: "wedding" },
+    { href: "/shop?category=birthday", label: "Birthday", cat: "birthday" },
+    { href: "/shop?category=haldi", label: "Haldi & Mehendi", cat: "haldi" },
+    { href: "/shop?category=corporate", label: "Corporate", cat: "corporate" },
+    { href: "/shop?category=anniversary", label: "Anniversary", cat: "anniversary" },
+    { href: "/contact", label: "Contact Us", type: "exact" },
+  ];
 
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-6xl">
@@ -40,18 +36,18 @@ export function Navbar() {
 
           <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             {navLinks.map((link) => {
-              // Check if this specific link is the active category
-              const isActive = (link.cat && currentCategory === link.cat) || 
-                               (link.type === "shop-all" && !currentCategory && window.location.pathname === "/shop");
+              const isActive =
+                (link.cat && currentCategory === link.cat) ||
+                (link.type === "shop-all" && !currentCategory && window.location.pathname === "/shop");
 
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`text-sm font-medium transition-all relative py-1 ${
-                    isActive 
-                    ? "text-black font-bold border-b-2 border-black" 
-                    : "text-foreground/70 hover:text-foreground"
+                    isActive
+                      ? "text-black font-bold border-b-2 border-black"
+                      : "text-foreground/70 hover:text-foreground"
                   }`}
                 >
                   {link.label}
@@ -90,5 +86,46 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+  );
+}
+
+// Main exported component with Suspense
+export function Navbar() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show fallback during SSR and until mounted (prevents layout shift)
+  if (!mounted) {
+    return (
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-6xl">
+        <div className="backdrop-blur-md bg-white/70 rounded-full border border-white/40 shadow-lg px-8 py-4">
+          <div className="flex items-center justify-between gap-8">
+            <div className="font-serif text-2xl font-bold">LUXE</div>
+            <div className="flex-1" />
+            <div className="w-20" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Suspense fallback={
+      // Same fallback as above — keeps space reserved during streaming/SSR
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-6xl">
+        <div className="backdrop-blur-md bg-white/70 rounded-full border border-white/40 shadow-lg px-8 py-4">
+          <div className="flex items-center justify-between gap-8">
+            <div className="font-serif text-2xl font-bold">LUXE</div>
+            <div className="flex-1" />
+            <div className="w-20" />
+          </div>
+        </div>
+      </div>
+    }>
+      <NavbarContent />
+    </Suspense>
   );
 }
