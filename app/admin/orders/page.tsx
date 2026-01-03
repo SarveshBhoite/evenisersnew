@@ -12,8 +12,9 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Package, Calendar, User } from "lucide-react"
+import { Eye, Package, Calendar, User, ArrowLeft } from "lucide-react"
 import axios from "axios"
+import Link from "next/link"
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -47,6 +48,10 @@ export default function AdminOrdersPage() {
     <div className="min-h-screen pt-24 bg-gray-50/50">
       <Navbar />
       <div className="max-w-7xl mx-auto px-6 py-10">
+        <Link
+            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
         <div className="flex justify-between items-center mb-10">
           <h1 className="font-serif text-4xl font-bold">Manage Orders</h1>
           <Badge variant="outline" className="px-4 py-1 text-md">
