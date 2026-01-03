@@ -79,4 +79,29 @@ const sendContactEmail = async (contactData) => {
   }
 };
 
-module.exports = { sendOrderEmail, sendContactEmail };
+const sendOTPEmail = async (email, otp) => {
+  const mailOptions = {
+    from: `"Luxe Security" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Your Verification Code: ${otp}`,
+    html: `
+      <div style="font-family: sans-serif; padding: 20px; color: #333;">
+        <h2>Verify Your Account</h2>
+        <p>Your One-Time Password (OTP) for Luxe Fashion is:</p>
+        <h1 style="letter-spacing: 5px; background: #eee; padding: 10px; display: inline-block;">${otp}</h1>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ OTP sent to ${email}`);
+  } catch (error) {
+    console.error("❌ OTP Email Error:", error.message);
+    throw new Error("Email could not be sent");
+  }
+};
+
+module.exports = { sendOrderEmail, sendContactEmail, sendOTPEmail };
