@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-// 1. Fix TypeScript Error: Define the shape of a link
+// 1. Interface for Links
 interface NavLinkItem {
   href: string;
   label: string;
@@ -24,13 +24,13 @@ function NavbarContent() {
   const currentCategory = searchParams.get("category");
   const [isOpen, setIsOpen] = useState(false);
 
-  // 2. Define links with the Interface
+  // 2. Define Links
   const baseLinks: NavLinkItem[] = [
     { href: "/", label: "Home", type: "exact" },
     { href: "/shop", label: "All Packages", type: "shop-all" },
     { href: "/shop?category=wedding", label: "Wedding", cat: "wedding" },
     { href: "/shop?category=birthday", label: "Birthday", cat: "birthday" },
-    { href: "/shop?category=haldi", label: "Haldi & Mehendi", cat: "haldi" },
+    { href: "/shop?category=haldi", label: "Haldi", cat: "haldi" }, // Shortened label for better fit
     { href: "/shop?category=corporate", label: "Corporate", cat: "corporate" },
     { href: "/shop?category=anniversary", label: "Anniversary", cat: "anniversary" },
   ];
@@ -44,17 +44,18 @@ function NavbarContent() {
   const navLinks = [...baseLinks, finalLink];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-6xl">
-      <div className="backdrop-blur-md bg-white/70 rounded-full border border-white/40 shadow-lg px-6 py-4 md:px-8">
-        <div className="flex items-center justify-between gap-4 md:gap-8">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl transition-all duration-300">
+      <div className="backdrop-blur-md bg-white/80 rounded-full border border-white/40 shadow-lg px-6 py-3 md:px-8">
+        <div className="flex items-center justify-between gap-4">
           
-          {/* LOGO */}
+          {/* LEFT: LOGO */}
           <Link href="/" className="font-serif text-xl md:text-2xl font-bold text-foreground shrink-0 tracking-tight">
             LUXE
           </Link>
 
-          {/* DESKTOP NAV LINKS */}
-          <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+          {/* MIDDLE: DESKTOP NAV LINKS */}
+          {/* Changed 'justify-center' to 'justify-end md:justify-center' and managed width better */}
+          <div className="hidden lg:flex items-center gap-5 xl:gap-8 flex-1 justify-center px-4">
             {navLinks.map((link) => {
               const isActive =
                 (link.cat && currentCategory === link.cat) ||
@@ -65,7 +66,7 @@ function NavbarContent() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-medium transition-all relative py-1 ${
+                  className={`text-sm font-medium transition-all relative py-1 whitespace-nowrap ${
                     isActive
                       ? "text-black font-bold border-b-2 border-black"
                       : "text-foreground/70 hover:text-foreground"
@@ -77,8 +78,9 @@ function NavbarContent() {
             })}
           </div>
 
-          {/* RIGHT SIDE ACTIONS */}
-          <div className="flex items-center gap-3 md:gap-5">
+          {/* RIGHT: ACTIONS (Cart + User) */}
+          {/* Added 'shrink-0' so this section NEVER gets squished */}
+          <div className="flex items-center gap-3 md:gap-5 shrink-0">
             <Link href="/cart" className="relative group p-1">
               <ShoppingCart className="w-5 h-5 text-foreground/70 group-hover:text-foreground transition-colors" />
               {cartCount > 0 && (
@@ -91,24 +93,26 @@ function NavbarContent() {
             {/* DESKTOP USER INFO */}
             <div className="hidden sm:flex items-center">
               {user ? (
-                <div className="flex items-center gap-4 border-l pl-4 border-black/10">
-                  <div className="flex flex-col items-end hidden md:flex">
+                <div className="flex items-center gap-3 border-l pl-4 border-black/10">
+                  <div className="flex flex-col items-end hidden md:flex min-w-[80px]">
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
                       {user.role === 'admin' ? 'Admin' : 'Member'}
                     </span>
                     <span className="text-sm font-medium whitespace-nowrap">
-                      {user.name.split(' ')[0]}
+                      {/* Using slice to ensure extremely long names don't break layout */}
+                      {user.name.length > 15 ? user.name.slice(0, 15) + "..." : user.name}
                     </span>
                   </div>
                   <button
                     onClick={logout}
                     className="p-2 hover:bg-black/5 rounded-full transition-colors text-foreground/70 hover:text-destructive"
+                    title="Logout"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <Link href="/login" className="flex items-center gap-2 group ml-4">
+                <Link href="/login" className="flex items-center gap-2 group ml-4 whitespace-nowrap">
                   <User className="w-5 h-5 text-foreground/70 group-hover:text-foreground" />
                   <span className="text-sm font-medium">Sign In</span>
                 </Link>
@@ -124,7 +128,7 @@ function NavbarContent() {
                   </Button>
                 </SheetTrigger>
                 
-                {/* UPDATED SIDEBAR DESIGN */}
+                {/* SIDEBAR CONTENT */}
                 <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col p-6">
                     <SheetHeader className="text-left mb-6 border-b pb-4">
                         <SheetTitle className="font-serif text-3xl font-bold tracking-tight">LUXE</SheetTitle>
@@ -145,7 +149,7 @@ function NavbarContent() {
                         </div>
                     )}
 
-                    {/* Navigation Links - Spacious & Clean */}
+                    {/* Navigation Links */}
                     <div className="flex flex-col gap-2 flex-1 overflow-y-auto py-2">
                       {navLinks.map((link) => {
                          const isActive =
@@ -164,11 +168,9 @@ function NavbarContent() {
                                 : "text-foreground/80 hover:bg-accent hover:text-foreground"
                             }`}
                             >
-                            {/* Optional Icons for Mobile Vibe */}
                             {link.label === "Home" && <Home className="w-5 h-5 opacity-70" />}
                             {link.label === "Dashboard" && <LayoutDashboard className="w-5 h-5 opacity-70" />}
                             {link.label.includes("Packages") && <Package className="w-5 h-5 opacity-70" />}
-                            
                             
                             {link.label}
                             </Link>
@@ -206,7 +208,6 @@ function NavbarContent() {
   );
 }
 
-// Main Export
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
 
@@ -216,8 +217,8 @@ export function Navbar() {
 
   if (!mounted) {
     return (
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-6xl">
-        <div className="backdrop-blur-md bg-white/70 rounded-full border border-white/40 shadow-lg px-6 py-4">
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl">
+        <div className="backdrop-blur-md bg-white/70 rounded-full border border-white/40 shadow-lg px-6 py-3">
            <div className="h-8 w-full" />
         </div>
       </div>
