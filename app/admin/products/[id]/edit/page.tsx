@@ -11,7 +11,7 @@ import { ChevronLeft, Save, Loader2, Upload, Clock, ListChecks, Tag, Banknote } 
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 
-const API_URL = "https://evenisersnew.onrender.com/api";
+const API_URL = "${process.env.NEXT_PUBLIC_API_URL}/api";
 
 export default function EditProductPage() {
   const { id } = useParams();
@@ -37,7 +37,7 @@ export default function EditProductPage() {
   const fetchProduct = useCallback(async () => {
     try {
       // FIX: Fetch from /admin/products/ to ensure we get 'included' and 'setupTime'
-      const res = await fetch(`${API_URL}/admin/products/${id}`, {
+      const res = await axios.get(`${API_URL}/admin/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,7 +62,7 @@ export default function EditProductPage() {
       if (data.image) {
         const fullImageUrl = data.image.startsWith('http') 
           ? data.image 
-          : `https://evenisersnew.onrender.com${data.image}`;
+          : `${process.env.NEXT_PUBLIC_API_URL}${data.image}`;
         setPreview(fullImageUrl);
       }
     } catch (err) {
@@ -101,7 +101,7 @@ export default function EditProductPage() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/admin/products/${id}`, {
+      const res = await axios.get(`${API_URL}/admin/products/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

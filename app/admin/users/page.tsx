@@ -10,24 +10,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User, Mail, Calendar, ShieldCheck } from "lucide-react";
+import { User, Mail, Calendar } from "lucide-react";
+import axios from "axios";
+
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("https://evenisersnew.onrender.com/api/users", {
+        const res = await axios.get(`${API_URL}/users`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        const data = await res.json();
+
+        const data = res.data;
+
         const filteredUsers = data.filter(
           (user: any) => user.email !== "rajb81008@gmail.com"
         );
+
         setUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -35,12 +41,14 @@ export default function AdminUsersPage() {
         setLoading(false);
       }
     };
+
     fetchUsers();
   }, []);
 
   return (
     <div className="min-h-screen pt-32 pb-16 px-8 bg-background">
       <Navbar />
+
       <div className="max-w-6xl mx-auto">
         <h1 className="font-serif text-4xl font-bold mb-8 flex items-center gap-3">
           <User className="w-10 h-10" /> Registered Users
@@ -57,6 +65,7 @@ export default function AdminUsersPage() {
                 <TableHead>Role</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {loading ? (
                 <TableRow>
@@ -73,19 +82,25 @@ export default function AdminUsersPage() {
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {user._id}
                     </TableCell>
-                    <TableCell className="font-semibold">{user.name}</TableCell>
+
+                    <TableCell className="font-semibold">
+                      {user.name}
+                    </TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Mail className="w-3 h-3 text-muted-foreground" />
                         {user.email}
                       </div>
                     </TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-3 h-3" />
                         {new Date(user.createdAt).toLocaleDateString()}
                       </div>
                     </TableCell>
+
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 uppercase">
                         {user.role}

@@ -1,42 +1,36 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://evenisersnew.onrender.com/api";
+import axios from "axios";
+
+// ✅ FIXED: clean, predictable base URL
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export async function getProducts() {
-  const res = await fetch(`${API_URL}/products`, {
-    cache: "no-store",
-  });
+  const res = await axios.get(`${API_URL}/products`);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch products");
-  }
-
-  return res.json();
+  // ✅ axios auto-throws on non-2xx
+  return res.data;
 }
 
 export async function getProductById(id: string) {
-  const res = await fetch(`${API_URL}/products/${id}`, {
-    cache: "no-store",
-  });
+  const res = await axios.get(`${API_URL}/products/${id}`);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch product");
-  }
-
-  return res.json();
+  return res.data;
 }
 
+export async function updateProduct(
+  id: string,
+  productData: any,
+  token: string
+) {
+  const res = await axios.put(
+    `${API_URL}/admin/products/${id}`,
+    productData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
-
-export async function updateProduct(id: string, productData: any, token: string) {
-  // Use FormData if you are uploading a new image, 
-  // or JSON.stringify if it's just text.
-  // This generic version works for JSON:
-  const res = await fetch(`${API_URL}/admin/products/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(productData),
-  });
-  return res.json();
+  return res.data;
 }

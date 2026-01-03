@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, Key } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface CartItem {
   productId: {
@@ -29,6 +29,8 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { token } = useAuth();
@@ -39,15 +41,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     try {
-      // ✅ FIXED: Changed method back to GET (default)
-      const res = await fetch("https://evenisersnew.onrender.com/api/cart", {
-        method: "GET", 
+      const res = await axios.get(`${API_URL}/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      if (res.ok) {
-        setCartItems(data.items || []);
-      }
+      setCartItems(res.data.items || []);
     } catch (err) {
       console.error("Error fetching cart:", err);
     }
@@ -63,76 +60,82 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     try {
-      const res = await fetch("https://evenisersnew.onrender.com/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId, quantity }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCartItems(data.items);
-        toast.success("Item added to cart successfully.");
-      } else {
-        console.error("Server error:", data.message);
-      }
-    } catch (err) {
-      console.error("Network error:", err);
-    }
-  };
-
-  const updateQuantity = async (productId: string, newQuantity: number) => {
-    if (!token) return;
-    if (newQuantity < 1) return removeFromCart(productId);
-    try {
-      const res = await fetch("https://evenisersnew.onrender.com/api/cart/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId, quantity: newQuantity }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCartItems(data.items);
-      }
+      const res = await axios.post(
+        `${API_URL}/cart`,
+        { productId, quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setCartItems(res.data.items);
+      toast.success("Item added to cart successfully.");
     } catch (err) {
       console.error(err);
     }
   };
 
+  // ✅ FIXED HERE
+  const updateQuantity = async (productId: string, newQuantity: number) => {
+    if (!token) return;
+    if (newQuantity < 1) return removeFromCart(productId);
+
+    try {
+      const res = await axios.put(
+        `${API_URL}/cart/${productId}`,
+        { quantity: newQuantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setCartItems(res.data.items);
+    } catch (err) {
+      console.error("Update quantity failed:", err);
+    }
+  };
+
   const removeFromCart = async (productId: string) => {
     if (!token) return;
+
     try {
-      const res = await fetch(`https://evenisersnew.onrender.com/api/cart/${productId}`, {
-        method: "DELETE",
+      const res = await axios.delete(`${API_URL}/cart/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      const data = await res.json();
-      if (res.ok) {
-        setCartItems(data.items);
-        toast.success("Item removed from cart");
-      } else {
-        console.error("Delete failed:", data.message);
-      }
+      setCartItems(res.data.items);
+      toast.success("Item removed from cart");
     } catch (err) {
-      console.error("Network error:", err);
+      console.error(err);
     }
   };
 
   const clearCart = () => setCartItems([]);
 
-  const cartTotal = cartItems.reduce((total, item) => total + (item.productId?.price || 0) * item.quantity, 0);
-  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  const cartTotal = cartItems.reduce(
+    (total, item) => total + item.productId.price * item.quantity,
+    0
+  );
+
+  const cartCount = cartItems.reduce(
+    (count, item) => count + item.quantity,
+    0
+  );
 
   return (
-    <CartContext.Provider value={{ 
-      cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCount 
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        cartTotal,
+        cartCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

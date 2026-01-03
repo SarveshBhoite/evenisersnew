@@ -25,7 +25,7 @@ export default function ContactPage() {
     }
 
     try {
-      const response = await fetch("https://evenisersnew.onrender.com/api/contact", {
+      const response = await axios.get("${process.env.NEXT_PUBLIC_API_URL}/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getProductById } from "@/lib/api";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -80,7 +81,7 @@ export default function ProductPage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="relative aspect-[4/5] md:aspect-video lg:aspect-[8/5] rounded-[2.5rem] overflow-hidden shadow-2xl group border border-zinc-100">
               <Image
-                src={product.image ? `https://evenisersnew.onrender.com${product.image}` : "/placeholder.svg"}
+                src={product.image ? `${process.env.NEXT_PUBLIC_API_URL}${product.image}` : "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
