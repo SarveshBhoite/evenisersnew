@@ -13,9 +13,11 @@ import {
   Loader2,
   Clock,
   IndianRupee,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
+import Link from "next/link";
 
 // ✅ FIXED: proper env usage
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
@@ -97,7 +99,11 @@ export default function AdminProductsPage() {
     <div className="min-h-screen bg-gray-50/50 pt-24 pb-12">
       <Navbar />
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-end mt-10 mb-5">
+        <div className="flex justify-between mt-10 mb-5">
+          <Link
+            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
           <Button
             onClick={() => router.push("/admin/products/new")}
             className="bg-black text-white rounded-full px-8 h-12 shadow-lg shadow-black/10 hover:scale-[1.02] transition-all"

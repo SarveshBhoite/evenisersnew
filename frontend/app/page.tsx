@@ -7,6 +7,7 @@ import { ArrowRight, Star, Calendar, MapPin, Users, Sparkles } from "lucide-reac
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
+import { Footer } from "@/components/footer";
 
 // ✅ FIXED: correct env usage
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
@@ -37,9 +38,11 @@ export default function HomePage() {
   }, []);
 
   const categories = [
-    { name: "Weddings", image: "/wedding-category.jpg", href: "/shop?category=wedding" },
-    { name: "Birthdays", image: "/birthday-category.jpg", href: "/shop?category=birthday" },
-    { name: "Corporate", image: "/corporate-category.jpg", href: "/shop?category=corporate" },
+    { name: "Weddings", image: "/luxury-silk-scarf.png", href: "/shop?category=wedding" },
+    { name: "Birthdays", image: "/luxury-cashmere-blazer.jpg", href: "/shop?category=birthday" },
+    { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
+    { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
+    { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
   ];
 
   return (
@@ -47,7 +50,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[30vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src="/hero-event-decoration.jpg"
@@ -58,22 +61,23 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto text-white">
-          <span className="uppercase tracking-[0.3em] text-sm mb-4 block animate-fade-in">
+        <div className="relative z-10 text-center mt-18 px-3 max-w-5xl mx-auto text-white">
+          <span className="uppercase tracking-[0.3em] text-lg mb-0 block animate-fade-in">
             Exquisite Moments
           </span>
-          <h1 className="font-serif text-6xl md:text-8xl font-bold mb-8 leading-tight">
-            Crafting Your <br /> Perfect Celebration
+          <h1 className="font-serif text-2xl md:text-6xl font-bold mb-0 leading-tight">
+            Crafting Your Perfect Celebration
           </h1>
-          <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto opacity-90 font-light">
+          {/* <p className="text-sm md:text-sm mb-10 max-w-2xl mx-auto opacity-90 font-light">
             From intimate gatherings to grand galas, we provide premium decoration and
             management services tailored to your vision.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          </p> */}
+          {/* <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               asChild
+              variant="outline"
               size="lg"
-              className="rounded-full border-white bg-white text-black hover:bg-white/10 px-10 h-14"
+              className="rounded-full border-white text-black hover:bg-white/10 px-10 h-14 backdrop-blur-md"
             >
               <Link href="/shop">Explore Packages</Link>
             </Button>
@@ -85,36 +89,16 @@ export default function HomePage() {
             >
               <Link href="/contact">Book Consultation</Link>
             </Button>
-          </div>
+          </div> */}
         </div>
       </section>
 
-      {/* --- STATS / WHY US --- */}
-      <section className="py-16 border-b border-zinc-100">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <h4 className="text-3xl font-serif font-bold">500+</h4>
-            <p className="text-zinc-500 text-sm">Events Managed</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-serif font-bold">12+</h4>
-            <p className="text-zinc-500 text-sm">Years Experience</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-serif font-bold">100%</h4>
-            <p className="text-zinc-500 text-sm">Happy Clients</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-serif font-bold">24/7</h4>
-            <p className="text-zinc-500 text-sm">Support</p>
-          </div>
-        </div>
-      </section>
+      
 
       {/* --- EVENT CATEGORIES --- */}
-      <section className="py-24 px-6 bg-zinc-50/50">
+      <section className="pt-14 pb-20 px-6 bg-zinc-50/50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-4">
             <div>
               <h2 className="font-serif text-4xl md:text-5xl font-bold">
                 Our Specialities
@@ -131,12 +115,12 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-5 gap-2">
             {categories.map((cat) => (
               <Link
                 key={cat.name}
                 href={cat.href}
-                className="group relative rounded-[2.5rem] overflow-hidden aspect-[4/5] shadow-2xl"
+                className="group relative overflow-hidden aspect-[12/8] shadow-2xl"
               >
                 <Image
                   src={cat.image}
@@ -146,7 +130,7 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-10 left-10">
-                  <h3 className="text-white text-3xl font-serif font-bold mb-2">
+                  <h3 className="text-white text-lg font-serif font-bold mb-2">
                     {cat.name}
                   </h3>
                   <p className="text-white/70 text-sm group-hover:text-white transition-colors">
@@ -155,6 +139,28 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- STATS / WHY US --- */}
+      <section className="py-0 border-b border-zinc-100">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <h4 className="text-5xl font-serif font-bold">500+</h4>
+            <p className="text-zinc-500 text-lg mt-2 tracking-[0.3em]">Events Managed</p>
+          </div>
+          <div>
+            <h4 className="text-5xl font-serif font-bold">12+</h4>
+            <p className="text-zinc-500 text-lg mt-2 tracking-[0.3em]">Years Experience</p>
+          </div>
+          <div>
+            <h4 className="text-5xl font-serif font-bold">100%</h4>
+            <p className="text-zinc-500 text-lg mt-2 tracking-[0.3em]">Happy Clients</p>
+          </div>
+          <div>
+            <h4 className="text-5xl font-serif font-bold">24/7</h4>
+            <p className="text-zinc-500 text-lg mt-2 tracking-[0.3em]">Support</p>
           </div>
         </div>
       </section>
@@ -269,67 +275,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* --- FOOTER --- */}
-      <footer className="bg-white border-t border-zinc-100 py-16 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
-          <div className="col-span-2">
-            <h3 className="font-serif text-3xl font-bold mb-6 italic">
-              LUXE EVENTS
-            </h3>
-            <p className="text-zinc-500 max-w-sm leading-relaxed mb-6">
-              Transforming spaces and creating memories. We are a full-service event
-              management and decoration agency.
-            </p>
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-black hover:text-white transition-all cursor-pointer">
-                In
-              </div>
-              <div className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-black hover:text-white transition-all cursor-pointer">
-                Ig
-              </div>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6 text-xs uppercase tracking-[0.2em]">
-              Services
-            </h4>
-            <ul className="space-y-4 text-sm text-zinc-600">
-              <li>
-                <Link href="/shop?category=wedding">Wedding Decor</Link>
-              </li>
-              <li>
-                <Link href="/shop?category=birthday">Birthday Themes</Link>
-              </li>
-              <li>
-                <Link href="/shop?category=corporate">Corporate Events</Link>
-              </li>
-              <li>
-                <Link href="/shop?category=haldi">Haldi & Rituals</Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6 text-xs uppercase tracking-[0.2em]">
-              Our Office
-            </h4>
-            <ul className="space-y-4 text-sm text-zinc-600">
-              <li className="flex gap-2">
-                <MapPin className="w-4 h-4" /> 102 Luxury Tower, MG Road, Pune
-              </li>
-              <li className="flex gap-2">
-                <Calendar className="w-4 h-4" /> Available Mon-Sat
-              </li>
-              <li className="flex gap-2">
-                <Users className="w-4 h-4" /> info@luxeevents.com
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto border-t mt-16 pt-8 text-center text-[10px] text-zinc-400 uppercase tracking-widest">
-          © 2025 Luxe Event Management. Handcrafted for your special day.
-        </div>
-      </footer>
     </div>
   );
 }

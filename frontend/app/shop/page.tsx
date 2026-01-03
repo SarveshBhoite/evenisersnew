@@ -43,7 +43,7 @@ export default function ShopPage() {
     <div className="min-h-screen">
       <Navbar />
 
-      <section className="pt-32 px-6">
+      <section className="pt-32 p-6">
         <div className="max-w-7xl mx-auto">
           <h1 className="font-serif text-5xl font-bold text-center mb-4 capitalize">
             {category ? `${category} Collection` : "Shop Collection"}
@@ -53,7 +53,7 @@ export default function ShopPage() {
           </p>
 
           {loading ? (
-            <div className="flex justify-center items-center min-h-[400px]">
+            <div className="flex justify-center items-center min-h-100">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
             </div>
           ) : products.length === 0 ? (
@@ -108,9 +108,6 @@ export default function ShopPage() {
                       <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-1 text-zinc-700">
                         {product.name}
                       </h3>
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
-                        Exquisite Event Setup
-                      </p>
                     </div>
 
                     <div className="flex gap-4 border-y border-zinc-100 py-3">
@@ -118,14 +115,22 @@ export default function ShopPage() {
                         <span className="text-[9px] font-black text-zinc-800 uppercase">
                           Duration
                         </span>
-                        <span className="text-[11px]">4-6 Hours</span>
+                        <span className="text-[11px]">
+                          {product.setupTime || "—"}
+                        </span>
                       </div>
+
                       <div className="w-[1px] bg-zinc-100" />
+
                       <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-800 uppercase">
                           Includes
                         </span>
-                        <span className="text-[11px]">Setup + Decor</span>
+                        <span className="text-[11px]">
+                          {product.included
+                            ? product.included.split(",").slice(0, 2).join(", ")
+                            : "—"}
+                        </span>
                       </div>
                     </div>
 

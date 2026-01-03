@@ -10,8 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User, Mail, Calendar } from "lucide-react";
+import { User, Mail, Calendar, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import Link from "next/link";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
@@ -50,6 +51,10 @@ export default function AdminUsersPage() {
       <Navbar />
 
       <div className="max-w-6xl mx-auto">
+        <Link
+            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
         <h1 className="font-serif text-4xl font-bold mb-8 flex items-center gap-3">
           <User className="w-10 h-10" /> Registered Users
         </h1>

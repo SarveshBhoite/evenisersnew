@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
 import { Suspense } from "react"
+import { Footer } from "@/components/footer"
 
 const lato = Lato({
   weight: ["300", "400", "700"],
@@ -59,6 +60,7 @@ export default function RootLayout({
               <Navbar />
             </Suspense> 
             <main>{children}</main>
+            <Footer />
             <Toaster />
           </CartProvider>
         </AuthProvider>

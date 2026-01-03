@@ -31,7 +31,7 @@ router.post("/", protect, admin, upload.single("image"), async (req, res) => {
     console.log("Data received:", req.body);
     console.log("File received:", req.file);
 
-    const { name, price, category, description, countInStock } = req.body;
+    const { name, price, category, description, included, setupTime, countInStock } = req.body;
 
     // 1. Check for required fields manually to provide better error messages
     if (!name || !price || !category || !description) {
