@@ -16,15 +16,16 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
-const API_URL = "https://evenisersnew.onrender.com/api";
+// ✅ FIXED: correct env usage
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export default function NewProductPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Form State - Category defaults to "Wedding"
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -33,13 +34,13 @@ export default function NewProductPage() {
     setupTime: "",
     included: "",
   });
+
   const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Safety: If category is somehow empty, force it to "Wedding"
     const finalCategory = formData.category || "Wedding";
 
     const data = new FormData();
@@ -52,21 +53,17 @@ export default function NewProductPage() {
     if (image) data.append("image", image);
 
     try {
-      const res = await fetch(`${API_URL}/admin/products`, {
-        method: "POST",
+      // ✅ FIXED: axios POST
+      await axios.post(`${API_URL}/admin/products`, data, {
         headers: { Authorization: `Bearer ${token}` },
-        body: data,
       });
 
-      if (res.ok) {
-        toast.success("Decoration Package Created!");
-        router.push("/admin/products");
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData.message || "Failed to create package.");
-      }
-    } catch (error) {
-      toast.error("Network error occurred.");
+      toast.success("Decoration Package Created!");
+      router.push("/admin/products");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to create package."
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +73,6 @@ export default function NewProductPage() {
     <div className="min-h-screen bg-[#FDFCFB] pt-24 pb-20">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6">
-        {/* Back Button */}
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[10px] tracking-widest"
@@ -98,7 +94,7 @@ export default function NewProductPage() {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-10"
           >
-            {/* NAME FIELD */}
+            {/* NAME */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                 <Type className="w-3 h-3" /> Package Title
@@ -106,7 +102,6 @@ export default function NewProductPage() {
               <input
                 required
                 className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none transition-all font-bold text-black"
-                placeholder="e.g. Royal Marigold Stage"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -114,7 +109,7 @@ export default function NewProductPage() {
               />
             </div>
 
-            {/* PRICE FIELD */}
+            {/* PRICE */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                 <IndianRupee className="w-3 h-3" /> Pricing (INR)
@@ -123,7 +118,6 @@ export default function NewProductPage() {
                 required
                 type="number"
                 className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none transition-all font-bold text-black"
-                placeholder="50000"
                 value={formData.price}
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
@@ -131,13 +125,12 @@ export default function NewProductPage() {
               />
             </div>
 
-            {/* CATEGORY DROPDOWN */}
+            {/* CATEGORY */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                 <Tag className="w-3 h-3" /> Event Category
               </label>
               <select
-                // ... other props
                 value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
@@ -151,14 +144,13 @@ export default function NewProductPage() {
               </select>
             </div>
 
-            {/* SETUP TIME FIELD */}
+            {/* SETUP TIME */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                 <Clock className="w-3 h-3" /> Setup Duration
               </label>
               <input
                 className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none transition-all font-bold text-black"
-                placeholder="e.g. 4-6 Hours"
                 value={formData.setupTime}
                 onChange={(e) =>
                   setFormData({ ...formData, setupTime: e.target.value })
@@ -175,7 +167,6 @@ export default function NewProductPage() {
                 required
                 rows={4}
                 className="w-full bg-zinc-50 border-0 rounded-[2rem] p-6 focus:ring-2 ring-black outline-none transition-all font-medium text-black"
-                placeholder="Describe the aesthetic and mood of this setup..."
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
@@ -183,35 +174,28 @@ export default function NewProductPage() {
               />
             </div>
 
-            {/* DYNAMIC INCLUSIONS */}
+            {/* INCLUDED */}
             <div className="md:col-span-2 space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                <CheckCircle2 className="w-3 h-3" /> Package Highlights (Comma
-                Separated)
+                <CheckCircle2 className="w-3 h-3" /> Package Highlights
               </label>
               <textarea
                 rows={2}
                 className="w-full bg-zinc-50 border-0 rounded-2xl p-6 focus:ring-2 ring-black outline-none transition-all font-bold text-sm text-black"
-                placeholder="Fresh Flowers, LED Backdrop, Carpet, Stage Chairs..."
                 value={formData.included}
                 onChange={(e) =>
                   setFormData({ ...formData, included: e.target.value })
                 }
               />
-              <p className="text-[9px] text-zinc-400 font-bold italic uppercase">
-                Tip: Use commas to create bullet points on the product page.
-              </p>
             </div>
 
-            {/* IMAGE UPLOAD */}
+            {/* IMAGE */}
             <div className="md:col-span-2">
-              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-zinc-200 rounded-[2rem] hover:bg-zinc-50 cursor-pointer transition-all group overflow-hidden">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 text-zinc-300 group-hover:text-black mb-3 transition-colors" />
-                  <p className="text-xs font-black uppercase tracking-tighter text-black">
-                    {image ? image.name : "Upload Hero Image"}
-                  </p>
-                </div>
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-zinc-200 rounded-[2rem] cursor-pointer">
+                <Upload className="w-8 h-8 text-zinc-300 mb-3" />
+                <p className="text-xs font-black uppercase tracking-tighter">
+                  {image ? image.name : "Upload Hero Image"}
+                </p>
                 <input
                   type="file"
                   className="hidden"
@@ -220,11 +204,11 @@ export default function NewProductPage() {
               </label>
             </div>
 
-            {/* SUBMIT BUTTON */}
+            {/* SUBMIT */}
             <div className="md:col-span-2 pt-6">
               <Button
                 disabled={loading}
-                className="w-full h-20 bg-black text-white rounded-full text-xl font-black uppercase tracking-widest shadow-2xl shadow-black/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3"
+                className="w-full h-20 bg-black text-white rounded-full text-xl font-black uppercase tracking-widest flex items-center justify-center gap-3"
               >
                 {loading ? (
                   <>

@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/context/CartContext";
-import { CreditCard, Truck, CheckCircle, PackageCheck } from "lucide-react";
+import { CreditCard, Truck, CheckCircle } from "lucide-react";
+import axios from "axios";
+
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -54,19 +57,16 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("https://evenisersnew.onrender.com/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Order placement failed");
-      }
+      await axios.post(
+        `${API_URL}/orders`,
+        orderData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       setOrderComplete(true);
       setTimeout(() => {
@@ -74,7 +74,9 @@ export default function CheckoutPage() {
         router.push("/");
       }, 3000);
     } catch (error: any) {
-      alert(error.message);
+      alert(
+        error?.response?.data?.message || "Order placement failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -102,278 +104,128 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-16 bg-pink-">
+    <div className="min-h-screen pt-32 pb-16">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6">
-        <h1 className="font-serif text-5xl  text-foreground uppercase  mb-12">
+        <h1 className="font-serif text-5xl uppercase mb-12">
           Checkout
         </h1>
 
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-3 gap-12">
-            {/* Form Fields */}
+            {/* FORM */}
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-zinc-100">
                 <div className="flex items-center gap-3 mb-8">
                   <Truck className="w-5 h-5 text-black" />
-                  <h2 className=" font-black uppercase serif">
+                  <h2 className="font-black uppercase">
                     Shipping Information
                   </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="firstName"
-                    >
-                      First Name
-                    </Label>
-                    <Input
-                      name="firstName"
-                      id="firstName"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="lastName"
-                    >
-                      Last Name
-                    </Label>
-                    <Input
-                      name="lastName"
-                      id="lastName"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="email"
-                    >
-                      Email for Confirmation
-                    </Label>
-                    <Input
-                      name="email"
-                      id="email"
-                      type="email"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="address"
-                    >
-                      Full Address
-                    </Label>
-                    <Input
-                      name="address"
-                      id="address"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="city"
-                    >
-                      City
-                    </Label>
-                    <Input
-                      name="city"
-                      id="city"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="state"
-                    >
-                      State
-                    </Label>
-                    <Input
-                      name="state"
-                      id="state"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="zip"
-                    >
-                      ZIP Code
-                    </Label>
-                    <Input
-                      name="zip"
-                      id="zip"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      className="text-[13px] font-bold uppercase serif text-zinc-600"
-                      htmlFor="country"
-                    >
-                      Country
-                    </Label>
-                    <Input
-                      name="country"
-                      id="country"
-                      defaultValue="India"
-                      required
-                      className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
-                    />
-                  </div>
+                  {[
+                    ["firstName", "First Name"],
+                    ["lastName", "Last Name"],
+                    ["email", "Email for Confirmation", "email"],
+                    ["address", "Full Address"],
+                    ["city", "City"],
+                    ["state", "State"],
+                    ["zip", "ZIP Code"],
+                    ["country", "Country", "text", "India"],
+                  ].map(([name, label, type = "text", def]) => (
+                    <div key={name} className={name === "address" || name === "email" ? "md:col-span-2" : ""}>
+                      <Label className="text-[13px] font-bold uppercase text-zinc-600">
+                        {label}
+                      </Label>
+                      <Input
+                        name={name}
+                        type={type}
+                        defaultValue={def}
+                        required
+                        className="mt-2 bg-zinc-50 border-0 rounded-xl h-12 font-bold"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-zinc-100">
+              <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-zinc-100 opacity-40 grayscale">
                 <div className="flex items-center gap-3 mb-8">
                   <CreditCard className="w-5 h-5 text-black" />
                   <h2 className="text-sm font-black uppercase tracking-widest">
                     Payment (Simulated)
                   </h2>
                 </div>
-                <div className="space-y-6 opacity-40 grayscale">
-                  <Input
-                    placeholder="Cardholder Name"
-                    disabled
-                    className="rounded-xl h-12 font-bold"
-                  />
-                  <Input
-                    placeholder="Card Number"
-                    disabled
-                    className="rounded-xl h-12 font-bold"
-                  />
-                  <div className="grid grid-cols-2 gap-6">
-                    <Input
-                      placeholder="MM/YY"
-                      disabled
-                      className="rounded-xl h-12 font-bold"
-                    />
-                    <Input
-                      placeholder="CVV"
-                      disabled
-                      className="rounded-xl h-12 font-bold"
-                    />
-                  </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                    Payment is secured and encrypted.
-                  </p>
+                <div className="space-y-6">
+                  <Input disabled className="rounded-xl h-12 font-bold" />
+                  <Input disabled className="rounded-xl h-12 font-bold" />
                 </div>
               </div>
             </div>
 
-            {/* Sidebar Summary */}
-            <div className="space-y-6">
-              <div className=" text-black rounded-[2.5rem] p-8 shadow-2xl sticky top-32">
-                <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-8 text-zinc-500">
-                  Your Selection
-                </h2>
+            {/* SUMMARY */}
+            <div className="rounded-[2.5rem] p-8 shadow-2xl sticky top-32">
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-8 text-zinc-500">
+                Your Selection
+              </h2>
 
-                <div className="space-y-6 mb-8 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                  {cartItems.map((item, index) => (
-                    /* FIX: Using index as fallback key to prevent "unique key" error */
-                    <div
-                      key={item.productId?._id || index}
-                      className="flex gap-4 group"
-                    >
-                      <div className="relative w-16 h-20 rounded-2xl overflow-hidden flex-shrink-0 border border-zinc-800">
-                        <Image
-                          src={
-                            item.productId?.image
-                              ? `https://evenisersnew.onrender.com${item.productId.image}`
-                              : "/placeholder.svg"
-                          }
-                          alt={item.productId?.name || "Product"}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-110"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-black leading-tight mb-1">
-                          {item.productId?.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-[10px] font-bold text-zinc-500">
-                            QTY: {item.quantity}
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
-                          <span className="text-sm font-bold text-white">
-                            ₹
-                            {(
-                              item.productId?.price * item.quantity
-                            ).toLocaleString()}
-                          </span>
-                        </div>
-                        {/* Show small highlights preview */}
-                        <div className="flex gap-1 flex-wrap">
-                          {item.productId?.included
-                            ?.split(",")
-                            .slice(0, 2)
-                            .map((inc: string, i: number) => (
-                              <span
-                                key={i}
-                                className="text-[8px] font-bold uppercase px-2 py-1 bg-zinc-300 rounded-md "
-                              >
-                                {inc.trim()}
-                              </span>
-                            ))}
-                        </div>
-                      </div>
+              <div className="space-y-6 mb-8 max-h-[350px] overflow-y-auto">
+                {cartItems.map((item, index) => (
+                  <div key={item.productId?._id || index} className="flex gap-4">
+                    <div className="relative w-16 h-20 rounded-2xl overflow-hidden border">
+                      <Image
+                        src={
+                          item.productId?.image
+                            ? `${process.env.NEXT_PUBLIC_API_URL}${item.productId.image}`
+                            : "/placeholder.svg"
+                        }
+                        alt="Product"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
-                  ))}
-                </div>
-
-                <div className="border-t border-zinc-800 pt-6 space-y-3">
-                  <div className="flex justify-between text-sm font-bold">
-                    <span className="text-zinc-800">Subtotal</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-black">
+                        {item.productId?.name}
+                      </h4>
+                      <p className="text-sm font-bold">
+                        ₹{(item.productId?.price * item.quantity).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm font-bold">
-                    <span className="text-zinc-800">Shipping</span>
-                    <span className="text-green-400">
-                      {shipping === 0 ? "FREE" : `₹${shipping}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold pb-4">
-                    <span className="text-zinc-800">GST (8%)</span>
-                    <span>₹{tax.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="border-t border-zinc-800 pt-6 flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                      Total amount
-                    </p>
-                    <span className="text-3xl   tracking-tighter">
-                      ₹{total.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-black text-white  rounded-full mt-8 h-16 text-sm font-black uppercase tracking-widest transition-all active:scale-95"
-                >
-                  {loading ? "Confirming..." : "Place Order"}
-                </Button>
+                ))}
               </div>
+
+              <div className="border-t pt-6 space-y-3">
+                <div className="flex justify-between font-bold">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>Shipping</span>
+                  <span>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>GST</span>
+                  <span>₹{tax.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="border-t pt-6 mt-6 flex justify-between items-end">
+                <span className="text-3xl font-black">
+                  ₹{total.toLocaleString()}
+                </span>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-black text-white rounded-full mt-8 h-16 font-black uppercase"
+              >
+                {loading ? "Confirming..." : "Place Order"}
+              </Button>
             </div>
           </div>
         </form>

@@ -17,7 +17,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://evenisersnew.vercel.app',
+  origin: 'http://localhost:3000',
   credentials: true,
   
 }));
@@ -25,7 +25,7 @@ app.use(cors({
 app.use(express.json());
 
 // 🚨 STATIC FOLDER ACCESS
-// This ensures https://evenisersnew.onrender.com/uploads/image.jpg works
+// This ensures ${process.env.NEXT_PUBLIC_API_URL}/uploads/image.jpg works
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
@@ -44,4 +44,4 @@ app.use("/api/contact", contactRoutes);
 
 app.use("/api/users", userRoutes);
 
-app.listen(5000, () => console.log("🚀 Server running on https://evenisersnew.onrender.com"));
+app.listen(5000, () => console.log(`🚀 Server running on ${process.env.NEXT_PUBLIC_API_URL}`));
