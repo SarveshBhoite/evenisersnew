@@ -9,6 +9,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
 import { Suspense } from "react"
 import { Footer } from "@/components/footer"
+import { LocationProvider } from "@/context/LocationContext"
 
 const lato = Lato({
   weight: ["300", "400", "700"],
@@ -56,12 +57,14 @@ export default function RootLayout({
         <AuthProvider>
           {/* CartProvider MUST be the parent of Navbar */}
           <CartProvider>
+            <LocationProvider>
             <Suspense fallback={<div className="h-16" /> /* or a skeleton navbar */}>
               <Navbar />
             </Suspense> 
             <main>{children}</main>
             <Footer />
             <Toaster />
+            </LocationProvider>
           </CartProvider>
         </AuthProvider>
         <Analytics />
