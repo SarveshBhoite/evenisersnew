@@ -80,7 +80,7 @@ export default function AdminProductsPage() {
 
     try {
       // ✅ FIXED: proper axios DELETE
-      await axios.delete(`${API_URL}/admin/products/${id}`, {
+      await axios.delete(`${API_URL}/admin/products/events/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
