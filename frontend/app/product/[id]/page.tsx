@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { 
   Star, Clock, ShieldCheck, CalendarDays, Share2, Info, CheckCircle2, Loader2, 
-  Leaf, Truck, BadgePercent, ChevronLeft, ChevronRight, XCircle, ArrowRight
+  Leaf, Truck, BadgePercent, ChevronLeft, ChevronRight, XCircle, ArrowRight, HelpCircle, Sparkles
 } from "lucide-react";
 import {
   Accordion,
@@ -35,6 +35,9 @@ export default function ProductPage() {
   // Image Slider State
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Tab State: 'faq' or 'care'
+  const [activeTab, setActiveTab] = useState<'faq' | 'care'>('faq');
+
   useEffect(() => {
     if (id) {
       setLoading(true);
@@ -56,7 +59,8 @@ export default function ProductPage() {
       const res = await axios.get(`${API_URL}/products?category=${category}`);
       const all = Array.isArray(res.data) ? res.data : res.data.products;
       const filtered = all.filter((p: any) => p._id !== currentId);
-      const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, 3); // Top 3 looks better in grid
+      // Fetch 4 items to fit the smaller grid nicely
+      const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, 4); 
       setSimilarProducts(shuffled);
     } catch (error) {
       console.error("Similar products error", error);
@@ -66,14 +70,13 @@ export default function ProductPage() {
   const parseList = (str: string) => str ? str.split(',').map((item: string) => item.trim()).filter(Boolean) : [];
   const inclusions = parseList(product?.included);
   const exclusions = parseList(product?.notIncluded);
+  const carePoints = parseList(product?.careInfo);
 
-  // Helper to ensure Main Image is first
   const getAllImages = () => {
       if (!product) return [];
       let imgs: string[] = [];
       if (product.image) imgs.push(product.image);
       if (product.images && Array.isArray(product.images)) {
-          // Add remaining images, avoiding duplicates of the main image
           product.images.forEach((img: string) => {
               if (img !== product.image) imgs.push(img);
           });
@@ -100,8 +103,8 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-zinc-300" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#FDFCF8]">
+        <Loader2 className="w-10 h-10 animate-spin text-[#D4AF37]" />
       </div>
     );
   }
@@ -109,7 +112,7 @@ export default function ProductPage() {
   if (!product) return <div className="pt-40 text-center">Product not found.</div>;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#FDFCF8] selection:bg-[#D4AF37] selection:text-white">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
@@ -117,116 +120,152 @@ export default function ProductPage() {
           
           {/* LEFT: Visual Gallery (STICKY) */}
           <div className="lg:col-span-7 space-y-6 lg:sticky lg:top-32 h-fit">
-            <div className="relative aspect-[4/5] md:aspect-video lg:aspect-[8/5] rounded-[2.5rem] overflow-hidden shadow-2xl group border border-zinc-100 bg-zinc-50">
-              <Image
-                src={allImages.length > 0 ? `${process.env.NEXT_PUBLIC_API_URL}${allImages[activeImageIndex]}` : "/placeholder.svg"}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-500"
-                priority
-              />
-              
-              <div className="absolute top-6 left-6 z-10">
-                <span className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border border-white/50">
-                  {product.category}
-                </span>
-              </div>
+            
+            {/* Main Image Container with Glow Effect */}
+            <div className="relative group">
+                {/* Background Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-[2.6rem] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+                
+                <div className="relative aspect-[4/5] md:aspect-video lg:aspect-[8/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white border border-white/50">
+                <Image
+                    src={allImages.length > 0 ? `${process.env.NEXT_PUBLIC_API_URL}${allImages[activeImageIndex]}` : "/placeholder.svg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
+                />
+                
+                {/* Category Label */}
+                <div className="absolute top-6 left-6 z-10">
+                    <span className="bg-white/90 backdrop-blur-md px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm border border-white/50 text-zinc-800">
+                    {product.category}
+                    </span>
+                </div>
 
-              {/* Slider Arrows */}
-              {allImages.length > 1 && (
-                <>
-                    <button onClick={(e) => { e.preventDefault(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100">
-                        <ChevronLeft className="w-5 h-5 text-black" />
-                    </button>
-                    <button onClick={(e) => { e.preventDefault(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100">
-                        <ChevronRight className="w-5 h-5 text-black" />
-                    </button>
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {allImages.map((_, idx) => (
-                            <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${idx === activeImageIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`} />
-                        ))}
-                    </div>
-                </>
-              )}
+                {/* Slider Arrows */}
+                {allImages.length > 1 && (
+                    <>
+                        <button onClick={(e) => { e.preventDefault(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 border border-white/20 text-white hover:text-black">
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <button onClick={(e) => { e.preventDefault(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 border border-white/20 text-white hover:text-black">
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                            {allImages.map((_, idx) => (
+                                <div key={idx} className={`h-1.5 rounded-full transition-all duration-500 ${idx === activeImageIndex ? 'w-8 bg-white' : 'w-2 bg-white/40'}`} />
+                            ))}
+                        </div>
+                    </>
+                )}
+                </div>
             </div>
             
             {/* Thumbnail Strip */}
             {allImages.length > 1 && (
-                <div className="flex gap-4 overflow-x-auto pb-2">
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
                     {allImages.map((img:string, idx:number) => (
                         <div key={idx} onClick={() => setActiveImageIndex(idx)} 
-                             className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${idx === activeImageIndex ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+                             className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 snap-start ${idx === activeImageIndex ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/20' : 'border-transparent opacity-70 hover:opacity-100'}`}>
                             <Image src={`${process.env.NEXT_PUBLIC_API_URL}${img}`} alt="thumbnail" fill className="object-cover" />
                         </div>
                     ))}
                 </div>
             )}
+
+            {/* Quick Specs Grid */}
+            <div className="grid grid-cols-3 gap-4">
+               <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 flex flex-col items-center text-center group hover:border-[#D4AF37]/30 transition-colors">
+                  <Clock className="w-5 h-5 mb-2 text-[#D4AF37]" />
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Setup</span>
+                  <span className="text-sm font-bold text-zinc-900">{product.setupTime || "TBD"}</span>
+               </div>
+               <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 flex flex-col items-center text-center group hover:border-[#D4AF37]/30 transition-colors">
+                  <ShieldCheck className="w-5 h-5 mb-2 text-[#D4AF37]" />
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Quality</span>
+                  <span className="text-sm font-bold text-zinc-900">Premium</span>
+               </div>
+               <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 flex flex-col items-center text-center group hover:border-[#D4AF37]/30 transition-colors">
+                  <CalendarDays className="w-5 h-5 mb-2 text-[#D4AF37]" />
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Status</span>
+                  <span className="text-sm font-bold text-green-600">Available</span>
+               </div>
+            </div>
           </div>
 
           {/* RIGHT: Content */}
-          <div className="lg:col-span-5 space-y-8">
-            <div className="space-y-4">
+          <div className="lg:col-span-5 space-y-10">
+            
+            {/* Header Section */}
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-yellow-500">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                  <span className="ml-2 text-sm font-bold text-zinc-400">4.9/5.0</span>
+                <div className="flex items-center gap-1 bg-white border border-stone-100 px-3 py-1.5 rounded-full shadow-sm">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" />)}
+                  <span className="ml-2 text-xs font-bold text-zinc-500">4.9 (120+ Reviews)</span>
                 </div>
-                <button className="p-2 hover:bg-zinc-100 rounded-full transition-colors"><Share2 className="w-5 h-5 text-zinc-500" /></button>
+                <button className="p-3 hover:bg-stone-100 rounded-full transition-colors group">
+                    <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-black" />
+                </button>
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight text-zinc-900 capitalize">
-                {product.name}
-              </h1>
-              
-              {/* Premium Price Block */}
-              <div className="flex flex-col gap-1 border-l-4 border-black pl-4 py-1 bg-zinc-50 rounded-r-xl">
-                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Package Cost</span>
-                 <div className="flex items-center gap-3">
-                    <span className="text-4xl font-serif font-bold text-black">₹{finalPrice.toLocaleString()}</span>
+              <div>
+                <h1 className="text-5xl md:text-6xl font-serif font-medium leading-[0.9] text-zinc-900 capitalize mb-6">
+                    {product.name}
+                </h1>
+                
+                {/* Premium Price Block */}
+                <div className="flex items-end gap-4">
+                    <span className="text-5xl font-serif text-black">₹{finalPrice.toLocaleString()}</span>
                     {discountPercent > 0 && (
-                        <div className="flex flex-col items-start leading-none">
-                            <span className="text-sm text-zinc-400 line-through">₹{originalPrice.toLocaleString()}</span>
-                            <span className="text-xs font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
-                                {discountPercent}% OFF
+                        <div className="flex flex-col mb-1.5">
+                            <span className="text-lg text-zinc-400 line-through font-serif decoration-red-400/50">₹{originalPrice.toLocaleString()}</span>
+                            <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                                Limited Deal
                             </span>
                         </div>
                     )}
-                 </div>
+                </div>
+                <p className="text-xs text-zinc-400 mt-2 font-medium uppercase tracking-wider">Inclusive of all taxes & setup charges</p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-2">
-                <Info className="w-3.5 h-3.5" /> Overview
+            {/* Description */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> The Experience
               </h3>
-              <p className="text-zinc-600 leading-relaxed text-lg font-light">{product.description}</p>
+              <p className="text-zinc-600 leading-loose text-lg font-light">{product.description}</p>
             </div>
 
             {/* Inclusions & Exclusions */}
             {(inclusions.length > 0 || exclusions.length > 0) && (
-              <div className="bg-zinc-50 p-6 rounded-3xl border border-zinc-100 space-y-6">
+              <div className="bg-white p-8 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/20 space-y-8">
                 {inclusions.length > 0 && (
                     <div>
-                        <h3 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2 text-green-600 mb-3"><CheckCircle2 className="w-4 h-4" /> Included</h3>
-                        <div className="grid grid-cols-1 gap-2">
+                        <h3 className="font-bold text-xs uppercase tracking-widest flex items-center gap-2 text-zinc-900 mb-4 border-b border-stone-100 pb-2">Included</h3>
+                        <div className="grid grid-cols-1 gap-3">
                         {inclusions.map((item: string, idx: number) => (
-                            <div key={idx} className="flex items-center gap-3 text-zinc-700">
-                            <div className="h-1.5 w-1.5 rounded-full bg-black flex-shrink-0" />
-                            <span className="text-sm font-medium">{item}</span>
+                            <div key={idx} className="flex items-center gap-4 text-zinc-700 group">
+                                <div className="h-6 w-6 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                                </div>
+                                <span className="text-sm font-medium">{item}</span>
                             </div>
                         ))}
                         </div>
                     </div>
                 )}
-                {inclusions.length > 0 && exclusions.length > 0 && <div className="h-px bg-zinc-200" />}
+                
                 {exclusions.length > 0 && (
                     <div>
-                        <h3 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2 text-red-500 mb-3"><XCircle className="w-4 h-4" /> Not Included</h3>
+                        <h3 className="font-bold text-xs uppercase tracking-widest flex items-center gap-2 text-zinc-400 mb-4 border-b border-stone-100 pb-2">Not Included</h3>
                         <div className="grid grid-cols-1 gap-2">
                         {exclusions.map((item: string, idx: number) => (
-                            <div key={idx} className="flex items-center gap-3 text-zinc-500">
-                            <div className="h-1.5 w-1.5 rounded-full bg-zinc-400 flex-shrink-0" />
-                            <span className="text-sm font-medium line-through decoration-zinc-400/50">{item}</span>
+                            <div key={idx} className="flex items-center gap-4 text-zinc-400">
+                                <div className="h-6 w-6 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                                    <XCircle className="w-3.5 h-3.5 text-red-400" />
+                                </div>
+                                <span className="text-sm font-medium line-through decoration-zinc-300">{item}</span>
                             </div>
                         ))}
                         </div>
@@ -235,72 +274,142 @@ export default function ProductPage() {
               </div>
             )}
 
-            {/* FAQs Accordion */}
-            <div className="pt-4">
-                <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 mb-4">Common Questions</h3>
-                <Accordion type="single" collapsible className="w-full">
-                    {/* Care Info (Moved here per request) */}
-                    {product.careInfo && (
-                        <AccordionItem value="care" className="border-b border-zinc-100">
-                            <AccordionTrigger className="font-serif text-lg py-4">Care & Safety Info</AccordionTrigger>
-                            <AccordionContent className="text-zinc-500 leading-relaxed pb-4">{product.careInfo}</AccordionContent>
-                        </AccordionItem>
+            {/* TOGGLE SECTION: FAQ & Care Info */}
+            <div className="pt-6">
+                <div className="flex bg-white border border-stone-200 p-1.5 rounded-full w-full sm:w-fit mb-8 shadow-sm">
+                    <button 
+                        onClick={() => setActiveTab('faq')}
+                        className={`flex-1 sm:flex-none px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-500 ${activeTab === 'faq' ? 'bg-black text-white shadow-md' : 'text-zinc-400 hover:text-zinc-600'}`}
+                    >
+                        FAQs
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('care')}
+                        className={`flex-1 sm:flex-none px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-500 ${activeTab === 'care' ? 'bg-black text-white shadow-md' : 'text-zinc-400 hover:text-zinc-600'}`}
+                    >
+                        Care Info
+                    </button>
+                </div>
+
+                <div className="min-h-[150px]">
+                    {activeTab === 'faq' ? (
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            {product.faqs && product.faqs.length > 0 ? (
+                                <Accordion type="single" collapsible className="w-full">
+                                    {product.faqs.map((faq: any, i: number) => (
+                                        <AccordionItem key={i} value={`faq-${i}`} className="border-b border-stone-100 last:border-0">
+                                            <AccordionTrigger className="font-serif text-lg text-left py-5 hover:text-[#D4AF37] hover:no-underline transition-colors">
+                                                {faq.question}
+                                            </AccordionTrigger>
+                                            <AccordionContent className="text-zinc-500 leading-relaxed pb-6 text-base font-light">
+                                                {faq.answer}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
+                            ) : (
+                                <div className="p-8 text-center bg-white rounded-3xl border border-dashed border-zinc-200">
+                                    <HelpCircle className="w-8 h-8 text-zinc-300 mx-auto mb-2"/>
+                                    <p className="text-zinc-400 italic">No specific FAQs for this package.</p>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 bg-[#FFFDF5] rounded-3xl p-8 border border-[#F5E6CA]">
+                            {carePoints.length > 0 ? (
+                                <ul className="space-y-4">
+                                    {carePoints.map((point: string, i: number) => (
+                                        <li key={i} className="flex gap-4 text-zinc-700 items-start">
+                                            <div className="mt-1 h-2 w-2 rounded-full bg-[#D4AF37] flex-shrink-0" />
+                                            <span className="text-sm font-medium leading-relaxed">{point}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-zinc-400 italic text-center">No specific care instructions provided.</p>
+                            )}
+                        </div>
                     )}
-                    {/* Dynamic FAQs */}
-                    {product.faqs && product.faqs.length > 0 && product.faqs.map((faq: any, i: number) => (
-                        <AccordionItem key={i} value={`faq-${i}`} className="border-b border-zinc-100">
-                            <AccordionTrigger className="font-serif text-lg text-left py-4">{faq.question}</AccordionTrigger>
-                            <AccordionContent className="text-zinc-500 leading-relaxed pb-4">{faq.answer}</AccordionContent>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
+                </div>
             </div>
 
-            {/* ACTION & TRUST BAR */}
-            <div className="space-y-6 pt-4 sticky bottom-0 bg-white/80 backdrop-blur-md p-4 -mx-4 lg:static lg:bg-transparent lg:p-0">
-              <Button size="lg" className="w-full rounded-full h-16 bg-black text-white text-lg font-bold hover:bg-zinc-800 shadow-xl" onClick={handleAddToCart}>
-                Book Event — ₹{(finalPrice * quantity).toLocaleString()}
+            {/* HIGHLIGHTED TRUST BADGES */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 py-6 border-t border-stone-100">
+                {[
+                    { icon: BadgePercent, text: "Best Price", color: "bg-blue-50 text-blue-600" },
+                    { icon: Truck, text: "Logistic", color: "bg-orange-50 text-orange-600" },
+                    { icon: Leaf, text: "Eco Friendly", color: "bg-green-50 text-green-600" },
+                    { icon: ShieldCheck, text: "100% Verified", color: "bg-purple-50 text-purple-600" },
+                ].map((item, i) => (
+                    <div key={i} className={`flex flex-col items-center justify-center p-4 rounded-2xl ${item.color} bg-opacity-50 border border-transparent hover:border-black/5 transition-all`}>
+                        <item.icon className="w-5 h-5 mb-2" />
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-black/70">{item.text}</span>
+                    </div>
+                ))}
+            </div>
+
+            {/* ACTION BUTTON */}
+            <div className="sticky bottom-4 z-50">
+              <Button size="lg" className="w-full rounded-full h-16 bg-black text-white text-lg font-bold hover:bg-[#D4AF37] hover:text-white shadow-2xl shadow-black/20 transition-all duration-500" onClick={handleAddToCart}>
+                Book Event
               </Button>
-              <div className="flex justify-between items-center px-2 pt-2 text-center">
-                 <div className="flex flex-col items-center gap-1"><BadgePercent className="w-4 h-4 text-zinc-400" /><span className="text-[9px] uppercase font-bold text-zinc-500">Best Price</span></div>
-                 <div className="flex flex-col items-center gap-1"><Truck className="w-4 h-4 text-zinc-400" /><span className="text-[9px] uppercase font-bold text-zinc-500">Logistics</span></div>
-                 <div className="flex flex-col items-center gap-1"><ShieldCheck className="w-4 h-4 text-zinc-400" /><span className="text-[9px] uppercase font-bold text-zinc-500">Verified</span></div>
-              </div>
             </div>
 
           </div>
         </div>
 
-        {/* SIMILAR PRODUCTS (PREMIUM CARDS) */}
+        {/* SIMILAR PRODUCTS (PREMIUM SMALL CARDS) */}
         {similarProducts.length > 0 && (
-            <div className="mt-32 pt-16 border-t border-zinc-100">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold mb-12 text-center">You May Also Like</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="mt-32 pt-16 border-t border-stone-200">
+                <div className="flex items-end justify-between mb-10">
+                    <div>
+                        <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest mb-2 block">Curated For You</span>
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-zinc-900">Similar Experiences</h2>
+                    </div>
+                    <Link href={`/shop?category=${product.category}`} className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-[#D4AF37] transition-colors pb-1 border-b border-transparent hover:border-[#D4AF37]">
+                        View Collection <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1"/>
+                    </Link>
+                </div>
+                
+                {/* 4 Column Grid for Smaller Premium Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {similarProducts.map((p) => (
-                        <Link key={p._id} href={`/product/${p._id}`} className="group bg-white border border-zinc-100 hover:shadow-xl transition-all duration-500">
-                            <div className="relative aspect-[4/5] overflow-hidden bg-zinc-100">
+                        <Link key={p._id} href={`/product/${p._id}`} className="group bg-white border border-zinc-100 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500">
+                            {/* Image Area */}
+                            <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
                                 <Image 
                                     src={p.image ? `${process.env.NEXT_PUBLIC_API_URL}${p.image}` : "/placeholder.svg"} 
                                     alt={p.name} 
                                     fill 
                                     className="object-cover group-hover:scale-110 transition-transform duration-700" 
                                 />
-                                <div className="absolute top-0 left-0 bg-black text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5">{p.category}</div>
-                                {p.discount > 0 && (
-                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5">-{p.discount}%</div>
-                                )}
-                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <span className="bg-white text-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors">View</span>
+                                
+                                <div className="absolute top-0 left-0 bg-white text-black text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+                                    {p.category}
+                                </div>
+
+                                {/* Hover Overlay */}
+                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                                    <span className="bg-white text-black text-[10px] font-black uppercase tracking-widest px-4 py-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                        View
+                                    </span>
                                 </div>
                             </div>
-                            <div className="p-6">
-                                <h3 className="font-serif text-xl font-bold mb-2 truncate text-zinc-800">{p.name}</h3>
-                                <div className="flex items-center justify-between border-t border-zinc-100 pt-4">
+
+                            {/* Details Area */}
+                            <div className="p-4 space-y-3">
+                                <div>
+                                    <h3 className="font-serif text-lg font-bold leading-tight mb-1 text-zinc-800 truncate">{p.name}</h3>
+                                </div>
+
+                                <div className="flex items-center justify-between border-t border-zinc-100 pt-3">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-bold uppercase text-zinc-400">Starting From</span>
-                                        <span className="text-lg font-bold">₹{p.price.toLocaleString()}</span>
+                                        <span className="text-[8px] font-black text-zinc-400 uppercase">Starting</span>
+                                        <span className="text-sm font-bold">₹{p.price.toLocaleString()}</span>
                                     </div>
-                                    <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-black transition-colors" />
+                                    <div className="w-8 h-8 border border-zinc-200 flex items-center justify-center group-hover:bg-black group-hover:border-black group-hover:text-white transition-colors">
+                                        <ArrowRight className="w-3 h-3" />
+                                    </div>
                                 </div>
                             </div>
                         </Link>
