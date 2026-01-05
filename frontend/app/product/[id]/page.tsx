@@ -218,8 +218,8 @@ export default function ProductPage() {
                     <span className="text-5xl font-serif text-black">₹{finalPrice.toLocaleString()}</span>
                     {discountPercent > 0 && (
                         <div className="flex flex-col mb-1.5">
-                            <span className="text-lg text-zinc-400 line-through font-serif decoration-red-400/50">₹{originalPrice.toLocaleString()}</span>
-                            <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                            <span className="text-xl text-zinc-400 line-through font-serif decoration-red-400/50">₹{originalPrice.toLocaleString()}</span>
+                            <span className="text-[15px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
                                 Limited Deal
                             </span>
                         </div>
