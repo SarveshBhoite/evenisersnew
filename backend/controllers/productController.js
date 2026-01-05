@@ -105,7 +105,8 @@ exports.updateProduct = async (req, res) => {
 
     const { 
         name, price, category, description, setupTime, 
-        included, notIncluded, discount, careInfo, faqs 
+        included, notIncluded, discount, careInfo, faqs, 
+        existingImages // <--- The list of images the user kept
     } = req.body;
 
     let updateFields = {
@@ -115,20 +116,48 @@ exports.updateProduct = async (req, res) => {
       category: category ? category.toLowerCase().trim() : product.category,
     };
 
+    // 1. Parse FAQs
     if (faqs) {
         try { updateFields.faqs = JSON.parse(faqs); } catch (e) {}
     }
 
-    // Handle New Images (Append to existing)
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => `/uploads/${file.filename}`);
-      updateFields.images = [...(product.images || []), ...newImages];
-      
-      // If the main image was deleted or empty, set the new first image as main
-      if (!product.image) {
-          updateFields.image = newImages[0];
-      }
+    // 2. IMAGE LOGIC (Delete, Keep, Add)
+    
+    // A. Identify kept images
+    let keptImages = [];
+    if (existingImages) {
+        try {
+            keptImages = JSON.parse(existingImages);
+        } catch (e) {
+            keptImages = []; // If parsing fails, assume user deleted all old images
+        }
     }
+
+    // B. Identify New Uploads
+    let newImages = [];
+    if (req.files && req.files.length > 0) {
+      newImages = req.files.map(file => `/uploads/${file.filename}`);
+    }
+
+    // C. Combine to form the new gallery
+    const finalImageArray = [...keptImages, ...newImages];
+    updateFields.images = finalImageArray;
+
+    // D. Update Main Image (Thumbnail)
+    // Always set the first image of the new array as the main image
+    if (finalImageArray.length > 0) {
+        updateFields.image = finalImageArray[0];
+    } else {
+        // Warning: Product has no images now
+        updateFields.image = ""; 
+    }
+
+    // Optional: Clean up deleted files from disk
+    // Find images that were in product.images but NOT in finalImageArray
+    // const deletedImages = product.images.filter(img => !finalImageArray.includes(img));
+    // deletedImages.forEach(img => {
+    //    // fs.unlink logic here if you want to save disk space
+    // });
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
@@ -138,6 +167,7 @@ exports.updateProduct = async (req, res) => {
 
     res.json(updatedProduct);
   } catch (error) {
+    console.error("Update Error:", error);
     res.status(400).json({ message: error.message });
   }
 };
