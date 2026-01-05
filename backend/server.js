@@ -6,7 +6,6 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes"); // Public
-const adminProductRoutes = require("./routes/adminProductRouts"); // Admin Products (with Multer)
 const adminRoutes = require("./routes/adminRoutes"); // Admin Orders/General
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
@@ -35,7 +34,7 @@ mongoose
 
 // 🚨 ROUTE ORDER MATTERS
 app.use("/api/auth", authRoutes);
-app.use("/api/admin/products", adminProductRoutes); // Move this UP
+app.use("/api/admin/products", productRoutes); // Move this UP
 app.use("/api/admin", adminRoutes); 
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

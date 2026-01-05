@@ -1,43 +1,70 @@
 const Product = require("../models/Product");
-const mongoose = require("mongoose");
 
-// @desc    Get all products (Public)
+// --- PUBLIC CONTROLLERS ---
+
+// @desc Get All Products (Filter & Search)
 exports.getProducts = async (req, res) => {
   try {
-    const { category } = req.query;
-    const filter = category ? { category: category.toLowerCase().trim() } : {};
+    const { category, search } = req.query;
+    let filter = {};
+
+    if (category) filter.category = category.toLowerCase().trim();
     
-    // Explicitly select fields to ensure 'included' and 'setupTime' are sent
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } }
+      ];
+    }
+
     const products = await Product.find(filter).sort({ createdAt: -1 });
-    res.json({ products });
+    res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch products" });
   }
 };
 
-// @desc    Get single product by ID
+// @desc Get Single Product
 exports.getProductById = async (req, res) => {
   try {
-    // .lean() is the secret here. It makes sure all fields 
-    // like 'included' are converted to plain text for the frontend.
     const product = await Product.findById(req.params.id).lean();
-
-    if (!product) return res.status(404).json({ message: "Package not found" });
-
+    if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// @desc    Create Product (Admin Only)
+// --- ADMIN CONTROLLERS ---
+
+// @desc Create Product
 exports.createEvent = async (req, res) => {
   try {
-    // Destructure everything from body to ensure clean data
-    const { name, price, category, description, setupTime, included } = req.body;
+    // 1. Extract Fields (Removed countInStock)
+    const { 
+        name, price, category, description, setupTime, 
+        included, notIncluded, discount, careInfo, faqs 
+    } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Please upload an image" });
+    // 2. Handle Images
+    // We expect 'req.files' from the upload.array() middleware
+    let imagePaths = [];
+    if (req.files && req.files.length > 0) {
+      imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+    } 
+    // Fallback if someone uses single file upload logic
+    else if (req.file) {
+        imagePaths.push(`/uploads/${req.file.filename}`);
+    }
+
+    if (imagePaths.length === 0) {
+        return res.status(400).json({ message: "At least one image is required" });
+    }
+
+    // 3. Parse JSON fields (FAQs come as string via FormData)
+    let parsedFaqs = [];
+    if (faqs) {
+        try { parsedFaqs = JSON.parse(faqs); } catch (e) { parsedFaqs = []; }
     }
 
     const product = new Product({
@@ -45,67 +72,83 @@ exports.createEvent = async (req, res) => {
       price: Number(price),
       category: category.toLowerCase().trim(),
       description,
-      setupTime: setupTime || "", // Fallback to empty string if missing
-      included: included || "",   // Fallback to empty string if missing
-      image: `/uploads/${req.file.filename}`,
+      setupTime: setupTime || "",
+      included: included || "",
+      notIncluded: notIncluded || "",
+      
+      // Images Logic:
+      // 'images' gets the full array
+      images: imagePaths, 
+      // 'image' gets the first image (Thumbnail) to satisfy required: true in schema
+      image: imagePaths[0],
+
+      // New Fields
+      discount: Number(discount) || 0,
+      careInfo: careInfo || "",
+      faqs: parsedFaqs
     });
 
     const savedProduct = await product.save();
     res.status(201).json(savedProduct);
   } catch (error) {
+    console.error("Create Error:", error);
     res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Update Product (Admin Only)
+// @desc Update Product
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // 1. Check if product exists
     const product = await Product.findById(id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // 2. Destructure fields from body to ensure we capture 'included' and 'setupTime'
-    const { name, price, category, description, setupTime, included } = req.body;
+    const { 
+        name, price, category, description, setupTime, 
+        included, notIncluded, discount, careInfo, faqs 
+    } = req.body;
 
-    // 3. Prepare the update object
     let updateFields = {
-      name,
-      description,
-      setupTime,
-      included,
+      name, description, setupTime, included, notIncluded, careInfo,
       price: price ? Number(price) : product.price,
-      category: category ? category.toLowerCase().trim() : product.category
+      discount: discount ? Number(discount) : product.discount,
+      category: category ? category.toLowerCase().trim() : product.category,
     };
 
-    // 4. Handle Image if a new one is uploaded
-    if (req.file) {
-      updateFields.image = `/uploads/${req.file.filename}`;
+    if (faqs) {
+        try { updateFields.faqs = JSON.parse(faqs); } catch (e) {}
     }
 
-    // 5. Execute Update
+    // Handle New Images (Append to existing)
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => `/uploads/${file.filename}`);
+      updateFields.images = [...(product.images || []), ...newImages];
+      
+      // If the main image was deleted or empty, set the new first image as main
+      if (!product.image) {
+          updateFields.image = newImages[0];
+      }
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $set: updateFields },
       { new: true, runValidators: true }
     );
 
-    console.log("Product Updated Successfully:", updatedProduct); // Check your server terminal
     res.json(updatedProduct);
   } catch (error) {
-    console.error("Update Error:", error.message);
     res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Delete Product (Admin Only)
+// @desc Delete Product
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
-    res.json({ message: "Product deleted successfully" });
+    res.json({ message: "Product deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Delete operation failed" });
+    res.status(500).json({ message: "Delete failed" });
   }
 };
