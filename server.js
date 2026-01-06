@@ -16,7 +16,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://evenisersnew.vercel.app',
+  origin: 'http://localhost3000',
   credentials: true,
   
 }));
