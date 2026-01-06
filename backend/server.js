@@ -16,7 +16,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: 'evenisersnew.vercel.app',
+  origin: 'https://evenisersnew.vercel.app',
   credentials: true,
   
 }));
