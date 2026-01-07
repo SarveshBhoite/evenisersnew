@@ -115,7 +115,8 @@ export default function ProductPage() {
     <div className="min-h-screen bg-[#FDFCF8] selection:bg-[#D4AF37] selection:text-white">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
+      {/* Added pb-32 to main to ensure content isn't hidden behind the fixed mobile button */}
+      <main className="max-w-7xl mx-auto px-6 pt-32 pb-32 lg:pb-24">
         <div className="grid lg:grid-cols-12 gap-16 mb-24 relative items-start">
           
           {/* LEFT: Visual Gallery (STICKY) */}
@@ -346,8 +347,8 @@ export default function ProductPage() {
                 ))}
             </div>
 
-            {/* ACTION BUTTON */}
-            <div className="sticky bottom-4 z-50">
+            {/* ACTION BUTTON - FIXED MOBILE FIX */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-zinc-200 z-[100] lg:static lg:bg-transparent lg:border-0 lg:p-0 lg:sticky lg:bottom-4">
               <Button size="lg" className="w-full rounded-full h-16 bg-black text-white text-lg font-bold hover:bg-[#D4AF37] hover:text-white shadow-2xl shadow-black/20 transition-all duration-500" onClick={handleAddToCart}>
                 Book Event
               </Button>
