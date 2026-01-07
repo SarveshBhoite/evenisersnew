@@ -44,6 +44,34 @@ exports.getVendors = async (req, res) => {
 };
 
 // 🚨 NEW: Vendor Accepts Order (Magic Link Logic)
+exports.getPublicOrderDetails = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findById(orderId).populate("items.product", "name category image");
+
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        // Only send necessary info (Hide Customer Name/Phone until accepted)
+        const safeData = {
+            _id: order._id,
+            city: order.shippingAddress.city,
+            eventDate: order.items[0]?.eventDate,
+            timeSlot: order.items[0]?.timeSlot,
+            message: order.items[0]?.message,
+            products: order.items.map(i => ({
+                name: i.product.name,
+                category: i.product.category,
+                image: i.product.image
+            })),
+            status: order.status
+        };
+
+        res.json(safeData);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching details" });
+    }
+};
+
 exports.acceptOrder = async (req, res) => {
     try {
         const { orderId, vendorId } = req.body;
@@ -51,18 +79,17 @@ exports.acceptOrder = async (req, res) => {
         
         if (!order) return res.status(404).json({ message: "Order not found" });
 
-        // RACE CONDITION CHECK
         if (order.status !== "broadcasting") {
             return res.status(400).json({ message: "This event is already assigned." });
         }
 
-        // Assign
         order.assignedVendor = vendorId;
-        order.status = "in_progress";
+        order.status = "in_progress"; 
         order.broadcastTo = []; 
+        
         await order.save();
 
-        res.json({ success: true, message: "You accepted the order!" });
+        res.json({ success: true, message: "Order assigned to you!", order });
     } catch (error) {
         res.status(500).json({ message: "Error accepting order" });
     }

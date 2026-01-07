@@ -1,5 +1,7 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const Vendor = require("../models/Vendor");
+const { sendVendorBroadcast } = require("../utils/sendEmail");
 const { sendOrderEmail } = require("../utils/sendEmail");
 
 exports.createOrder = async (req, res) => {
@@ -96,12 +98,29 @@ exports.broadcastOrder = async (req, res) => {
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
+    // 1. Update DB
     order.status = "broadcasting";
     order.broadcastTo = vendorIds;
     await order.save();
 
-    console.log(`📡 Broadcasted Order ${order._id} to vendors:`, vendorIds);
-    // Ideally send emails here
+    // 2. Fetch Vendor Emails
+    const vendors = await Vendor.find({ _id: { $in: vendorIds } });
+
+    // 3. Send Emails in Background
+    setImmediate(async () => {
+        try {
+            const promises = vendors.map(v => {
+                // Generate Magic Link
+                // CHANGE 'http://localhost:3000' to your real domain in production
+                const link = `${process.env.CLIENT_URL || "http://localhost:3000"}/vendor/accept?orderId=${order._id}&vendorId=${v._id}`;
+                return sendVendorBroadcast(v.email, v.name, order, link);
+            });
+            await Promise.all(promises);
+            console.log(`📧 Sent ${vendors.length} broadcast emails.`);
+        } catch (err) {
+            console.error("Email Broadcast Error:", err);
+        }
+    });
     
     res.json(order);
   } catch (error) {
