@@ -9,7 +9,7 @@ router.route("/")
     .get(protect, vendorController.getVendors); // Get Vendors (with ?city= query)
 
 router.post("/accept", vendorController.acceptOrder);
-    
+router.get("/details/:orderId", vendorController.getPublicOrderDetails); 
 router.route("/:id")
     .delete(protect, vendorController.deleteVendor);
 

@@ -5,7 +5,6 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUND");
 
-const recipent = process.env.ADMIN_EMAIL || orderData.userEmail;
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -14,10 +13,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// 1. Send Order Email to Admin
 const sendOrderEmail = async (orderData) => {
+  const recipient = process.env.ADMIN_EMAIL || orderData.userEmail;
   const mailOptions = {
     from: `"Luxe Fashion Order" <${process.env.EMAIL_USER}>`,
-    to: recipent,
+    to: recipient,
     subject: `New Order Received! #${orderData._id}`,
     html: `<h2>New Order Notification</h2><p>Total: ₹${orderData.totalAmount}</p>`,
   };
@@ -28,12 +29,10 @@ const sendOrderEmail = async (orderData) => {
   } catch (error) {
     console.error("❌ Order Email Error:", error.message);
   }
-
-  
 };
 
+// 2. Send Contact Form Emails
 const sendContactEmail = async (contactData) => {
-  // 1. Mail Options for the ADMIN (You)
   const adminMailOptions = {
     from: `"Luxe Website" <${process.env.EMAIL_USER}>`,
     replyTo: contactData.email,
@@ -47,10 +46,9 @@ const sendContactEmail = async (contactData) => {
     `,
   };
 
-  // 2. Mail Options for the USER (The Customer)
   const userMailOptions = {
     from: `"Luxe Fashion" <${process.env.EMAIL_USER}>`,
-    to: contactData.email, // Sends to the address the user typed in the form
+    to: contactData.email,
     subject: `We received your message: ${contactData.subject}`,
     html: `
       <div style="font-family: serif; padding: 20px; color: #333;">
@@ -65,20 +63,17 @@ const sendContactEmail = async (contactData) => {
   };
 
   try {
-    // Send to Admin
     await transporter.sendMail(adminMailOptions);
     console.log("✅ Contact email sent to ADMIN");
-
-    // Send to User
     await transporter.sendMail(userMailOptions);
     console.log("✅ Confirmation email sent to USER");
-
   } catch (error) {
     console.error("❌ Email Error:", error.message);
     throw error;
   }
 };
 
+// 3. Send OTP Email
 const sendOTPEmail = async (email, otp) => {
   const mailOptions = {
     from: `"Luxe Security" <${process.env.EMAIL_USER}>`,
@@ -104,4 +99,45 @@ const sendOTPEmail = async (email, otp) => {
   }
 };
 
-module.exports = { sendOrderEmail, sendContactEmail, sendOTPEmail };
+// 4. 🚨 NEW: Send Vendor Broadcast Email (Moved OUTSIDE sendOTPEmail)
+const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) => {
+  const mailOptions = {
+    from: `"Event Manager" <${process.env.EMAIL_USER}>`,
+    to: vendorEmail,
+    subject: `🔥 New Event Opportunity in ${order.shippingAddress.city}!`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #000;">New Event Request</h2>
+        <p>Hello <strong>${vendorName}</strong>,</p>
+        <p>A new event is available in your area. Be the first to accept it!</p>
+        
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>📍 Location:</strong> ${order.shippingAddress.city}</p>
+            <p><strong>📅 Date:</strong> ${order.items[0].eventDate || "Check details"}</p>
+            <p><strong>⏰ Time:</strong> ${order.items[0].timeSlot || "Standard"}</p>
+        </div>
+
+        <a href="${acceptLink}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+          View & Accept Event
+        </a>
+        
+        <p style="margin-top: 20px; font-size: 12px; color: #888;">If the link doesn't work, this order may have been taken by another partner.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Vendor email sent to ${vendorEmail}`);
+  } catch (error) {
+    console.error("❌ Vendor Email Error:", error.message);
+  }
+};
+
+// 🚨 EXPORT ALL FUNCTIONS
+module.exports = { 
+    sendOrderEmail, 
+    sendContactEmail, 
+    sendOTPEmail, 
+    sendVendorBroadcast
+};
