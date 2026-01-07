@@ -12,4 +12,7 @@ router.get("/myorders", protect, orderController.getMyOrders);
 // ✅ ADMIN: Get All Orders
 router.get("/", protect, admin, orderController.getAllOrders);
 
+// 🚨 NEW ROUTE: Assign Vendor
+router.route("/:id/assign").put(protect, admin, orderController.assignOrder);
+
 module.exports = router;
