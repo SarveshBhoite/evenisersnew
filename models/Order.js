@@ -39,16 +39,14 @@ const orderSchema = new mongoose.Schema(
     // --- STATUSES (Updated for Event Workflow) ---
     status: {
       type: String,
-      enum: ["pending", "partial_paid", "paid", "in_progress", "completed", "cancelled"],
+      enum: ["pending", "partial_paid", "paid", "broadcasting", "in_progress", "completed", "cancelled"],
       default: "pending",
     },
 
-    // --- VENDOR (Future Proofing for Phase 2) ---
-    assignedVendor: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Vendor", 
-        default: null 
-    }
+    assignedVendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", default: null },
+    
+    // 🚨 NEW: Track broadcasted vendors
+    broadcastTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }]
   },
   { timestamps: true }
 );
