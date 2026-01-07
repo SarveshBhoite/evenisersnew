@@ -12,7 +12,7 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Package, Calendar, User, ArrowLeft, Clock, MessageSquare } from "lucide-react"
+import { Eye, Package, Calendar, User, ArrowLeft, Clock, MessageSquare, MapPin, Wallet } from "lucide-react"
 import axios from "axios"
 import Link from "next/link"
 
@@ -66,9 +66,9 @@ export default function AdminOrdersPage() {
             <thead className="bg-zinc-50/80 border-b border-zinc-100 text-xs uppercase tracking-wider text-zinc-400">
               <tr>
                 <th className="px-8 py-5 font-bold">Order ID</th>
-                <th className="px-8 py-5 font-bold">Customer</th>
+                <th className="px-8 py-5 font-bold">Customer / City</th>
                 <th className="px-8 py-5 font-bold">Date</th>
-                <th className="px-8 py-5 font-bold">Total</th>
+                <th className="px-8 py-5 font-bold">Payment</th>
                 <th className="px-8 py-5 font-bold">Status</th>
                 <th className="px-8 py-5 font-bold text-right">Action</th>
               </tr>
@@ -83,19 +83,25 @@ export default function AdminOrdersPage() {
                     <div className="text-sm font-bold text-zinc-900">
                       {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}
                     </div>
-                    <div className="text-xs text-zinc-400">
-                      {order.userEmail}
+                    {/* Highlighted City in List */}
+                    <div className="text-xs font-bold text-blue-600 bg-blue-50 w-fit px-2 py-0.5 rounded mt-1 uppercase tracking-wide">
+                      {order.shippingAddress?.city}
                     </div>
                   </td>
                   <td className="px-8 py-5 text-sm font-medium text-zinc-600">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-8 py-5 text-sm font-bold text-zinc-900">
-                    ₹{order.totalAmount?.toLocaleString()}
+                  <td className="px-8 py-5 text-sm">
+                    <div className="font-bold text-zinc-900">₹{order.amountPaid?.toLocaleString()}</div>
+                    {order.remainingAmount > 0 ? (
+                        <div className="text-[10px] text-red-500 font-bold">Due: ₹{order.remainingAmount?.toLocaleString()}</div>
+                    ) : (
+                        <div className="text-[10px] text-green-600 font-bold">Paid Full</div>
+                    )}
                   </td>
                   <td className="px-8 py-5">
                     <Badge className={getStatusColor(order.status)}>
-                      {order.status}
+                      {order.status.replace("_", " ")}
                     </Badge>
                   </td>
                   <td className="px-8 py-5 text-right">
@@ -120,11 +126,12 @@ export default function AdminOrdersPage() {
 // Helper: Status Colors
 function getStatusColor(status: string) {
   switch (status) {
-    case "paid": return "bg-green-100 text-green-700 hover:bg-green-100"
-    case "pending": return "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
-    case "shipped": return "bg-blue-100 text-blue-700 hover:bg-blue-100"
-    case "delivered": return "bg-zinc-800 text-white hover:bg-zinc-800"
-    default: return "bg-gray-100 text-gray-700"
+    case "paid": return "bg-green-100 text-green-700 hover:bg-green-100 uppercase"
+    case "partial_paid": return "bg-orange-100 text-orange-700 hover:bg-orange-100 uppercase"
+    case "pending": return "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 uppercase"
+    case "in_progress": return "bg-blue-100 text-blue-700 hover:bg-blue-100 uppercase"
+    case "completed": return "bg-zinc-800 text-white hover:bg-zinc-800 uppercase"
+    default: return "bg-gray-100 text-gray-700 uppercase"
   }
 }
 
@@ -134,7 +141,7 @@ function OrderDetailsModal({ order }: { order: any }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2 rounded-full hover:bg-zinc-100">
-          <Eye className="w-4 h-4" /> View Details
+          <Eye className="w-4 h-4" /> View
         </Button>
       </DialogTrigger>
 
@@ -158,31 +165,46 @@ function OrderDetailsModal({ order }: { order: any }) {
                     <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                         <User className="w-4 h-4" /> Customer Info
                     </h3>
-                    <div className="text-sm bg-zinc-50 p-5 rounded-2xl space-y-2 border border-zinc-100">
+                    <div className="text-sm bg-zinc-50 p-6 rounded-2xl space-y-3 border border-zinc-100 relative overflow-hidden">
+                        {/* HIGHLIGHTED CITY BADGE */}
+                        <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-bl-xl uppercase tracking-widest flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {order.shippingAddress?.city}
+                        </div>
+
                         <p><span className="font-bold text-zinc-900">Name:</span> {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</p>
                         <p><span className="font-bold text-zinc-900">Email:</span> {order.userEmail}</p>
                         <p><span className="font-bold text-zinc-900">Phone:</span> {order.shippingAddress?.phone || "N/A"}</p>
-                        <p><span className="font-bold text-zinc-900">Address:</span> {order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.zip}</p>
+                        <p className="leading-relaxed"><span className="font-bold text-zinc-900">Address:</span> {order.shippingAddress?.address}, {order.shippingAddress?.state} - {order.shippingAddress?.zip}</p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                        <Calendar className="w-4 h-4" /> Order Info
+                        <Wallet className="w-4 h-4" /> Payment Info
                     </h3>
-                    <div className="text-sm bg-zinc-50 p-5 rounded-2xl space-y-2 border border-zinc-100">
-                        <p><span className="font-bold text-zinc-900">Placed On:</span> {new Date(order.createdAt).toLocaleString()}</p>
-                        <p><span className="font-bold text-zinc-900">Status:</span> <span className="uppercase text-xs font-bold bg-black text-white px-2 py-0.5 rounded ml-1">{order.status}</span></p>
-                        <p><span className="font-bold text-zinc-900">Payment Method:</span> Online</p>
-                        <p className="text-lg pt-2 border-t border-zinc-200 mt-2 flex justify-between items-center">
-                            <span className="font-bold">Total Paid:</span> 
-                            <span className="font-serif font-bold">₹{order.totalAmount?.toLocaleString()}</span>
-                        </p>
+                    <div className="text-sm bg-zinc-50 p-6 rounded-2xl border border-zinc-100 space-y-3">
+                        <div className="flex justify-between items-center border-b border-zinc-200 pb-2">
+                            <span className="text-zinc-500">Total Bill:</span>
+                            <span className="font-bold text-lg">₹{order.totalAmount?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-green-700">
+                            <span className="font-medium">Paid Amount:</span>
+                            <span className="font-bold">+ ₹{order.amountPaid?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-red-600">
+                            <span className="font-medium">Remaining Due:</span>
+                            <span className="font-bold">- ₹{order.remainingAmount?.toLocaleString()}</span>
+                        </div>
+                        <div className="pt-2">
+                            <Badge className={`w-full justify-center py-1 ${getStatusColor(order.status)}`}>
+                                {order.status === "partial_paid" ? "Partial Payment (40%)" : order.status === "paid" ? "Full Payment Done" : order.status.replace("_", " ")}
+                            </Badge>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Ordered Items List (Updated with Event Details) */}
+            {/* Ordered Items List */}
             <div className="space-y-4">
                 <h3 className="font-bold text-xs uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                     <Package className="w-4 h-4" /> Event Packages
@@ -205,7 +227,7 @@ function OrderDetailsModal({ order }: { order: any }) {
                                 </div>
                             </div>
 
-                            {/* --- NEW: Event Details Section --- */}
+                            {/* Event Details Section */}
                             <div className="bg-white border border-zinc-100 rounded-xl p-4 flex flex-wrap gap-4 text-sm mt-2 shadow-sm">
                                 <div className="flex items-center gap-2 text-zinc-700">
                                     <Calendar className="w-4 h-4 text-zinc-400" />

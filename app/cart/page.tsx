@@ -22,7 +22,7 @@ export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, updateItemDetails, cartTotal } = useCart()
 
   const subtotal = cartTotal
-  const shipping = subtotal > 0 ? (subtotal > 50000 ? 0 : 2500) : 0 // Example logic
+  const shipping = subtotal > 0 ? (subtotal > 50000 ? 0 : 500) : 0 // Example logic
   const tax = subtotal * 0.18 // 18% GST for Events usually
   const total = subtotal + shipping + tax
 
