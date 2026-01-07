@@ -8,7 +8,6 @@ import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import axios from "axios";
 
-// ✅ FIXED: correct env usage
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export default function ShopPage() {
@@ -26,8 +25,6 @@ export default function ShopPage() {
           : `${API_URL}/products`;
 
         const res = await axios.get(url);
-
-        // ✅ axios response
         setProducts(res.data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -69,88 +66,113 @@ export default function ShopPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product._id}
-                  href={`/product/${product._id}`}
-                  className="group bg-white border border-zinc-200 overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-square overflow-hidden bg-zinc-100">
-                    <Image
-                      src={
-                        product.image
-                          ? `${process.env.NEXT_PUBLIC_API_URL}${product.image}`
-                          : "/placeholder.svg"
-                      }
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+            <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-6">
+              {products.map((product) => {
+                // Calculate Discount
+                const discount = product.discount || 0;
+                const price = product.price;
+                const finalPrice = discount > 0 ? price - (price * discount) / 100 : price;
 
-                    <div className="absolute top-0 left-0">
-                      <div className="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2">
-                        {product.category}
-                      </div>
-                    </div>
+                return (
+                  <Link
+                    key={product._id}
+                    href={`/product/${product._id}`}
+                    className="group bg-white border border-zinc-200 overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
+                  >
+                    {/* Image */}
+                    <div className="relative aspect-square overflow-hidden bg-zinc-100">
+                      <Image
+                        src={
+                          product.image
+                            ? `${process.env.NEXT_PUBLIC_API_URL}${product.image}`
+                            : "/placeholder.svg"
+                        }
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
 
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                      <span className="bg-white text-black text-xs font-black uppercase tracking-widest px-6 py-3 shadow-xl">
-                        View Package
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Text */}
-                  <div className="p-5 space-y-4">
-                    <div>
-                      <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-1 text-zinc-700">
-                        {product.name}
-                      </h3>
-                    </div>
-
-                    <div className="flex gap-4 border-y border-zinc-100 py-3">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-800 uppercase">
-                          Duration
-                        </span>
-                        <span className="text-[11px]">
-                          {product.setupTime || "—"}
-                        </span>
+                      <div className="absolute top-0 left-0">
+                        <div className="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2">
+                          {product.category}
+                        </div>
                       </div>
 
-                      <div className="w-[1px] bg-zinc-100" />
+                      {/* --- NEW DISCOUNT BADGE --- */}
+                      {discount > 0 && (
+                        <div className="absolute top-0 right-0">
+                          <div className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-2 animate-pulse">
+                            -{discount}% OFF
+                          </div>
+                        </div>
+                      )}
 
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-800 uppercase">
-                          Includes
-                        </span>
-                        <span className="text-[11px]">
-                          {product.included
-                            ? product.included.split(",").slice(0, 2).join(", ")
-                            : "—"}
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                        <span className="bg-white text-black text-xs font-black uppercase tracking-widest px-6 py-3 shadow-xl">
+                          View Package
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-end justify-between">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
-                          Fixed Price
-                        </span>
-                        <p className="text-2xl text-black leading-none">
-                          ₹{product.price.toLocaleString("en-IN")}
-                        </p>
+                    {/* Text */}
+                    <div className="p-5 space-y-4">
+                      <div>
+                        <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-1 text-zinc-700 truncate">
+                          {product.name}
+                        </h3>
                       </div>
 
-                      <div className="w-10 h-10 border-2 border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300">
-                        <ArrowRight className="w-5 h-5" />
+                      <div className="flex gap-4 border-y border-zinc-100 py-3">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-zinc-800 uppercase">
+                            Duration
+                          </span>
+                          <span className="text-[11px]">
+                            {product.setupTime || "—"}
+                          </span>
+                        </div>
+
+                        <div className="w-[1px] bg-zinc-100" />
+
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-zinc-800 uppercase">
+                            Includes
+                          </span>
+                          <span className="text-[11px] truncate max-w-[150px]">
+                            {product.included
+                              ? product.included.split(",").slice(0, 2).join(", ")
+                              : "—"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-end justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                            {discount > 0 ? "Deal Price" : "Fixed Price"}
+                          </span>
+                          
+                          {/* --- PRICE DISPLAY LOGIC --- */}
+                          <div className="flex items-baseline gap-2">
+                            <p className="text-2xl text-black leading-none font-bold">
+                              ₹{finalPrice.toLocaleString("en-IN")}
+                            </p>
+                            {discount > 0 && (
+                                <p className="text-sm text-zinc-400 line-through decoration-zinc-400">
+                                    ₹{price.toLocaleString("en-IN")}
+                                </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-10 h-10 border-2 border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300">
+                          <ArrowRight className="w-5 h-5" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
