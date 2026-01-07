@@ -11,6 +11,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const userRoutes = require("./routes/userRoutes");
+const vendorRoutes= require("./routes/vendorRoutes");
 
 dotenv.config();
 const app = express();
@@ -40,7 +41,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/contact", contactRoutes);
-
+app.use("/api/vendors", vendorRoutes);
 app.use("/api/users", userRoutes);
 
 app.listen(5000, () => console.log(`🚀 Server running on ${process.env.NEXT_PUBLIC_API_URL}`));

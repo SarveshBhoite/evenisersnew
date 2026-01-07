@@ -7,7 +7,8 @@ import {
   ShoppingBag, 
   Users, 
   IndianRupee, 
-  ArrowUpRight 
+  ArrowUpRight, 
+  Truck
 } from "lucide-react"
 
 export default function AdminDashboard() {
@@ -29,6 +30,12 @@ export default function AdminDashboard() {
       href: "/admin/users",
       icon: <Users className="w-6 h-6" />,
       desc: "Manage customer accounts and roles"
+    },
+    {
+      title: "Vendors & Partners", // --- NEW CARD ---
+      href: "/admin/vendors",
+      icon: <Truck className="w-6 h-6" />,
+      desc: "Manage connected vendors per city"
     },
     {
       title: "Total Revenue",
