@@ -44,4 +44,4 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/users", userRoutes);
 
-app.listen(5000, () => console.log(`🚀 Server running on ${process.env.NEXT_PUBLIC_API_URL}`));
+app.listen(5000, () => console.log(`🚀 Server running on ${process.env.PORT}`));

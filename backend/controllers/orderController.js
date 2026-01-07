@@ -79,7 +79,8 @@ exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email")
-      .populate("items.product", "name category") 
+      .populate("items.product", "name category")
+      .populate("assignedVendor", "name") 
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -88,29 +89,69 @@ exports.getAllOrders = async (req, res) => {
 };
 
 // 🚨 NEW: Assign Order to Vendor
-exports.assignOrder = async (req, res) => {
+exports.broadcastOrder = async (req, res) => {
   try {
-    const { vendorId } = req.body;
+    const { vendorIds } = req.body;
     const order = await Order.findById(req.params.id);
 
-    if (order) {
-      order.assignedVendor = vendorId;
-      
-      // Update status to 'in_progress' automatically when assigned
-      if (order.status === "paid" || order.status === "partial_paid") {
-          order.status = "in_progress";
-      }
-      
-      const updatedOrder = await order.save();
-      
-      // Ideally: Send Email/SMS to Vendor here
-      console.log(`✅ Order ${order._id} assigned to Vendor ${vendorId}`);
-      
-      res.json(updatedOrder);
-    } else {
-      res.status(404).json({ message: "Order not found" });
-    }
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.status = "broadcasting";
+    order.broadcastTo = vendorIds;
+    await order.save();
+
+    console.log(`📡 Broadcasted Order ${order._id} to vendors:`, vendorIds);
+    // Ideally send emails here
+    
+    res.json(order);
   } catch (error) {
-    res.status(500).json({ message: "Assignment failed", error: error.message });
+    res.status(500).json({ message: "Broadcast failed" });
   }
 };
+
+// 🚨 NEW: Manual Status Update
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // If Admin takes over manually
+    if (status === "in_progress" && !order.assignedVendor) {
+        order.broadcastTo = [];
+    }
+
+    order.status = status;
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Update failed" });
+  }
+};
+
+// exports.assignOrder = async (req, res) => {
+//   try {
+//     const { vendorId } = req.body;
+//     const order = await Order.findById(req.params.id);
+
+//     if (order) {
+//       order.assignedVendor = vendorId;
+      
+//       // Update status to 'in_progress' automatically when assigned
+//       if (order.status === "paid" || order.status === "partial_paid") {
+//           order.status = "in_progress";
+//       }
+      
+//       const updatedOrder = await order.save();
+      
+//       // Ideally: Send Email/SMS to Vendor here
+//       console.log(`✅ Order ${order._id} assigned to Vendor ${vendorId}`);
+      
+//       res.json(updatedOrder);
+//     } else {
+//       res.status(404).json({ message: "Order not found" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: "Assignment failed", error: error.message });
+//   }
+// };

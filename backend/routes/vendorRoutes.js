@@ -8,6 +8,8 @@ router.route("/")
     .post(protect, vendorController.addVendor) // Add Vendor
     .get(protect, vendorController.getVendors); // Get Vendors (with ?city= query)
 
+router.post("/accept", vendorController.acceptOrder);
+    
 router.route("/:id")
     .delete(protect, vendorController.deleteVendor);
 
