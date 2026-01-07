@@ -14,15 +14,14 @@ import {
   Clock,
   IndianRupee,
   ArrowLeft,
+  Filter, // Added Filter icon
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import Link from "next/link";
 
-// ✅ FIXED: proper env usage
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
-// 1. Define the interface for Decoration Packages
 interface DecorationProduct {
   _id: string;
   name: string;
@@ -38,6 +37,9 @@ export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<DecorationProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // --- NEW: Filter State ---
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     if (token) fetchProducts();
@@ -50,10 +52,8 @@ export default function AdminProductsPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ FIXED: axios uses res.data
       const data = res.data;
 
-      // Preserve your existing safety logic
       if (Array.isArray(data)) {
         setProducts(data);
       } else if (data && typeof data === "object" && Array.isArray(data.products)) {
@@ -79,7 +79,6 @@ export default function AdminProductsPage() {
     if (!confirm("Remove this decoration package?")) return;
 
     try {
-      // ✅ FIXED: proper axios DELETE
       await axios.delete(`${API_URL}/admin/products/events/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -95,23 +94,57 @@ export default function AdminProductsPage() {
     }
   };
 
+  // --- FILTER LOGIC ---
+  const categories = ["All", "Wedding", "Anniversary", "Haldi", "Birthday", "Corporate"];
+
+  const filteredProducts = selectedCategory === "All"
+    ? products
+    : products.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
+
   return (
     <div className="min-h-screen bg-gray-50/50 pt-24 pb-12">
       <Navbar />
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between mt-10 mb-5">
+        
+        {/* Header Section */}
+        <div className="flex justify-between mt-10 mb-8">
           <Link
-            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
+            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black transition-colors font-bold uppercase text-xs tracking-widest" 
+            href={"/admin/dashboard"}        
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
           <Button
             onClick={() => router.push("/admin/products/new")}
-            className="bg-black text-white rounded-full px-8 h-12 shadow-lg shadow-black/10 hover:scale-[1.02] transition-all"
+            className="bg-black text-white rounded-full px-8 h-12 shadow-lg shadow-black/10 hover:scale-[1.02] transition-all font-bold tracking-wide"
           >
             <Plus className="w-4 h-4 mr-2" /> Add New Package
           </Button>
         </div>
 
+        {/* --- FILTER BAR (NEW) --- */}
+        <div className="mb-6 overflow-x-auto pb-2">
+            <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mr-4 text-zinc-400 font-bold uppercase text-[10px] tracking-widest">
+                    <Filter className="w-4 h-4" /> Filter By:
+                </div>
+                {categories.map((cat) => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-5 py-2 rounded-full text-xs font-bold transition-all border ${
+                            selectedCategory === cat
+                                ? "bg-black text-white border-black shadow-md"
+                                : "bg-white text-zinc-500 border-zinc-200 hover:border-black hover:text-black"
+                        }`}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        {/* Table Section */}
         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -144,8 +177,9 @@ export default function AdminProductsPage() {
                       </p>
                     </td>
                   </tr>
-                ) : products.length > 0 ? (
-                  products.map((p) => (
+                ) : filteredProducts.length > 0 ? (
+                  // ✅ FIXED: Mapping filteredProducts instead of products
+                  filteredProducts.map((p) => (
                     <tr
                       key={p._id}
                       className="group hover:bg-gray-50/50 transition-all"
@@ -161,6 +195,9 @@ export default function AdminProductsPage() {
                               }
                               alt={p.name}
                               className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                              }}
                             />
                           </div>
                           <div>
@@ -219,19 +256,17 @@ export default function AdminProductsPage() {
                           <Package className="w-8 h-8 text-gray-200" />
                         </div>
                         <h3 className="text-gray-900 font-semibold text-lg">
-                          Empty Catalog
+                          No Products Found
                         </h3>
                         <p className="text-gray-400 text-sm mt-1 mb-6">
-                          You haven't added any decoration packages yet.
+                           Try changing the category filter or add a new package.
                         </p>
                         <Button
                           variant="outline"
-                          onClick={() =>
-                            router.push("/admin/products/new")
-                          }
-                          className="rounded-full"
+                          onClick={() => router.push("/admin/products/new")}
+                          className="rounded-full border-gray-300 hover:border-black hover:bg-black hover:text-white transition-all"
                         >
-                          Get Started
+                          Add New Package
                         </Button>
                       </div>
                     </td>
