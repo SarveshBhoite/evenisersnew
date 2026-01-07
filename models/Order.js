@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    // 🚨 Add this field so you can find "My Orders" later
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     userEmail: { type: String, required: true },
     items: [
@@ -10,6 +9,11 @@ const orderSchema = new mongoose.Schema(
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
+        
+        // --- NEW FIELDS ---
+        eventDate: { type: String },
+        timeSlot: { type: String },
+        message: { type: String },
       },
     ],
     shippingAddress: {

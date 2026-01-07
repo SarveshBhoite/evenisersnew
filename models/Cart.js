@@ -19,6 +19,10 @@ const cartSchema = new mongoose.Schema(
           required: true, 
           default: 1 
         },
+        // --- NEW FIELDS ---
+        eventDate: { type: String }, // Saved as YYYY-MM-DD
+        timeSlot: { type: String },  // Saved as "09:00 AM - 12:00 PM"
+        message: { type: String },   // Custom message for the decorator
       },
     ],
   },
