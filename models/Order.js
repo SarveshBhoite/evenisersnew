@@ -8,9 +8,9 @@ const orderSchema = new mongoose.Schema(
       {
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
         quantity: { type: Number, required: true },
-        price: { type: Number, required: true },
+        price: { type: Number, required: true }, // This stores the DISCOUNTED price per unit
         
-        // --- NEW FIELDS ---
+        // Event Details
         eventDate: { type: String },
         timeSlot: { type: String },
         message: { type: String },
@@ -25,12 +25,30 @@ const orderSchema = new mongoose.Schema(
       zip: String,
       country: String,
     },
-    totalAmount: { type: Number, required: true },
+    
+    // --- PAYMENT & VALUES ---
+    totalAmount: { type: Number, required: true }, // The Full Invoice Amount (100%)
+    amountPaid: { type: Number, required: true },  // What user paid online (40% or 100%)
+    remainingAmount: { type: Number, default: 0 }, // Balance to be paid later
+    paymentType: { 
+        type: String, 
+        enum: ["full", "advance"], 
+        default: "full" 
+    },
+
+    // --- STATUSES (Updated for Event Workflow) ---
     status: {
       type: String,
-      enum: ["pending", "paid", "shipped", "delivered"],
+      enum: ["pending", "partial_paid", "paid", "in_progress", "completed", "cancelled"],
       default: "pending",
     },
+
+    // --- VENDOR (Future Proofing for Phase 2) ---
+    assignedVendor: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Vendor", 
+        default: null 
+    }
   },
   { timestamps: true }
 );

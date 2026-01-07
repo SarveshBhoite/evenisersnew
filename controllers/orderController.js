@@ -4,57 +4,70 @@ const { sendOrderEmail } = require("../utils/sendEmail");
 
 exports.createOrder = async (req, res) => {
   try {
-    const { userEmail, items, shippingAddress, totalAmount } = req.body;
+    const { 
+        userEmail, items, shippingAddress, 
+        totalAmount, amountPaid, paymentType // New Fields
+    } = req.body;
 
-    // 🚨 CRITICAL FIX: Map the incoming items to match the Schema
     const orderItems = items.map(item => ({
         product: item.product,
         quantity: item.quantity,
         price: item.price,
-        // Ensure these fields are captured
         eventDate: item.eventDate || "",
         timeSlot: item.timeSlot || "",
         message: item.message || ""
     }));
 
+    // Logic: Set status based on Payment Type
+    let initialStatus = "pending";
+    if (paymentType === "advance") {
+        initialStatus = "partial_paid";
+    } else if (paymentType === "full") {
+        initialStatus = "paid";
+    }
+
     const order = new Order({
       user: req.user._id, 
       userEmail,
-      items: orderItems, // Use the mapped array
+      items: orderItems,
       shippingAddress,
-      totalAmount,
+      
+      // Payment Calculations
+      totalAmount: Number(totalAmount),
+      amountPaid: Number(amountPaid),
+      remainingAmount: Number(totalAmount) - Number(amountPaid),
+      paymentType,
+      status: initialStatus 
     });
 
     const savedOrder = await order.save();
-    console.log("✅ Order saved to Database:", savedOrder._id);
+    console.log("✅ Order created:", savedOrder._id);
 
-    // 1. Send success response
     res.status(201).json(savedOrder);
 
-    // 2. Background tasks
+    // Background tasks
     setImmediate(async () => {
         try {
             await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
             await sendOrderEmail(savedOrder);
-            console.log("✅ Background tasks complete");
         } catch (err) {
-            console.error("⚠️ Background error:", err.message);
+            console.error("Background error:", err.message);
         }
     });
 
   } catch (error) {
-    console.error("❌ CRITICAL ERROR:", error.message);
+    console.error("❌ Order Error:", error.message);
     if (!res.headersSent) {
         res.status(500).json({ message: "Order failed", error: error.message });
     }
   }
 };
 
-// CUSTOMER → MY ORDERS
+// ... Keep your getMyOrders and getAllOrders logic exactly as they were ...
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
-      .populate("items.product", "name image") // Populate product details for display
+      .populate("items.product", "name image") 
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -62,12 +75,11 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// ADMIN → ALL ORDERS
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email")
-      .populate("items.product", "name category") // Populate for admin view
+      .populate("items.product", "name category") 
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
