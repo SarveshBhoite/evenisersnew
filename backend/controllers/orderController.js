@@ -86,3 +86,31 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).json({ message: "Error fetching admin orders" });
   }
 };
+
+// 🚨 NEW: Assign Order to Vendor
+exports.assignOrder = async (req, res) => {
+  try {
+    const { vendorId } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+      order.assignedVendor = vendorId;
+      
+      // Update status to 'in_progress' automatically when assigned
+      if (order.status === "paid" || order.status === "partial_paid") {
+          order.status = "in_progress";
+      }
+      
+      const updatedOrder = await order.save();
+      
+      // Ideally: Send Email/SMS to Vendor here
+      console.log(`✅ Order ${order._id} assigned to Vendor ${vendorId}`);
+      
+      res.json(updatedOrder);
+    } else {
+      res.status(404).json({ message: "Order not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Assignment failed", error: error.message });
+  }
+};
