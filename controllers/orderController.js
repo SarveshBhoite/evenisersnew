@@ -79,11 +79,22 @@ exports.getMyOrders = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
+    const { vendorId } = req.query; // 1. Get the ID from the URL (?vendorId=...)
+    
+    // 2. Build a filter object
+    let query = {};
+    if (vendorId) {
+        // If we have an ID, only look for orders assigned to this person
+        query.assignedVendor = vendorId; 
+    }
+
+    // 3. Use the filter in .find(query)
+    const orders = await Order.find(query)
       .populate("user", "name email")
       .populate("items.product", "name category")
-      .populate("assignedVendor", "name") 
-      .sort({ createdAt: -1 });
+      .populate("assignedVendor", "name phone")
+      .sort({ createdAt: -1 }); // Newest first
+      
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: "Error fetching admin orders" });
