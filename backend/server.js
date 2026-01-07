@@ -5,27 +5,30 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
-const productRoutes = require("./routes/productRoutes"); // Public
-const adminRoutes = require("./routes/adminRoutes"); // Admin Orders/General
+const productRoutes = require("./routes/productRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const userRoutes = require("./routes/userRoutes");
-const vendorRoutes= require("./routes/vendorRoutes");
+const vendorRoutes = require("./routes/vendorRoutes");
 
 dotenv.config();
 const app = express();
 
+// 🚨 FIX 1: Update CORS to allow your Vercel Domain
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    "http://localhost:3000",                // For local development
+    "https://evenisersnew.vercel.app",      // For production Vercel frontend
+    process.env.CLIENT_URL                  // Fallback from .env
+  ],
   credentials: true,
-  
 }));
 
 app.use(express.json());
 
-// 🚨 STATIC FOLDER ACCESS
-// This ensures ${process.env.NEXT_PUBLIC_API_URL}/uploads/image.jpg works
+// Static Folder Access
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
@@ -33,9 +36,9 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.log("❌ MongoDB Connection Error: ", err));
 
-// 🚨 ROUTE ORDER MATTERS
+// Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/admin/products", productRoutes); // Move this UP
+app.use("/api/admin/products", productRoutes);
 app.use("/api/admin", adminRoutes); 
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
@@ -44,4 +47,6 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/users", userRoutes);
 
-app.listen(5000, () => console.log(`🚀 Server running on ${process.env.PORT}`));
+// 🚨 FIX 2: Use Dynamic Port for Render (process.env.PORT)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

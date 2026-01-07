@@ -9,16 +9,9 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuLabel, 
-    DropdownMenuSeparator, 
-    DropdownMenuTrigger 
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { 
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, Package, Calendar, User, ArrowLeft, MapPin, Wallet, Truck, Check, Send, ChevronDown, UserCircle, XCircle, ExternalLink } from "lucide-react"
 import axios from "axios"
@@ -48,7 +41,6 @@ export default function AdminOrdersPage() {
     if (token) fetchOrders()
   }, [token])
 
-  // Status Change Logic
   const changeStatus = async (orderId: string, newStatus: string) => {
       try {
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`, 
@@ -93,7 +85,7 @@ export default function AdminOrdersPage() {
                 <tr key={order._id} className="hover:bg-zinc-50/50 transition-colors group">
                   <td className="px-8 py-5 font-mono text-xs text-zinc-500">#{order._id.slice(-8).toUpperCase()}</td>
                   <td className="px-8 py-5">
-                    <div className="text-sm font-bold text-zinc-900">{order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</div>
+                    <div className="text-sm font-bold text-zinc-900">{order.shippingAddress?.firstName}</div>
                     <div className="text-xs font-bold text-blue-600 bg-blue-50 w-fit px-2 py-0.5 rounded mt-1 uppercase tracking-wide">
                       {order.shippingAddress?.city}
                     </div>
@@ -181,6 +173,7 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
         );
         toast.success("Order assigned to you!");
         refreshOrders();
+        setAssignMode(""); // Close UI
       } catch (err) { toast.error("Failed") }
       finally { setLoading(false) }
   }
@@ -195,6 +188,7 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
           );
           toast.success("Requests sent to selected partners");
           refreshOrders();
+          setAssignMode(""); // Close UI
       } catch (err) { toast.error("Failed") } 
       finally { setLoading(false) }
   }
@@ -204,7 +198,6 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
       else setSelectedVendors([...selectedVendors, id]);
   }
 
-  // --- NEW: Generate WhatsApp Link ---
   const sendWhatsApp = (vendor: any) => {
       const link = `${window.location.origin}/vendor/accept?orderId=${order._id}&vendorId=${vendor._id}`;
       const msg = `Hello ${vendor.name}, we have a new event in ${order.shippingAddress.city}. Please check details and accept here: ${link}`;
@@ -234,9 +227,9 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
           
           {/* ASSIGNMENT UI */}
           {!order.assignedVendor && order.status !== "completed" && order.status !== "cancelled" && order.status !== "in_progress" && (
-              <div className="flex flex-col gap-2 w-[240px]">
+              <div className="flex flex-col items-end gap-2 relative">
                   <Select onValueChange={(val) => setAssignMode(val as any)}>
-                      <SelectTrigger className="w-full bg-white h-10 rounded-xl border-zinc-300 font-bold text-sm shadow-sm focus:ring-0">
+                      <SelectTrigger className="w-[240px] bg-white h-10 rounded-xl border-zinc-300 font-bold text-sm shadow-sm focus:ring-0">
                           <SelectValue placeholder="Assign Responsibility" />
                       </SelectTrigger>
                       <SelectContent className="bg-white rounded-xl border-zinc-100 shadow-xl w-[240px]">
@@ -249,40 +242,43 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
                       </SelectContent>
                   </Select>
 
+                  {/* Mode A: Myself Button */}
                   {assignMode === "myself" && (
-                      <Button onClick={handleAssignMyself} disabled={loading} size="sm" className="w-full bg-black text-white rounded-xl h-9 animate-in slide-in-from-top-2 fade-in">
+                      <Button onClick={handleAssignMyself} disabled={loading} size="sm" className="w-[240px] bg-black text-white rounded-xl h-9 animate-in slide-in-from-top-2 fade-in">
                           {loading ? "Processing..." : "Confirm & Start"}
                       </Button>
                   )}
 
-                  {/* BROADCAST SELECTOR */}
+                  {/* Mode B: Broadcast UI */}
                   {assignMode === "broadcast" && (
-                      <div className="w-full bg-white border border-zinc-200 rounded-xl p-3 shadow-lg absolute top-32 z-50 animate-in slide-in-from-top-2 fade-in w-[280px] right-8">
-                          <p className="text-[10px] font-bold text-zinc-400 uppercase mb-2">Select Vendors ({order.shippingAddress?.city})</p>
-                          <div className="max-h-40 overflow-y-auto space-y-2 mb-2 [&::-webkit-scrollbar]:hidden">
+                      <div className="w-[280px] bg-white border border-zinc-200 rounded-xl p-3 shadow-lg absolute top-12 right-0 z-50 animate-in slide-in-from-top-2 fade-in">
+                          <div className="flex justify-between items-center mb-2">
+                              <p className="text-[10px] font-bold text-zinc-400 uppercase">Select Vendors</p>
+                              <p onClick={() => setAssignMode("")} className="text-[10px] font-bold text-red-500 cursor-pointer hover:underline">Close</p>
+                          </div>
+                          
+                          <div className="max-h-40 overflow-y-auto space-y-1 mb-2 custom-scrollbar">
                               {vendors.length > 0 ? vendors.map((v: any) => (
-                                  <div key={v._id} className="flex items-center justify-between p-2 hover:bg-zinc-50 rounded-lg">
-                                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleVendor(v._id)}>
+                                  <div key={v._id} className="flex items-center justify-between p-2 hover:bg-zinc-50 rounded-lg group">
+                                      <div className="flex items-center gap-2 cursor-pointer max-w-[80%]" onClick={() => toggleVendor(v._id)}>
                                           <Checkbox id={v._id} checked={selectedVendors.includes(v._id)} />
-                                          <label htmlFor={v._id} className="text-xs font-bold cursor-pointer">{v.name}</label>
+                                          <label htmlFor={v._id} className="text-xs font-bold cursor-pointer truncate">{v.name}</label>
                                       </div>
-                                      
-                                      {/* WHATSAPP LINK BUTTON */}
-                                      <div onClick={() => sendWhatsApp(v)} title="Send Link on WhatsApp" className="p-1.5 rounded-full bg-green-50 text-green-600 hover:bg-green-100 cursor-pointer">
+                                      <div onClick={() => sendWhatsApp(v)} title="WhatsApp" className="p-1.5 rounded-full bg-green-50 text-green-600 hover:bg-green-100 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
                                           <ExternalLink className="w-3 h-3" />
                                       </div>
                                   </div>
-                              )) : <p className="text-xs text-red-400 italic">No local partners found.</p>}
+                              )) : <p className="text-xs text-red-400 italic">No partners in this city.</p>}
                           </div>
                           <Button onClick={handleBroadcast} disabled={loading || selectedVendors.length === 0} size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-8 text-xs">
-                              <Send className="w-3 h-3 mr-2" /> Broadcast Request
+                              <Send className="w-3 h-3 mr-2" /> Send Request
                           </Button>
                       </div>
                   )}
               </div>
           )}
 
-          {/* Assigned Badge */}
+          {/* Badges */}
           {order.assignedVendor && (
               <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2 text-xs font-bold uppercase tracking-wider">
                   <Check className="w-3 h-3 mr-2" /> Assigned: {order.assignedVendor.name}
@@ -295,6 +291,7 @@ function OrderDetailsModal({ order, refreshOrders, token }: { order: any, refres
           )}
         </DialogHeader>
 
+        {/* ... Rest of Body (Same as before) ... */}
         <div className="p-8 space-y-8">
             <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
