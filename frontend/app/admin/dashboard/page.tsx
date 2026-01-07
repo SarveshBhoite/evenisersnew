@@ -39,7 +39,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Revenue",
-      href: "#", // Add link if you have a report page
+      href: "/admin/revenue", // Add link if you have a report page
       icon: <IndianRupee className="w-6 h-6" />,
       desc: "View earnings and sales reports"
     }
