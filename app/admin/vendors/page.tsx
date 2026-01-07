@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, MapPin, Phone, Mail, Trash2, ArrowLeft, Truck, Award } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, MapPin, Phone, Mail, Trash2, ArrowLeft, Truck, Award, Eye } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -111,11 +112,8 @@ export default function VendorsPage() {
                             <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> {vendor.phone}</p>
                         </div>
                         
-                        {/* 🚨 HISTORY SECTION */}
-                        <div className="flex items-center gap-2 text-sm font-bold text-zinc-700">
-                            <Award className="w-4 h-4 text-yellow-500" />
-                            <span>{vendor.history?.completed || 0} Successful Events</span>
-                        </div>
+                        {/* 🚨 CLICKABLE HISTORY SECTION */}
+                        <VendorHistoryModal vendor={vendor} token={token} />
                     </div>
                 ))
             )}
@@ -123,4 +121,83 @@ export default function VendorsPage() {
       </div>
     </div>
   );
+}
+
+// --------------------------------------------------------
+// NEW: VENDOR HISTORY MODAL COMPONENT
+// --------------------------------------------------------
+function VendorHistoryModal({ vendor, token }: { vendor: any, token: any }) {
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch orders when modal opens
+    const fetchHistory = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}/orders?vendorId=${vendor._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setOrders(res.data);
+        } catch (err) {
+            console.error("Failed to fetch history");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <div onClick={fetchHistory} className="flex items-center gap-2 text-sm font-bold text-zinc-700 cursor-pointer hover:text-black transition-colors group/link">
+                    <Award className="w-4 h-4 text-yellow-500" />
+                    <span>{vendor.history?.completed || 0} Successful Events</span>
+                    <span className="text-[10px] uppercase text-zinc-400 font-normal group-hover/link:underline">(View History)</span>
+                </div>
+            </DialogTrigger>
+            
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto rounded-[2rem] p-0 gap-0">
+                <DialogHeader className="p-6 border-b border-zinc-100 bg-zinc-50/50">
+                    <DialogTitle className="font-serif text-2xl font-bold flex flex-col">
+                        <span>{vendor.name}</span>
+                        <span className="text-sm font-sans font-normal text-zinc-400 mt-1">Event History Log</span>
+                    </DialogTitle>
+                </DialogHeader>
+
+                <div className="p-6">
+                    {loading ? (
+                        <p className="text-center text-zinc-400 py-10">Loading history...</p>
+                    ) : orders.length === 0 ? (
+                        <p className="text-center text-zinc-400 py-10">No events found for this vendor yet.</p>
+                    ) : (
+                        <div className="space-y-4">
+                            {orders.map((order) => (
+                                <div key={order._id} className="border border-zinc-100 rounded-xl p-4 flex justify-between items-center hover:bg-zinc-50 transition-colors">
+                                    <div className="flex-1">
+                                        <p className="font-bold text-zinc-900">
+                                            {order.items[0]?.product?.name || "Deleted Product"}
+                                        </p>
+                                        <div className="flex gap-3 mt-1 text-xs text-zinc-500 font-medium uppercase tracking-wide">
+                                            <span>ID: #{order._id.slice(-6).toUpperCase()}</span>
+                                            <span>•</span>
+                                            <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="text-right">
+                                        <p className="font-bold text-zinc-900">₹{order.totalAmount?.toLocaleString()}</p>
+                                        <Badge className={`mt-1 ${
+                                            order.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                                            order.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                                        } border-0 uppercase text-[10px]`}>
+                                            {order.status.replace("_", " ")}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
 }
