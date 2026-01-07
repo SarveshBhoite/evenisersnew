@@ -52,6 +52,9 @@ export default function CheckoutPage() {
         product: item.productId?._id,
         quantity: item.quantity,
         price: item.productId?.price,
+        eventDate: item.eventDate || "",
+    timeSlot: item.timeSlot || "",
+    message: item.message || ""
       })),
       shippingAddress: {
         firstName: formData.get("firstName"),

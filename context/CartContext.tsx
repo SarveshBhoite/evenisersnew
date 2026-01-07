@@ -10,11 +10,16 @@ interface CartItem {
     _id: string;
     name: string;
     price: number;
+    discount?: number; // Added discount
     image: string;
     included?: any;
     category?: string;
+    setupTime?: string; // Added setupTime
   };
   quantity: number;
+  eventDate?: string;
+  timeSlot?: string;
+  message?: string;
 }
 
 interface CartContextType {
@@ -22,6 +27,7 @@ interface CartContextType {
   addToCart: (productId: string, quantity: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, newQuantity: number) => Promise<void>;
+  updateItemDetails: (productId: string, details: { eventDate?: string; timeSlot?: string; message?: string }) => Promise<void>;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
@@ -63,11 +69,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await axios.post(
         `${API_URL}/cart`,
         { productId, quantity },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setCartItems(res.data.items);
       toast.success("Item added to cart successfully.");
@@ -76,7 +78,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ FIXED HERE
   const updateQuantity = async (productId: string, newQuantity: number) => {
     if (!token) return;
     if (newQuantity < 1) return removeFromCart(productId);
@@ -85,22 +86,32 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await axios.put(
         `${API_URL}/cart/${productId}`,
         { quantity: newQuantity },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setCartItems(res.data.items);
     } catch (err) {
       console.error("Update quantity failed:", err);
     }
   };
 
+  // ✅ NEW FUNCTION: Update Event Details
+  const updateItemDetails = async (productId: string, details: { eventDate?: string; timeSlot?: string; message?: string }) => {
+    if (!token) return;
+    try {
+        const res = await axios.put(
+            `${API_URL}/cart/${productId}`,
+            details, // Sending updated details
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setCartItems(res.data.items);
+    } catch (err) {
+        console.error("Update details failed", err);
+        toast.error("Failed to save event details");
+    }
+  };
+
   const removeFromCart = async (productId: string) => {
     if (!token) return;
-
     try {
       const res = await axios.delete(`${API_URL}/cart/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -114,15 +125,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearCart = () => setCartItems([]);
 
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + item.productId.price * item.quantity,
-    0
-  );
+  // ✅ FIXED TOTAL CALCULATION (Using Discounted Price)
+  const cartTotal = cartItems.reduce((total, item) => {
+    const price = item.productId.price;
+    const discount = item.productId.discount || 0;
+    const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
+    return total + (finalPrice * item.quantity);
+  }, 0);
 
-  const cartCount = cartItems.reduce(
-    (count, item) => count + item.quantity,
-    0
-  );
+  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
   return (
     <CartContext.Provider
@@ -131,6 +142,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateItemDetails,
         clearCart,
         cartTotal,
         cartCount,
