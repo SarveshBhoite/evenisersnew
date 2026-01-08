@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -8,150 +7,202 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useCart } from "@/context/CartContext";
-import { useLocation, CITIES } from "@/context/LocationContext";
-import { Truck, CheckCircle, Wallet, CreditCard } from "lucide-react";
+import { useLocation } from "@/context/LocationContext";
+import { useAuth } from "@/context/AuthContext"; // Import Auth
+import { Truck, CheckCircle, Wallet, CreditCard, Loader2 } from "lucide-react";
 import axios from "axios";
+import Script from "next/script";
+import { toast } from "sonner";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
-  const { city, setCity } = useLocation();
+  const { city } = useLocation(); // We stick to the Global City
+  const { user, token } = useAuth();
   const router = useRouter();
-  const [orderComplete, setOrderComplete] = useState(false);
-  const [loading, setLoading] = useState(false);
   
-  // Payment Choice State (Default: Full Payment)
+  const [loading, setLoading] = useState(false);
   const [paymentOption, setPaymentOption] = useState<"full" | "advance">("full");
+  const [useProfileData, setUseProfileData] = useState(false);
 
-  // --- 1. PRICE SYNC LOGIC (Matches Cart Exactly) ---
+  // Form State (Manual Entry by default)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    state: "",
+    zip: "",
+    country: "India",
+  });
+
+  // --- 1. PRICE LOGIC ---
   const subtotal = cartItems.reduce((total, item) => {
       const price = item.productId.price;
       const discount = item.productId.discount || 0;
-      // Exact same logic as Cart Page
       const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
       return total + (finalPrice * item.quantity);
   }, 0);
 
-  // Shipping Logic
-  const shipping = subtotal > 50000 ? 0 : 2500; 
-  
-  // GST Logic (Standard 18%)
+  const shipping = subtotal > 50000 ? 0 : 500; 
   const tax = subtotal * 0.18; 
-  
   const grandTotal = subtotal + shipping + tax;
 
-  // --- 2. PARTIAL PAYMENT CALCULATION ---
-  const payableAmount = paymentOption === "advance" 
-      ? Math.round(grandTotal * 0.40) 
-      : Math.round(grandTotal);
-
+  // --- 2. PAYMENT AMOUNT CALCULATION ---
+  const payableAmount = paymentOption === "advance" ? Math.round(grandTotal * 0.40) : Math.round(grandTotal);
   const remainingAmount = grandTotal - payableAmount;
 
+  // --- 3. AUTO-FILL LOGIC ---
   useEffect(() => {
-    if (cartItems.length === 0 && !orderComplete) {
-      router.push("/cart");
+    if (useProfileData && user) {
+        // Fetch fresh profile data to be sure
+        axios.get(`${API_URL}/users/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(res => {
+            const u = res.data;
+            const names = u.name ? u.name.split(" ") : ["", ""];
+            setFormData({
+                firstName: names[0] || "",
+                lastName: names.slice(1).join(" ") || "",
+                email: u.email || "",
+                phone: u.phone || "",
+                address: u.address || "",
+                state: u.state || "",
+                zip: u.zip || "",
+                country: "India"
+            });
+        }).catch(err => console.error(err));
+    } else if (!useProfileData) {
+        // Optional: Clear form or leave as is when unchecked? 
+        // Let's leave it as is so they don't lose data accidentally, or you can reset.
     }
-  }, [cartItems, orderComplete, router]);
+  }, [useProfileData, user, token]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // --- 4. RAZORPAY PAYMENT HANDLER ---
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return toast.error("Please login to place an order");
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-
-    const orderData = {
-      userEmail: formData.get("email"),
-      items: cartItems.map((item) => {
-        const price = item.productId.price;
-        const discount = item.productId.discount || 0;
-        const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
-        
-        return {
-            product: item.productId?._id,
-            quantity: item.quantity,
-            price: finalPrice, // Important: Send discounted unit price
-            eventDate: item.eventDate || "",
-            timeSlot: item.timeSlot || "",
-            message: item.message || ""
-        };
-      }),
-      shippingAddress: {
-        firstName: formData.get("firstName"),
-        lastName: formData.get("lastName"),
-        address: formData.get("address"),
-        city: formData.get("city"),
-        state: formData.get("state"),
-        zip: formData.get("zip"),
-        country: formData.get("country"),
-      },
-      // Payment Fields
-      totalAmount: grandTotal,
-      amountPaid: payableAmount,
-      paymentType: paymentOption, 
-    };
-
     try {
-      // NOTE: Here you will eventually trigger Razorpay. 
-      // For now, we simulate success directly.
-      await axios.post(
-        `${API_URL}/orders`,
-        orderData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+        // A. Create Order ID on Backend
+        const { data: orderData } = await axios.post(
+            `${API_URL}/payment/create-order`,
+            { amount: payableAmount }, // Sending the EXACT payable amount (Full or 40%)
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-      setOrderComplete(true);
-      setTimeout(() => {
-        clearCart();
-        router.push("/");
-      }, 3000);
-    } catch (error: any) {
-      alert(error?.response?.data?.message || "Order placement failed");
-    } finally {
-      setLoading(false);
+        // B. Open Razorpay
+        const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: orderData.amount, // Amount in paise from backend
+            currency: "INR",
+            name: "Luxe Events",
+            description: paymentOption === 'advance' ? "Advance Payment (40%)" : "Full Payment",
+            order_id: orderData.id,
+            
+            handler: async function (response: any) {
+                // C. On Success -> Save Order to DB
+                await saveOrder(response);
+            },
+            prefill: {
+                name: `${formData.firstName} ${formData.lastName}`,
+                email: formData.email,
+                contact: formData.phone,
+            },
+            theme: { color: "#000000" },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+
+    } catch (error) {
+        console.error(error);
+        toast.error("Payment initialization failed");
+        setLoading(false);
     }
   };
 
-  if (cartItems.length === 0 && !orderComplete) return null;
+  const saveOrder = async (paymentResult: any) => {
+      try {
+        const orderPayload = {
+            userEmail: formData.email,
+            items: cartItems.map((item) => {
+                const price = item.productId.price;
+                const discount = item.productId.discount || 0;
+                const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
+                return {
+                    product: item.productId._id,
+                    quantity: item.quantity,
+                    price: finalPrice,
+                    eventDate: item.eventDate,
+                    timeSlot: item.timeSlot,
+                    message: item.message
+                };
+            }),
+            shippingAddress: {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone, // 🚨 Sending Phone
+                address: formData.address,
+                city: city, // 🚨 Forced from Global Location Context
+                state: formData.state,
+                zip: formData.zip,
+                country: formData.country,
+            },
+            paymentMethod: "Razorpay",
+            paymentResult: {
+                id: paymentResult.razorpay_payment_id,
+                status: "completed",
+                email_address: formData.email,
+            },
+            totalAmount: grandTotal,
+            amountPaid: payableAmount,
+            remainingAmount: remainingAmount,
+            paymentType: paymentOption,
+        };
 
-  if (orderComplete) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center px-6">
-          <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-6 animate-bounce" />
-          <h1 className="font-serif text-4xl font-bold mb-4 text-zinc-900">Booking Confirmed!</h1>
-          <p className="text-lg text-zinc-500 mb-4">
-            We have received your payment of <strong>₹{payableAmount.toLocaleString()}</strong>.
-          </p>
-          <p className="text-sm text-zinc-400 italic">Redirecting to homepage...</p>
-        </div>
-      </div>
-    );
-  }
+        await axios.post(`${API_URL}/orders`, orderPayload, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        toast.success("Booking Confirmed!");
+        clearCart();
+        router.push("/my-orders");
+
+      } catch (error) {
+          console.error(error);
+          toast.error("Order creation failed. Please contact support.");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  if (cartItems.length === 0) return null;
 
   return (
     <div className="min-h-screen pt-32 pb-16 bg-[#FDFCFB]">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6">
-        <h1 className="font-serif text-5xl uppercase mb-12 text-zinc-900">
-          Checkout
-        </h1>
+        <h1 className="font-serif text-5xl uppercase mb-12 text-zinc-900">Checkout</h1>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handlePayment}>
           <div className="grid lg:grid-cols-3 gap-12">
             
             {/* LEFT: Shipping & Payment */}
@@ -159,56 +210,73 @@ export default function CheckoutPage() {
               
               {/* Shipping Details */}
               <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-zinc-100">
-                <div className="flex items-center gap-3 mb-8">
-                  <Truck className="w-5 h-5 text-black" />
-                  <h2 className="font-black uppercase tracking-widest text-sm">Event Details</h2>
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-3">
+                        <Truck className="w-5 h-5 text-black" />
+                        <h2 className="font-black uppercase tracking-widest text-sm">Event Details</h2>
+                    </div>
+                    {user && (
+                        <div className="flex items-center space-x-2">
+                            <Checkbox 
+                                id="useProfile" 
+                                checked={useProfileData}
+                                onCheckedChange={(c) => setUseProfileData(c as boolean)}
+                            />
+                            <Label htmlFor="useProfile" className="text-sm font-medium cursor-pointer">
+                                Fetch from Profile
+                            </Label>
+                        </div>
+                    )}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {[
-                    ["firstName", "First Name"],
-                    ["lastName", "Last Name"],
-                    ["email", "Email", "email"],
-                    ["address", "Event Address"],
-                    ["city", "City"],
-                    ["state", "State"],
-                    ["zip", "ZIP Code"],
-                    ["country", "Country", "text", "India"],
-                  ].map(([name, label, type = "text", def]) => (
-                    <div key={name} className={name === "address" || name === "email" ? "md:col-span-2" : ""}>
-                      <Label className="text-[11px] font-bold uppercase text-zinc-500 tracking-wider mb-1 block">
-                        {label}
-                      </Label>
-                      
-                      {name === "city" ? (
-                        <>
-                            <Select value={city} onValueChange={(val) => setCity(val)}>
-                                <SelectTrigger className="bg-zinc-50 border-0 rounded-xl h-12 font-bold text-base focus:ring-0 px-4">
-                                    <SelectValue placeholder="Select City" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {CITIES.map((c) => (
-                                        <SelectItem key={c} value={c} className="font-medium cursor-pointer">{c}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <input type="hidden" name="city" value={city} />
-                        </>
-                      ) : (
-                        <Input
-                          name={name}
-                          type={type}
-                          defaultValue={def}
-                          required
-                          className="bg-zinc-50 border-0 rounded-xl h-12 font-bold text-zinc-900 focus-visible:ring-black"
-                        />
-                      )}
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">First Name</Label>
+                        <Input name="firstName" value={formData.firstName} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
                     </div>
-                  ))}
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Last Name</Label>
+                        <Input name="lastName" value={formData.lastName} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+                    
+                    <div className="md:col-span-2 space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Email</Label>
+                        <Input name="email" type="email" value={formData.email} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Phone Number</Label>
+                        <Input name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required placeholder="+91 99999 99999" className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Event Address</Label>
+                        <Input name="address" value={formData.address} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">City (Selected Location)</Label>
+                        <Input value={city} disabled className="bg-zinc-100 border-0 h-12 rounded-xl font-bold text-zinc-500 cursor-not-allowed" />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">State</Label>
+                        <Input name="state" value={formData.state} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Zip Code</Label>
+                        <Input name="zip" value={formData.zip} onChange={handleInputChange} required className="bg-zinc-50 border-0 h-12 rounded-xl" />
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="text-[11px] font-bold uppercase text-zinc-500">Country</Label>
+                        <Input name="country" value={formData.country} disabled className="bg-zinc-100 border-0 h-12 rounded-xl" />
+                    </div>
                 </div>
               </div>
 
-              {/* PAYMENT OPTIONS (40% vs 100%) */}
+              {/* Payment Options */}
               <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-zinc-100">
                 <div className="flex items-center gap-3 mb-6">
                   <Wallet className="w-5 h-5 text-black" />
@@ -216,47 +284,34 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                    {/* FULL PAYMENT */}
-                    <div 
-                        onClick={() => setPaymentOption("full")}
-                        className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative ${paymentOption === "full" ? "border-black bg-zinc-50" : "border-zinc-100 hover:border-zinc-200"}`}
-                    >
+                    {/* FULL */}
+                    <div onClick={() => setPaymentOption("full")} className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative ${paymentOption === "full" ? "border-black bg-zinc-50" : "border-zinc-100 hover:border-zinc-200"}`}>
                         <div className="flex justify-between items-center mb-2">
                             <span className="font-bold text-lg">Pay Full (100%)</span>
                             {paymentOption === "full" && <CheckCircle className="w-5 h-5 text-black" />}
                         </div>
-                        <p className="text-sm text-zinc-500">Pay everything now. No hassle on event day.</p>
                         <div className="mt-4 pt-4 border-t border-zinc-200">
                             <span className="font-serif text-2xl font-bold">₹{grandTotal.toLocaleString()}</span>
                         </div>
                     </div>
 
-                    {/* ADVANCE PAYMENT */}
-                    <div 
-                        onClick={() => setPaymentOption("advance")}
-                        className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative ${paymentOption === "advance" ? "border-black bg-zinc-50" : "border-zinc-100 hover:border-zinc-200"}`}
-                    >
-                        <div className="absolute -top-3 right-4 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                            Popular
-                        </div>
+                    {/* ADVANCE */}
+                    <div onClick={() => setPaymentOption("advance")} className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative ${paymentOption === "advance" ? "border-black bg-zinc-50" : "border-zinc-100 hover:border-zinc-200"}`}>
+                        <div className="absolute -top-3 right-4 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Popular</div>
                         <div className="flex justify-between items-center mb-2">
                             <span className="font-bold text-lg">Book with 40%</span>
                             {paymentOption === "advance" && <CheckCircle className="w-5 h-5 text-black" />}
                         </div>
-                        <p className="text-sm text-zinc-500">Secure your slot now. Pay balance later.</p>
                         <div className="mt-4 pt-4 border-t border-zinc-200 flex flex-col">
                             <div className="flex items-baseline gap-2">
                                 <span className="font-serif text-2xl font-bold">₹{Math.round(grandTotal * 0.4).toLocaleString()}</span>
                                 <span className="text-xs font-bold text-zinc-400 uppercase">Now</span>
                             </div>
-                            <span className="text-xs text-red-500 font-bold mt-1">
-                                Remaining: ₹{Math.round(grandTotal * 0.6).toLocaleString()}
-                            </span>
+                            <span className="text-xs text-red-500 font-bold mt-1">Remaining: ₹{Math.round(grandTotal * 0.6).toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
               </div>
-
             </div>
 
             {/* RIGHT: Summary */}
@@ -265,44 +320,21 @@ export default function CheckoutPage() {
 
                 <div className="space-y-6 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {cartItems.map((item, index) => {
-                        const price = item.productId.price;
-                        const discount = item.productId.discount || 0;
-                        const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
-
+                         const price = item.productId.price;
+                         const discount = item.productId.discount || 0;
+                         const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
                         return (
                             <div key={item.productId?._id || index} className="flex gap-4">
                                 <div className="relative w-16 h-20 rounded-xl overflow-hidden border border-zinc-100 bg-zinc-50 shrink-0">
-                                <Image
-                                    src={item.productId?.image ? `${process.env.NEXT_PUBLIC_API_URL}${item.productId.image}` : "/placeholder.svg"}
-                                    alt="Product"
-                                    fill
-                                    className="object-cover"
-                                />
+                                    <Image src={item.productId?.image ? `${process.env.NEXT_PUBLIC_API_URL}${item.productId.image}` : "/placeholder.svg"} alt="Product" fill className="object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-bold truncate">{item.productId?.name}</h4>
-                                <p className="text-xs font-medium text-zinc-500 mt-1">
-                                    {item.quantity} × ₹{finalPrice.toLocaleString()}
-                                </p>
+                                    <h4 className="text-sm font-bold truncate">{item.productId?.name}</h4>
+                                    <p className="text-xs font-medium text-zinc-500 mt-1">{item.quantity} × ₹{finalPrice.toLocaleString()}</p>
                                 </div>
                             </div>
                         )
                     })}
-                </div>
-
-                <div className="border-t border-dashed border-zinc-200 pt-6 space-y-3">
-                    <div className="flex justify-between font-medium text-sm text-zinc-500">
-                        <span>Subtotal</span>
-                        <span className="text-zinc-900">₹{subtotal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between font-medium text-sm text-zinc-500">
-                        <span>Logistics</span>
-                        <span className="text-green-600">{shipping === 0 ? "FREE" : `₹${shipping.toLocaleString()}`}</span>
-                    </div>
-                    <div className="flex justify-between font-medium text-sm text-zinc-500">
-                        <span>GST (18%)</span>
-                        <span className="text-zinc-900">₹{tax.toLocaleString()}</span>
-                    </div>
                 </div>
 
                 <div className="border-t border-zinc-900 pt-6 mt-6">
@@ -312,23 +344,12 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between items-end">
                         <span className="text-lg font-black text-black uppercase tracking-tight">Payable Now</span>
-                        <span className="text-4xl font-serif font-bold text-black">
-                            ₹{payableAmount.toLocaleString()}
-                        </span>
+                        <span className="text-4xl font-serif font-bold text-black">₹{payableAmount.toLocaleString()}</span>
                     </div>
-                    {paymentOption === "advance" && (
-                        <p className="text-xs text-right text-red-500 font-bold mt-2">
-                            Balance ₹{remainingAmount.toLocaleString()} due later
-                        </p>
-                    )}
                 </div>
 
-                <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-2xl mt-8 h-16 font-bold text-lg shadow-xl transition-all active:scale-[0.98]"
-                >
-                    {loading ? "Processing..." : `Pay ₹${payableAmount.toLocaleString()}`}
+                <Button type="submit" disabled={loading} className="w-full bg-black hover:bg-zinc-800 text-white rounded-2xl mt-8 h-16 font-bold text-lg shadow-xl transition-all active:scale-[0.98]">
+                    {loading ? <Loader2 className="animate-spin" /> : `Pay ₹${payableAmount.toLocaleString()}`}
                 </Button>
                 
                 <div className="flex items-center justify-center gap-2 mt-4 text-zinc-400">
