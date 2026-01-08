@@ -11,6 +11,15 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    
+    // 🚨 NEW FIELDS (For Profile & Checkout)
+    phone: { type: String },
+    address: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zip: { type: String },
+    country: { type: String },
+
     isVerified: { type: Boolean, default: false },
     otp: { type: String },
     otpExpires: { type: Date },

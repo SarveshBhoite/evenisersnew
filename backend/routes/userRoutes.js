@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/Users");
 const { protect } = require("../middleware/authMiddleware");
+const userController = require("../controllers/userController");
 
 // @desc    Get all regular users (Excluding Admins)
 router.get("/", protect, async (req, res) => {
@@ -18,4 +19,9 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
+router.route("/profile")
+    .get(protect, userController.getUserProfile)
+    .put(protect, userController.updateUserProfile);
+
+router.route("/password").put(protect, userController.changePassword);
 module.exports = router;
