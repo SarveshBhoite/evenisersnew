@@ -151,6 +151,16 @@ exports.updateOrderStatus = async (req, res) => {
         order.broadcastTo = [];
     }
 
+    if (status === "completed" && order.remainingAmount > 0) {
+        console.log(`💰 Auto-settling payment for Order ${order._id}`);
+        order.amountPaid = order.totalAmount; // Mark full amount as paid
+        order.remainingAmount = 0;            // Clear dues
+    }
+    if (status === "cancelled" && order.remainingAmount > 0) {
+        console.log(`💰 Adding advance payment for Order ${order._id} to total revenue`);
+        order.remainingAmount = 0;            // Clear dues
+    }
+
     order.status = status;
     await order.save();
     res.json(order);
