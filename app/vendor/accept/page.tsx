@@ -5,8 +5,9 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
-import { CheckCircle, XCircle, MapPin, Calendar, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, MapPin, Calendar, Clock, AlertTriangle, Loader2, Package } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 function VendorAcceptContent() {
   const searchParams = useSearchParams();
@@ -82,7 +83,7 @@ function VendorAcceptContent() {
         </div>
         <h1 className="text-3xl font-serif font-bold text-zinc-900 mb-2">You're Assigned!</h1>
         <p className="text-zinc-500 max-w-md">
-          Thank you for accepting. The admin has been notified.
+          Thank you for accepting. The admin has been notified and you can now see this in your dashboard.
         </p>
       </div>
     );
@@ -100,68 +101,72 @@ function VendorAcceptContent() {
     );
   }
 
-  // STATUS: READY (Show REAL Data)
+  // STATUS: READY (Show REAL Data with Loop)
   return (
-    <div className="max-w-md mx-auto pt-32 pb-20 px-6">
+    <div className="max-w-lg mx-auto pt-32 pb-20 px-6">
       <div className="text-center mb-10">
-        <h1 className="font-serif text-3xl font-bold mb-2">New Event Request</h1>
-        <p className="text-zinc-500">A new decoration job matches your profile.</p>
+        <h1 className="font-serif text-3xl font-bold mb-2">New Job Request</h1>
+        <p className="text-zinc-500">
+            This order contains <strong className="text-black">{orderData?.items?.length || 0} event(s)</strong>.
+        </p>
       </div>
 
       <div className="bg-white rounded-[2rem] border border-zinc-200 shadow-xl overflow-hidden">
         
-        {/* Header with Image if available */}
-        <div className="bg-zinc-100 h-40 relative">
-            {orderData?.products?.[0]?.image ? (
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}${orderData.products[0].image}`} className="w-full h-full object-cover" />
-            ) : (
-                <div className="w-full h-full flex items-center justify-center text-zinc-400">No Image</div>
-            )}
-            <div className="absolute bottom-4 left-4 bg-white px-3 py-1 rounded-full text-xs font-bold shadow-sm uppercase tracking-wide">
-                {orderData?.products?.[0]?.category || "Event"}
+        {/* Global Location Header */}
+        <div className="bg-zinc-50 p-6 border-b border-zinc-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center shadow-sm text-red-500">
+                    <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Location</p>
+                    <p className="font-bold text-lg text-zinc-900 leading-none">{orderData?.shippingAddress?.city || "City"}</p>
+                </div>
             </div>
+            <Badge variant="outline" className="bg-black text-white border-black">{orderData?.items?.length} Tasks</Badge>
         </div>
 
-        <div className="p-8 space-y-6">
-            <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                    <p className="text-sm font-bold text-zinc-400 uppercase">Location</p>
-                    <p className="font-bold text-lg text-zinc-900">{orderData?.city}</p>
-                </div>
-            </div>
+        {/* 🚨 LOOP THROUGH ALL ITEMS */}
+        <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+            {orderData?.items?.map((item: any, idx: number) => (
+                <div key={idx} className="flex gap-4 p-4 rounded-2xl border border-zinc-100 bg-zinc-50/50 hover:bg-zinc-50 transition-colors">
+                    {/* Image Thumbnail */}
+                    <div className="w-20 h-20 bg-white rounded-xl flex-shrink-0 overflow-hidden border border-zinc-200">
+                        {item.product?.image ? (
+                            <img src={`${process.env.NEXT_PUBLIC_API_URL}${item.product.image}`} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-300"><Package className="w-6 h-6"/></div>
+                        )}
+                    </div>
 
-            <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-zinc-600" />
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                        <h4 className="font-serif font-bold text-lg text-zinc-900 truncate">{item.product?.name || "Event Package"}</h4>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 bg-white px-2 py-1 rounded-md border border-zinc-200 shadow-sm">
+                                <Calendar className="w-3 h-3 text-zinc-400" /> {item.eventDate || "TBD"}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 bg-white px-2 py-1 rounded-md border border-zinc-200 shadow-sm">
+                                <Clock className="w-3 h-3 text-zinc-400" /> {item.timeSlot || "TBD"}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-sm font-bold text-zinc-400 uppercase">Event Date</p>
-                    <p className="font-bold text-lg text-zinc-900">{orderData?.eventDate}</p>
-                </div>
-            </div>
+            ))}
+        </div>
 
-            <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5 text-zinc-600" />
-                </div>
-                <div>
-                    <p className="text-sm font-bold text-zinc-400 uppercase">Timing</p>
-                    <p className="font-bold text-lg text-zinc-900">{orderData?.timeSlot}</p>
-                </div>
-            </div>
-
-            <div className="h-px bg-zinc-100 w-full" />
-
+        {/* Footer Action */}
+        <div className="p-6 border-t border-zinc-100 bg-white sticky bottom-0">
             <Button 
                 onClick={handleAccept} 
                 className="w-full h-14 bg-black hover:bg-zinc-800 text-white rounded-xl text-lg font-bold shadow-lg transition-transform active:scale-95"
             >
-                Accept This Job
+                Accept All Jobs
             </Button>
+            <p className="text-center text-xs text-zinc-400 mt-3">By accepting, you agree to handle all events in this order.</p>
         </div>
+
       </div>
     </div>
   );

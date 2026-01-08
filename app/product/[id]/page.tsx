@@ -199,9 +199,19 @@ export default function ProductPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 bg-white border border-stone-100 px-3 py-1.5 rounded-full shadow-sm">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" />)}
-                  <span className="ml-2 text-xs font-bold text-zinc-500">4.9 (120+ Reviews)</span>
-                </div>
+{[...Array(5)].map((_, i) => (
+        <Star 
+            key={i} 
+            className={`w-3.5 h-3.5 ${
+                i < Math.round(product.rating || 0) 
+                ? "fill-[#D4AF37] text-[#D4AF37]" 
+                : "fill-gray-200 text-gray-200"
+            }`} 
+        />
+      ))}
+      <span className="ml-2 text-xs font-bold text-zinc-500">
+        {product.rating?.toFixed(1)} ({product.numReviews} Reviews)
+      </span>                </div>
                 <button className="p-3 hover:bg-stone-100 rounded-full transition-colors group">
                     <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-black" />
                 </button>
