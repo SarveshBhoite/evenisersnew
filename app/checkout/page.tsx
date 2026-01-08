@@ -182,7 +182,7 @@ export default function CheckoutPage() {
 
         toast.success("Booking Confirmed!");
         clearCart();
-        router.push("/my-orders");
+        router.push("/user/my-orders");
 
       } catch (error) {
           console.error(error);
@@ -354,7 +354,7 @@ export default function CheckoutPage() {
                 
                 <div className="flex items-center justify-center gap-2 mt-4 text-zinc-400">
                     <CreditCard className="w-3 h-3" />
-                    <p className="text-[10px] uppercase tracking-widest font-bold">Razorpay Secured</p>
+                    <p className="text-[10px] uppercase tracking-widest font-bold">Razorpay Secured Payment</p>
                 </div>
             </div>
 
