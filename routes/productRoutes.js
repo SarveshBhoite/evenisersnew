@@ -7,7 +7,8 @@ const {
     getProductById, 
     createEvent, 
     updateProduct, 
-    deleteProduct 
+    deleteProduct ,
+    createProductReview
 } = require("../controllers/productController");
 
 // --- PUBLIC ROUTES ---
@@ -24,5 +25,7 @@ router.post("/events", protect, admin, upload.array("images", 10), createEvent);
 router.put("/events/:id", protect, admin, upload.array("images", 10), updateProduct);
 
 router.delete("/events/:id", protect, admin, deleteProduct);
+
+router.post("/:id/reviews", protect, createProductReview);
 
 module.exports = router;

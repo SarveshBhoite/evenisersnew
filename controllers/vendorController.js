@@ -51,23 +51,32 @@ exports.getPublicOrderDetails = async (req, res) => {
 
         if (!order) return res.status(404).json({ message: "Order not found" });
 
-        // Only send necessary info (Hide Customer Name/Phone until accepted)
+        // 🚨 Formatting data to match Frontend Expectations
         const safeData = {
             _id: order._id,
-            city: order.shippingAddress.city,
-            eventDate: order.items[0]?.eventDate,
-            timeSlot: order.items[0]?.timeSlot,
-            message: order.items[0]?.message,
-            products: order.items.map(i => ({
-                name: i.product.name,
-                category: i.product.category,
-                image: i.product.image
-            })),
-            status: order.status
+            status: order.status,
+            
+            // 1. Structure Address Object (Frontend expects orderData.shippingAddress.city)
+            shippingAddress: {
+                city: order.shippingAddress.city
+            },
+
+            // 2. Map Items correctly (Frontend loops over orderData.items)
+            items: order.items.map(i => ({
+                eventDate: i.eventDate,
+                timeSlot: i.timeSlot,
+                message: i.message,
+                product: {
+                    name: i.product?.name || "Unknown Item",
+                    category: i.product?.category || "Event",
+                    image: i.product?.image || ""
+                }
+            }))
         };
 
         res.json(safeData);
     } catch (error) {
+        console.error("Vendor View Error:", error);
         res.status(500).json({ message: "Error fetching details" });
     }
 };

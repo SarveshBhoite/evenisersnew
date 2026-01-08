@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 
 // --- PUBLIC CONTROLLERS ---
 
@@ -180,5 +181,53 @@ exports.deleteProduct = async (req, res) => {
     res.json({ message: "Product deleted" });
   } catch (error) {
     res.status(500).json({ message: "Delete failed" });
+  }
+};
+
+exports.createProductReview = async (req, res) => {
+  const { rating, comment } = req.body;
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    // 1. Check if user already reviewed
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({ message: "You have already reviewed this event." });
+    }
+
+    // 2. Security: Verify User actually ordered this item and it is COMPLETED
+    const hasOrdered = await Order.findOne({
+        user: req.user._id,
+        "items.product": req.params.id,
+        status: "completed"
+    });
+
+    if (!hasOrdered) {
+        return res.status(400).json({ message: "You can only review events you have completed." });
+    }
+
+    // 3. Add Review
+    const review = {
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+      user: req.user._id,
+    };
+
+    product.reviews.push(review);
+
+    // 4. Recalculate Average
+    product.numReviews = product.reviews.length;
+    product.rating =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: "Review added" });
+  } else {
+    res.status(404).json({ message: "Product not found" });
   }
 };
