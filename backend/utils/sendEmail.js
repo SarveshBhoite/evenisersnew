@@ -101,27 +101,41 @@ const sendOTPEmail = async (email, otp) => {
 
 // 4. 🚨 NEW: Send Vendor Broadcast Email (Moved OUTSIDE sendOTPEmail)
 const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) => {
+  const uniqueId = Math.random().toString(36).substring(7);
+
+  // 1. Generate HTML list of ALL items
+  const itemsHtml = order.items.map(item => `
+    <div style="margin-bottom: 10px; border-bottom: 1px dashed #ddd; padding-bottom: 10px;">
+        <p style="margin: 2px 0;"><strong>🎉 Event:</strong> ${item.product?.name || "Event Package"}</p>
+        <p style="margin: 2px 0;"><strong>📅 Date:</strong> ${item.eventDate || "Not Set"}</p>
+        <p style="margin: 2px 0;"><strong>⏰ Time:</strong> ${item.timeSlot || "Not Set"}</p>
+    </div>
+  `).join("");
+
   const mailOptions = {
     from: `"Event Manager" <${process.env.EMAIL_USER}>`,
     to: vendorEmail,
-    subject: `🔥 New Event Opportunity in ${order.shippingAddress.city}!`,
+    subject: `🔥 New Order (${order.items.length} Events) in ${order.shippingAddress.city}! [${uniqueId}]`, 
     html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #000;">New Event Request</h2>
-        <p>Hello <strong>${vendorName}</strong>,</p>
-        <p>A new event is available in your area. Be the first to accept it!</p>
+      <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #ffffff;">
+        <h2 style="color: #000; margin-bottom: 10px;">New Event Request</h2>
+        <p style="color: #555;">Hello <strong>${vendorName}</strong>,</p>
+        <p style="color: #555;">You have a new request containing <strong>${order.items.length} event(s)</strong> in your area.</p>
         
-        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📍 Location:</strong> ${order.shippingAddress.city}</p>
-            <p><strong>📅 Date:</strong> ${order.items[0].eventDate || "Check details"}</p>
-            <p><strong>⏰ Time:</strong> ${order.items[0].timeSlot || "Standard"}</p>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border: 1px solid #e0e0e0;">
+            <p style="margin-bottom: 15px;"><strong>📍 Location:</strong> ${order.shippingAddress.city}</p>
+            ${itemsHtml} 
         </div>
 
-        <a href="${acceptLink}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-          View & Accept Event
-        </a>
+        <div style="text-align: center; margin: 35px 0; padding: 10px;">
+            <a href="${acceptLink}" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+              View Full Details & Accept
+            </a>
+        </div>
         
-        <p style="margin-top: 20px; font-size: 12px; color: #888;">If the link doesn't work, this order may have been taken by another partner.</p>
+        <div style="opacity: 0; font-size: 1px; color: #fff; height: 1px;">
+           ID: ${uniqueId} - Sent: ${new Date().toISOString()}
+        </div>
       </div>
     `,
   };
