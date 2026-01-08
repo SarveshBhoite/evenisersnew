@@ -3,7 +3,8 @@ const router = express.Router();
 const User = require("../models/Users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { sendOTPEmail } = require("../utils/sendEmail"); // Import the new function
+const crypto = require("crypto");
+const { sendOTPEmail, sendResetEmail } = require("../utils/sendEmail"); // Import the new function
 
 // Helper: Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -129,6 +130,75 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 1. Generate Token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    // 2. Hash and save to DB
+    user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 Minutes
+
+    await user.save();
+
+    // 3. Create URL (Matches your nested folder structure)
+    // frontend/app/forgot-password/reset-password/[token]/page.tsx
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const resetUrl = `${clientUrl}/forgot-password/reset-password/${resetToken}`;
+
+    try {
+      await sendResetEmail(user.email, resetUrl);
+      res.json({ message: "Reset link sent to email" });
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+      return res.status(500).json({ message: "Email could not be sent" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// @route   PUT /api/auth/reset-password/:token
+// @desc    Verify Token & Set New Password
+router.put("/reset-password/:token", async (req, res) => {
+  try {
+    // 1. Hash the token from URL to compare with DB
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() }, // Check if not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // 2. Update Password (Middleware handles hashing)
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
