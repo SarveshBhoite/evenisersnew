@@ -148,10 +148,39 @@ const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) =
   }
 };
 
+const sendResetEmail = async (email, resetUrl) => {
+  const mailOptions = {
+    from: `"Luxe Security" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Reset Your Password",
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2>Password Reset Request</h2>
+        <p>You requested to reset your password. Click the button below to create a new one:</p>
+        <div style="margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Reset Password
+            </a>
+        </div>
+        <p>Or paste this link in your browser: <br/> <a href="${resetUrl}">${resetUrl}</a></p>
+        <p style="color: #888; font-size: 12px; margin-top: 20px;">This link expires in 10 minutes. If you didn't request this, please ignore this email.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Reset email sent to ${email}`);
+  } catch (error) {
+    console.error("❌ Reset Email Error:", error.message);
+  }
+};
+
 // 🚨 EXPORT ALL FUNCTIONS
 module.exports = { 
     sendOrderEmail, 
     sendContactEmail, 
     sendOTPEmail, 
-    sendVendorBroadcast
+    sendVendorBroadcast,
+    sendResetEmail,
 };
