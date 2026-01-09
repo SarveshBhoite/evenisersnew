@@ -17,7 +17,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [city, setCity] = useState("Mumbai");
 
   useEffect(() => {
-    const savedCity = localStorage.getItem("luxe-city");
+    const savedCity = localStorage.getItem("Evenisers-city");
     if (savedCity && CITIES.includes(savedCity)) {
       setCity(savedCity);
     }
@@ -25,7 +25,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
 
   const handleSetCity = (newCity: string) => {
     setCity(newCity);
-    localStorage.setItem("luxe-city", newCity);
+    localStorage.setItem("Evenisers-city", newCity);
     // Optional: Reload page if you need to fetch new data based on city
     // window.location.reload(); 
   };
