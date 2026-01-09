@@ -67,7 +67,7 @@ export default function AdminUsersPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Joined Date</TableHead>
-                <TableHead>Role</TableHead>
+                <TableHead>Mobile</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -108,7 +108,7 @@ export default function AdminUsersPage() {
 
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 uppercase">
-                        {user.role}
+                        {user.phone}
                       </span>
                     </TableCell>
                   </TableRow>
