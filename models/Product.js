@@ -23,7 +23,7 @@ const eventSchema = new mongoose.Schema({
     type: String,
     lowercase: true, // This solves your Anniversary vs anniversary problem!
     trim: true,
-    enum: ['wedding', 'anniversary', 'haldi', 'birthday', 'corporate', 'reception'], 
+    enum: ['wedding', 'anniversary', 'haldi', 'birthday', 'corporate'], 
     required: true
   },
   description: { type: String, required: true },
