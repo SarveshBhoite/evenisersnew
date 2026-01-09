@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation"; // 1. IMPORT USEROUTER
 import { getProductById } from "@/lib/api";
 import { toast } from "sonner";
 import axios from "axios";
@@ -26,6 +26,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/a
 export default function ProductPage() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const router = useRouter(); // 2. INITIALIZE ROUTER
 
   const [product, setProduct] = useState<any>(null);
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
@@ -99,6 +100,7 @@ export default function ProductPage() {
     if (!product?._id) return;
     addToCart(product._id.toString(), quantity);
     toast.success(`${product.name} added to cart!`);
+    router.push("/cart"); // 3. REDIRECT TO CART PAGE IMMEDIATELY
   };
 
   if (loading) {
