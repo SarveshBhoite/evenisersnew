@@ -121,7 +121,6 @@ exports.broadcastOrder = async (req, res) => {
     setImmediate(async () => {
         try {
             const promises = vendors.map(v => {
-                // Generate Magic Link
                 // CHANGE 'http://localhost:3000' to your real domain in production
                 const link = `${process.env.CLIENT_URL || "http://localhost:3000"}/vendor/accept?orderId=${order._id}&vendorId=${v._id}`;
                 return sendVendorBroadcast(v.email, v.name, order, link);

@@ -13,7 +13,7 @@ const importData = async () => {
 
     await User.create({
       name: "Super Admin",
-      email: "admin@luxe.com",
+      email: "admin@Evenisers.com",
       password: "Admin@123",
       role: "admin",
     });
