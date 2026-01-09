@@ -184,6 +184,7 @@ export default function CheckoutPage() {
         clearCart();
         router.push("/user/my-orders");
 
+        
       } catch (error) {
           console.error(error);
           toast.error("Order creation failed. Please contact support.");
