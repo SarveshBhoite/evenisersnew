@@ -11,7 +11,7 @@ export function Footer() {
         {/* BRAND */}
         <div className="col-span-2">
           <h3 className="font-serif text-3xl font-bold mb-6 italic">
-            LUXE EVENTS
+            Evenisers EVENTS
           </h3>
           <p className="text-zinc-500 max-w-sm leading-relaxed mb-6">
             Transforming spaces and creating memories. We are a full-service event
@@ -57,14 +57,14 @@ export function Footer() {
             </li>
             <li className="flex gap-2">
               <Users className="w-4 h-4" />
-              info@luxeevents.com
+              info@Evenisersevents.com
             </li>
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto border-t mt-16 pt-8 text-center text-[10px] text-zinc-400 uppercase tracking-widest">
-        © 2025 Luxe Event Management. Handcrafted for your special day.
+        © 2025 Evenisers Event Management. Handcrafted for your special day.
       </div>
     </footer>
   );

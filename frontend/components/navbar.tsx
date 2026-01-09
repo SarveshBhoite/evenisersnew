@@ -98,7 +98,7 @@ function NavbarContent() {
           
           {/* LEFT: LOGO & LOCATION */}
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <Link href="/" className="font-serif text-lg md:text-2xl font-bold text-foreground tracking-tight sm:ml-3 lg:ml-0">LUXE</Link>
+            <Link href="/" className="font-serif text-lg md:text-2xl font-bold text-foreground tracking-tight sm:ml-3 lg:ml-0">Evenisers</Link>
             <div className="hidden md:block">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -227,7 +227,7 @@ function NavbarContent() {
                 <SheetTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 -mr-2"><Menu className="h-6 w-6" /></Button></SheetTrigger>
                 
                 <SheetContent side="right" className="w-[300px] flex flex-col p-6">
-                    <SheetHeader className="text-left mb-6 border-b pb-4"><SheetTitle className="font-serif text-3xl font-bold">LUXE</SheetTitle></SheetHeader>
+                    <SheetHeader className="text-left mb-6 border-b pb-4"><SheetTitle className="font-serif text-3xl font-bold">Evenisers</SheetTitle></SheetHeader>
                     
                     {/* 1. Mobile Location */}
                     <div className="mb-6">
