@@ -100,12 +100,11 @@ export default function HomePage() {
 
       {/* --- STATS (Soft Gradient - No Black) --- */}
       <section className="py-16 bg-gradient-to-r from-rose-50 via-white to-orange-50 border-y border-stone-100">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-12 text-center">
           {[
-             { label: "Events Crafted", val: "500+" },
+             { label: "Events Crafted", val: "30K+" },
              { label: "Years Experience", val: "12+" },
              { label: "Happy Clients", val: "100%" },
-             { label: "Design Awards", val: "15+" }
           ].map((stat, i) => (
             <div key={i}>
               <h4 className="text-4xl md:text-5xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#D4AF37] to-[#B8860B] drop-shadow-sm">
