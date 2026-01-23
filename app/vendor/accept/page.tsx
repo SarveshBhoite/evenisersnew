@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
-import { CheckCircle, XCircle, MapPin, Calendar, Clock, AlertTriangle, Loader2, Package } from "lucide-react";
+import { CheckCircle, MapPin, Calendar, Clock, AlertTriangle, Loader2, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
@@ -134,7 +134,16 @@ function VendorAcceptContent() {
                     {/* Image Thumbnail */}
                     <div className="w-20 h-20 bg-white rounded-xl flex-shrink-0 overflow-hidden border border-zinc-200">
                         {item.product?.image ? (
-                            <img src={`${process.env.NEXT_PUBLIC_API_URL}${item.product.image}`} className="w-full h-full object-cover" />
+                            <img 
+                                // ✅ FIX: Smart URL Check Logic
+                                src={
+                                    item.product.image.startsWith("http") 
+                                    ? item.product.image 
+                                    : `${process.env.NEXT_PUBLIC_API_URL}${item.product.image}`
+                                } 
+                                className="w-full h-full object-cover" 
+                                alt={item.product?.name}
+                            />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-zinc-300"><Package className="w-6 h-6"/></div>
                         )}

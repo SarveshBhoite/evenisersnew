@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation"; // 1. IMPORT USEROUTER
+import { useParams, useRouter } from "next/navigation"; 
 import { getProductById } from "@/lib/api";
 import { toast } from "sonner";
 import axios from "axios";
@@ -26,7 +26,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/a
 export default function ProductPage() {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const router = useRouter(); // 2. INITIALIZE ROUTER
+  const router = useRouter(); 
 
   const [product, setProduct] = useState<any>(null);
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
@@ -69,6 +69,7 @@ export default function ProductPage() {
   };
 
   const parseList = (str: string) => str ? str.split(',').map((item: string) => item.trim()).filter(Boolean) : [];
+  
   const inclusions = parseList(product?.included);
   const exclusions = parseList(product?.notIncluded);
   const carePoints = parseList(product?.careInfo);
@@ -100,7 +101,7 @@ export default function ProductPage() {
     if (!product?._id) return;
     addToCart(product._id.toString(), quantity);
     toast.success(`${product.name} added to cart!`);
-    router.push("/cart"); // 3. REDIRECT TO CART PAGE IMMEDIATELY
+    router.push("/cart"); 
   };
 
   if (loading) {
@@ -117,9 +118,22 @@ export default function ProductPage() {
     <div className="min-h-screen bg-[#FDFCF8] selection:bg-[#D4AF37] selection:text-white">
       <Navbar />
 
-      {/* Added pb-32 to main to ensure content isn't hidden behind the fixed mobile button */}
-      <main className="max-w-7xl mx-auto px-6 pt-32 pb-32 lg:pb-24">
-        <div className="grid lg:grid-cols-12 gap-16 mb-24 relative items-start">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-32 lg:pb-24">
+        
+        {/* ✅ BACK BUTTON ADDED HERE */}
+        <div className="mb-6">
+            <button 
+                onClick={() => router.back()} 
+                className="flex items-center text-zinc-500 hover:text-black transition-colors font-medium text-sm group"
+            >
+                <div className="w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center mr-2 group-hover:border-black transition-colors">
+                    <ChevronLeft className="w-4 h-4" />
+                </div>
+                Back to Collection
+            </button>
+        </div>
+
+        <div className="grid lg:grid-cols-12 gap-10 md:gap-16 mb-0 relative items-start">
           
           {/* LEFT: Visual Gallery (STICKY) */}
           <div className="lg:col-span-7 space-y-6 lg:sticky lg:top-32 h-fit">
@@ -130,7 +144,13 @@ export default function ProductPage() {
                 
                 <div className="relative aspect-[4/5] md:aspect-video lg:aspect-[8/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white border border-white/50">
                 <Image
-                    src={allImages.length > 0 ? `${process.env.NEXT_PUBLIC_API_URL}${allImages[activeImageIndex]}` : "/placeholder.svg"}
+                    src={
+                        allImages.length > 0 
+                        ? (allImages[activeImageIndex].startsWith("http") 
+                            ? allImages[activeImageIndex] 
+                            : `${process.env.NEXT_PUBLIC_API_URL}${allImages[activeImageIndex]}`)
+                        : "/placeholder.svg"
+                    }
                     alt={product.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -168,7 +188,16 @@ export default function ProductPage() {
                     {allImages.map((img:string, idx:number) => (
                         <div key={idx} onClick={() => setActiveImageIndex(idx)} 
                              className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 snap-start ${idx === activeImageIndex ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/20' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                            <Image src={`${process.env.NEXT_PUBLIC_API_URL}${img}`} alt="thumbnail" fill className="object-cover" />
+                            <Image 
+                                src={
+                                    img.startsWith("http") 
+                                    ? img 
+                                    : `${process.env.NEXT_PUBLIC_API_URL}${img}`
+                                } 
+                                alt="thumbnail" 
+                                fill 
+                                className="object-cover" 
+                            />
                         </div>
                     ))}
                 </div>
@@ -220,13 +249,13 @@ export default function ProductPage() {
               </div>
 
               <div>
-                <h1 className="text-5xl md:text-6xl font-serif font-medium leading-[0.9] text-zinc-900 capitalize mb-6">
+                <h1 className="text-4xl md:text-6xl font-serif font-medium leading-[0.9] text-zinc-900 capitalize mb-6">
                     {product.name}
                 </h1>
                 
                 {/* Premium Price Block */}
                 <div className="flex items-end gap-4">
-                    <span className="text-5xl font-serif text-black">₹{finalPrice.toLocaleString()}</span>
+                    <span className="text-4xl md:text-5xl font-serif text-black">₹{finalPrice.toLocaleString()}</span>
                     {discountPercent > 0 && (
                         <div className="flex flex-col mb-1.5">
                             <span className="text-lg text-zinc-400 line-through font-serif decoration-red-400/50">₹{originalPrice.toLocaleString()}</span>
@@ -245,12 +274,12 @@ export default function ProductPage() {
               <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5" /> The Experience
               </h3>
-              <p className="text-zinc-600 leading-loose text-lg font-light">{product.description}</p>
+              <p className="text-zinc-600 leading-loose text-base md:text-lg font-light">{product.description}</p>
             </div>
 
             {/* Inclusions & Exclusions */}
             {(inclusions.length > 0 || exclusions.length > 0) && (
-              <div className="bg-white p-8 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/20 space-y-8">
+              <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/20 space-y-8">
                 {inclusions.length > 0 && (
                     <div>
                         <h3 className="font-bold text-xs uppercase tracking-widest flex items-center gap-2 text-zinc-900 mb-4 border-b border-stone-100 pb-2">Included</h3>
@@ -371,7 +400,7 @@ export default function ProductPage() {
 
         {/* SIMILAR PRODUCTS (SHOP CARD DESIGN) */}
         {similarProducts.length > 0 && (
-            <div className="mt-32 pt-16 border-t border-stone-200">
+            <div className="mt-12 pt-16 border-t border-stone-200">
                 <div className="flex items-end justify-between mb-10">
                     <div>
                         <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest mb-2 block">Curated For You</span>
@@ -382,8 +411,8 @@ export default function ProductPage() {
                     </Link>
                 </div>
                 
-                {/* 4 Column Grid Using Shop Card Design */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {/* ✅ UPDATED GRID: 2 Columns on Mobile, 4 on Desktop */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                     {similarProducts.map((p) => {
                         const discount = p.discount || 0;
                         const price = p.price;
@@ -393,14 +422,16 @@ export default function ProductPage() {
                             <Link
                                 key={p._id}
                                 href={`/product/${p._id}`}
-                                className="group bg-white border border-zinc-200 overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
+                                className="group bg-white border border-zinc-200 overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 rounded-lg md:rounded-none"
                             >
                                 {/* Image */}
                                 <div className="relative aspect-square overflow-hidden bg-zinc-100">
                                     <Image
                                         src={
                                             p.image
-                                                ? `${process.env.NEXT_PUBLIC_API_URL}${p.image}`
+                                                ? (p.image.startsWith("http")
+                                                    ? p.image
+                                                    : `${process.env.NEXT_PUBLIC_API_URL}${p.image}`)
                                                 : "/placeholder.svg"
                                         }
                                         alt={p.name}
@@ -409,7 +440,7 @@ export default function ProductPage() {
                                     />
 
                                     <div className="absolute top-0 left-0">
-                                        <div className="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2">
+                                        <div className="bg-black text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] px-2 py-1 md:px-4 md:py-2">
                                             {p.category}
                                         </div>
                                     </div>
@@ -417,28 +448,28 @@ export default function ProductPage() {
                                     {/* Discount Badge */}
                                     {discount > 0 && (
                                         <div className="absolute top-0 right-0">
-                                            <div className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-2 animate-pulse">
-                                                -{discount}% OFF
+                                            <div className="bg-red-600 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest px-2 py-1 md:px-3 md:py-2 animate-pulse">
+                                                -{discount}%
                                             </div>
                                         </div>
                                     )}
 
                                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                                        <span className="bg-white text-black text-xs font-black uppercase tracking-widest px-6 py-3 shadow-xl">
+                                        <span className="hidden md:block bg-white text-black text-xs font-black uppercase tracking-widest px-6 py-3 shadow-xl">
                                             View Package
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Text */}
-                                <div className="p-5 space-y-4">
+                                {/* Text - Optimized for Mobile */}
+                                <div className="p-3 md:p-5 space-y-2 md:space-y-4">
                                     <div>
-                                        <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-1 text-zinc-700">
+                                        <h3 className="text-sm md:text-xl font-black uppercase tracking-tighter leading-tight md:leading-none mb-1 text-zinc-700 truncate">
                                             {p.name}
                                         </h3>
                                     </div>
 
-                                    <div className="flex gap-4 border-y border-zinc-100 py-3">
+                                    <div className="hidden sm:flex gap-4 border-y border-zinc-100 py-3">
                                         <div className="flex flex-col">
                                             <span className="text-[9px] font-black text-zinc-800 uppercase">
                                                 Duration
@@ -464,23 +495,23 @@ export default function ProductPage() {
 
                                     <div className="flex items-end justify-between">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                                            <span className="text-[8px] md:text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
                                                 {discount > 0 ? "Deal Price" : "Fixed Price"}
                                             </span>
-                                            <div className="flex items-baseline gap-2">
-                                                <p className="text-2xl text-black leading-none">
+                                            <div className="flex flex-col md:flex-row md:items-baseline md:gap-2">
+                                                <p className="text-lg md:text-2xl text-black leading-none font-bold">
                                                     ₹{finalPrice.toLocaleString("en-IN")}
                                                 </p>
                                                 {discount > 0 && (
-                                                    <p className="text-sm text-zinc-400 line-through font-medium">
+                                                    <p className="text-[10px] md:text-sm text-zinc-400 line-through decoration-zinc-400">
                                                         ₹{price.toLocaleString("en-IN")}
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
 
-                                        <div className="w-10 h-10 border-2 border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300">
-                                            <ArrowRight className="w-5 h-5" />
+                                        <div className="w-8 h-8 md:w-10 md:h-10 border-2 border-black flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300 rounded-full md:rounded-none">
+                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                                         </div>
                                     </div>
                                 </div>

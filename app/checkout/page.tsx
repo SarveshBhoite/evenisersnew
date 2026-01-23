@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCart } from "@/context/CartContext";
 import { useLocation } from "@/context/LocationContext";
-import { useAuth } from "@/context/AuthContext"; // Import Auth
+import { useAuth } from "@/context/AuthContext"; 
 import { Truck, CheckCircle, Wallet, CreditCard, Loader2 } from "lucide-react";
 import axios from "axios";
 import Script from "next/script";
@@ -26,7 +26,7 @@ declare global {
 
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
-  const { city } = useLocation(); // We stick to the Global City
+  const { city } = useLocation(); 
   const { user, token } = useAuth();
   const router = useRouter();
   
@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   const [paymentOption, setPaymentOption] = useState<"full" | "advance">("full");
   const [useProfileData, setUseProfileData] = useState(false);
 
-  // Form State (Manual Entry by default)
+  // Form State 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -65,7 +65,6 @@ export default function CheckoutPage() {
   // --- 3. AUTO-FILL LOGIC ---
   useEffect(() => {
     if (useProfileData && user) {
-        // Fetch fresh profile data to be sure
         axios.get(`${API_URL}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` }
         }).then(res => {
@@ -82,9 +81,6 @@ export default function CheckoutPage() {
                 country: "India"
             });
         }).catch(err => console.error(err));
-    } else if (!useProfileData) {
-        // Optional: Clear form or leave as is when unchecked? 
-        // Let's leave it as is so they don't lose data accidentally, or you can reset.
     }
   }, [useProfileData, user, token]);
 
@@ -102,14 +98,14 @@ export default function CheckoutPage() {
         // A. Create Order ID on Backend
         const { data: orderData } = await axios.post(
             `${API_URL}/payment/create-order`,
-            { amount: payableAmount }, // Sending the EXACT payable amount (Full or 40%)
+            { amount: payableAmount }, 
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
         // B. Open Razorpay
         const options = {
             key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: orderData.amount, // Amount in paise from backend
+            amount: orderData.amount, 
             currency: "INR",
             name: "Evenisers Events",
             description: paymentOption === 'advance' ? "Advance Payment (40%)" : "Full Payment",
@@ -157,9 +153,9 @@ export default function CheckoutPage() {
             shippingAddress: {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                phone: formData.phone, // 🚨 Sending Phone
+                phone: formData.phone, 
                 address: formData.address,
-                city: city, // 🚨 Forced from Global Location Context
+                city: city, 
                 state: formData.state,
                 zip: formData.zip,
                 country: formData.country,
@@ -327,7 +323,19 @@ export default function CheckoutPage() {
                         return (
                             <div key={item.productId?._id || index} className="flex gap-4">
                                 <div className="relative w-16 h-20 rounded-xl overflow-hidden border border-zinc-100 bg-zinc-50 shrink-0">
-                                    <Image src={item.productId?.image ? `${process.env.NEXT_PUBLIC_API_URL}${item.productId.image}` : "/placeholder.svg"} alt="Product" fill className="object-cover" />
+                                    <Image 
+                                      // ✅ FIX: "Smart URL Check" for Checkout Page
+                                      src={
+                                        item.productId?.image 
+                                          ? (item.productId.image.startsWith("http") 
+                                              ? item.productId.image 
+                                              : `${process.env.NEXT_PUBLIC_API_URL}${item.productId.image}`)
+                                          : "/placeholder.svg"
+                                      } 
+                                      alt="Product" 
+                                      fill 
+                                      className="object-cover" 
+                                    />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="text-sm font-bold truncate">{item.productId?.name}</h4>

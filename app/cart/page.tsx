@@ -8,7 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 // 3-Hour Time Slots
 const TIME_SLOTS = [
@@ -20,7 +20,7 @@ const TIME_SLOTS = [
 ];
 
 // ---------------------------------------------------------
-// 1. ISOLATED CART ITEM COMPONENT (Fixes the typing lag)
+// 1. ISOLATED CART ITEM COMPONENT (With Image Fix)
 // ---------------------------------------------------------
 const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: any) => {
     const product = item.productId;
@@ -37,7 +37,6 @@ const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: a
     const finalPrice = discount > 0 ? price - (price * discount / 100) : price;
 
     // Sync local state to global ONLY when user leaves the field (onBlur)
-    // This prevents the "jumping letters" issue
     const handleMessageBlur = () => {
         if (message !== item.message) {
             updateItemDetails(product._id, { message });
@@ -50,7 +49,6 @@ const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: a
         }
     };
 
-    // For Select dropdowns, we can update immediately as they don't involve rapid typing
     const handleTimeChange = (val: string) => {
         setTime(val);
         updateItemDetails(product._id, { timeSlot: val });
@@ -62,7 +60,14 @@ const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: a
             <div className="flex gap-6 items-start">
                 <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-zinc-100 shrink-0 bg-zinc-50">
                     <Image
-                        src={product.image ? `${process.env.NEXT_PUBLIC_API_URL}${product.image}` : "/placeholder.svg"}
+                        // ✅ FIX: Check if image is already a full URL (Cloudinary) or local path
+                        src={
+                            product.image 
+                            ? (product.image.startsWith("http") 
+                                ? product.image 
+                                : `${process.env.NEXT_PUBLIC_API_URL}${product.image}`)
+                            : "/placeholder.svg"
+                        }
                         alt={product.name}
                         fill
                         className="object-cover"

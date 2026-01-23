@@ -1,18 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowUpRight } from "lucide-react";
 
 const CITIES = [
   { 
     name: "Mumbai", 
     image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=800&auto=format&fit=crop", 
-    desc: "The City of Dreams" 
+    desc: "City of Dreams" 
   },
   { 
     name: "Delhi", 
     image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=800&auto=format&fit=crop", 
-    desc: "Heritage & Culture" 
+    desc: "Heritage" 
   },
   { 
     name: "Bangalore", 
@@ -27,58 +27,86 @@ const CITIES = [
   { 
     name: "Pune", 
     image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=800&auto=format&fit=crop", 
-    desc: "Cultural Capital" 
+    desc: "Cultural Hub" 
   },
   { 
     name: "Jaipur", 
     image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=800&auto=format&fit=crop", 
-    desc: "The Pink City" 
+    desc: "Pink City" 
   },
 ];
 
 export function CityShowcase() {
   return (
-    <section className=" px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-zinc-400 uppercase tracking-widest text-xs font-bold">
-            Locations
-          </span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold mt-4">
-            Cities We Serve
+    <section className="bg-zinc-50 py-8 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        
+        {/* Header */}
+        <div className="text-center mb-8 md:mb-16 space-y-2 md:space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-zinc-200 shadow-sm mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              Pan India Presence
+            </span>
+          </div>
+          <h2 className="font-serif text-3xl md:text-6xl font-bold text-zinc-900">
+            Iconic Destinations
           </h2>
-          <p className="text-zinc-500 mt-4 max-w-2xl mx-auto">
-            From grand palaces to beachside resorts, we bring luxury execution to India's most iconic destinations.
-          </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {/* GRID LAYOUT UPDATED:
+           - Mobile: grid-cols-2 (2 items per row)
+           - Desktop: grid-cols-3 (3 items per row)
+        */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-8">
           {CITIES.map((city) => (
             <div 
               key={city.name} 
-              className="group relative h-[300px] rounded-2xl overflow-hidden cursor-pointer"
+              className="group relative h-[200px] md:h-[300px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden cursor-pointer shadow-md md:shadow-xl shadow-zinc-200 border border-white"
             >
+              {/* Image */}
               <Image
                 src={city.image}
                 alt={city.name}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                className="object-cover transition-transform duration-1000 group-hover:scale-110"
               />
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
               
-              <div className="absolute bottom-0 left-0 w-full p-4 text-center transform transition-transform duration-300 group-hover:-translate-y-2">
-                <MapPin className="w-6 h-6 text-white mx-auto mb-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <h3 className="text-white font-serif text-xl font-bold tracking-wide">
-                  {city.name}
-                </h3>
-                <p className="text-white/70 text-xs uppercase tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                    {city.desc}
-                </p>
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500" />
+              
+              {/* Decorative Border Frame (Hidden on Mobile for cleaner look) */}
+              <div className="hidden md:block absolute inset-4 border border-white/20 rounded-[2rem] pointer-events-none" />
+
+              {/* Content */}
+              <div className="absolute bottom-0 left-0 w-full p-4 md:p-8">
+                <div className="transform md:group-hover:-translate-y-2 transition-transform duration-500">
+                  
+                  {/* Label */}
+                  <div className="flex items-center justify-between mb-1 md:mb-2">
+                    <div className="flex items-center gap-1 md:gap-2 text-[#D4AF37]">
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4 fill-[#D4AF37]" />
+                        <span className="text-[8px] md:text-xs font-bold uppercase tracking-widest text-white/90 truncate max-w-[80px] md:max-w-none">
+                            {city.desc}
+                        </span>
+                    </div>
+                    {/* Hover Arrow (Desktop Only) */}
+                    <div className="hidden md:flex w-10 h-10 rounded-full bg-white/10 backdrop-blur-md items-center justify-center text-white opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
+                        <ArrowUpRight className="w-5 h-5" />
+                    </div>
+                  </div>
+
+                  {/* City Name */}
+                  <h3 className="text-white font-serif text-xl md:text-4xl font-medium tracking-tight">
+                    {city.name}
+                  </h3>
+                  
+                </div>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
