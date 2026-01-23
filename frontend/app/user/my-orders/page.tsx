@@ -110,7 +110,14 @@ export default function MyOrdersPage() {
                                 <div key={idx} className="flex flex-col md:flex-row gap-6 items-start">
                                     <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-zinc-100 shrink-0 border border-zinc-100">
                                         <Image 
-                                            src={item.product?.image ? `${process.env.NEXT_PUBLIC_API_URL}${item.product.image}` : "/placeholder.svg"} 
+                                            // ✅ FIX: Applied Smart URL Check Logic
+                                            src={
+                                                item.product?.image 
+                                                ? (item.product.image.startsWith("http") 
+                                                    ? item.product.image 
+                                                    : `${process.env.NEXT_PUBLIC_API_URL}${item.product.image}`)
+                                                : "/placeholder.svg"
+                                            }
                                             alt={item.product?.name || "Product"} 
                                             fill 
                                             className="object-cover"
@@ -118,34 +125,34 @@ export default function MyOrdersPage() {
                                     </div>
 
                                     <div className="flex-1 w-full">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h3 className="font-serif text-xl font-bold text-zinc-900 truncate">{item.product?.name || "Product Unavailable"}</h3>
-                                                <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mt-1">{item.product?.category || "Event"}</p>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h3 className="font-serif text-xl font-bold text-zinc-900 truncate">{item.product?.name || "Product Unavailable"}</h3>
+                                                    <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mt-1">{item.product?.category || "Event"}</p>
+                                                </div>
+                                                <span className="font-bold text-lg text-black">₹{(item.price * item.quantity).toLocaleString()}</span>
                                             </div>
-                                            <span className="font-bold text-lg text-black">₹{(item.price * item.quantity).toLocaleString()}</span>
-                                        </div>
 
-                                        <div className="flex gap-4 mt-2">
-                                            <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
-                                                {item.eventDate || "Date Pending"}
-                                            </Badge>
-                                            <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
-                                                {item.timeSlot || "Time Pending"}
-                                            </Badge>
-                                        </div>
+                                            <div className="flex gap-4 mt-2">
+                                                <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
+                                                    {item.eventDate || "Date Pending"}
+                                                </Badge>
+                                                <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
+                                                    {item.timeSlot || "Time Pending"}
+                                                </Badge>
+                                            </div>
 
-                                        {/* 🚨 REVIEW BUTTON (Only if Completed) */}
-                                        {order.status === "completed" && item.product && (
-                                            <Button 
-                                                onClick={() => handleOpenReview(item.product)}
-                                                variant="ghost" 
-                                                size="sm" 
-                                                className="mt-4 text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] p-0 h-auto"
-                                            >
-                                                <Star className="w-3 h-3 mr-1" /> Write a Review
-                                            </Button>
-                                        )}
+                                            {/* 🚨 REVIEW BUTTON (Only if Completed) */}
+                                            {order.status === "completed" && item.product && (
+                                                <Button 
+                                                    onClick={() => handleOpenReview(item.product)}
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="mt-4 text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] p-0 h-auto"
+                                                >
+                                                    <Star className="w-3 h-3 mr-1" /> Write a Review
+                                                </Button>
+                                            )}
                                     </div>
                                 </div>
                             ))}

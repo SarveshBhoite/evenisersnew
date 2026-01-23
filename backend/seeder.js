@@ -13,9 +13,10 @@ const importData = async () => {
 
     await User.create({
       name: "Super Admin",
-      email: "admin@Evenisers.com",
+      email: "admin@evenisers.com",
       password: "Admin@123",
       role: "admin",
+      isVerified: true,
     });
 
     console.log("✅Admin inserted");
