@@ -26,7 +26,7 @@ const eventSchema = new mongoose.Schema({
     enum: ['wedding', 'anniversary', 'haldi', 'birthday', 'corporate'], 
     required: true
   },
-  description: { type: String, required: true },
+  description: { type: String, default: "" },
   theme: { type: String },// Saved as "item1, item2, item3"
   setupTime: { type: String },
   included: { type: String ,default: "" }, 
