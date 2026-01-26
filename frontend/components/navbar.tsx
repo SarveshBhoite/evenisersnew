@@ -56,7 +56,6 @@ function NavbarContent() {
 
   const navLinks = [...baseLinks, finalLink];
 
-  // ... Search Logic (Kept Same) ...
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -148,17 +147,32 @@ function NavbarContent() {
                             <div className="absolute top-full left-0 w-full mt-3 bg-white rounded-2xl shadow-2xl border border-black/5 overflow-hidden max-h-[400px] overflow-y-auto">
                                 {searchResults.length > 0 ? (
                                     <div className="flex flex-col p-2 gap-1">
-                                        {searchResults.map((item: any) => (
-                                            <div key={item._id} onClick={() => { setIsSearchOpen(false); setSearchTerm(""); router.push(item.type === "category" ? item.link : `/product/${item._id}`); }} className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors ${item.type === "category" ? "bg-white border border-black/5 hover:border-black/20" : "hover:bg-gray-50"}`}>
-                                                <div className={`h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center ${item.type === "category" ? "bg-black/5" : "bg-gray-200"}`}>
-                                                    {item.type === "category" ? <LayoutGrid className="w-5 h-5 text-black/60" /> : <img src={item.image ? `${SERVER_URL}${item.image}` : "/placeholder.jpg"} alt={item.name} className="h-full w-full object-cover" />}
+                                            {searchResults.map((item: any) => (
+                                                <div key={item._id} onClick={() => { setIsSearchOpen(false); setSearchTerm(""); router.push(item.type === "category" ? item.link : `/product/${item._id}`); }} className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors ${item.type === "category" ? "bg-white border border-black/5 hover:border-black/20" : "hover:bg-gray-50"}`}>
+                                                    <div className={`h-10 w-10 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center ${item.type === "category" ? "bg-black/5" : "bg-gray-200"}`}>
+                                                        {item.type === "category" ? (
+                                                            <LayoutGrid className="w-5 h-5 text-black/60" />
+                                                        ) : (
+                                                            /* ✅ FIX: Smart URL Check for Search Results */
+                                                            <img 
+                                                                src={
+                                                                    item.image 
+                                                                    ? (item.image.startsWith("http") 
+                                                                        ? item.image 
+                                                                        : `${SERVER_URL}${item.image}`)
+                                                                    : "/placeholder.jpg"
+                                                                } 
+                                                                alt={item.name} 
+                                                                className="h-full w-full object-cover" 
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className={`text-sm ${item.type === "category" ? "font-bold text-black" : "font-semibold text-foreground"}`}>{item.name}</span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{item.type === "category" ? "Go to Category" : item.category}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className={`text-sm ${item.type === "category" ? "font-bold text-black" : "font-semibold text-foreground"}`}>{item.name}</span>
-                                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{item.type === "category" ? "Go to Category" : item.category}</span>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 ) : !isSearching && <div className="p-6 text-center text-sm text-muted-foreground">No matches found</div>}
                             </div>
@@ -175,7 +189,7 @@ function NavbarContent() {
               {cartCount > 0 && <span className="absolute -top-0 -right-0 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{cartCount}</span>}
             </Link>
 
-            {/* 🚨 DESKTOP ONLY: USER PROFILE DROPDOWN */}
+            {/* USER PROFILE DROPDOWN */}
             <div className="hidden md:flex items-center border-l pl-4 border-black/10 ml-1">
               {user ? (
                 <DropdownMenu>
@@ -221,7 +235,7 @@ function NavbarContent() {
               )}
             </div>
 
-            {/* 🚨 MOBILE HAMBURGER MENU */}
+            {/* MOBILE HAMBURGER MENU */}
             <div className="md:hidden">
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 -mr-2"><Menu className="h-6 w-6" /></Button></SheetTrigger>

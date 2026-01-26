@@ -183,8 +183,6 @@ export default function EditProductPage() {
     formData.append("faqs", JSON.stringify(validFaqs));
     
     // Important: Send the list of existing images we want to KEEP
-    // (Backend needs to be aware of this field to handle deletions properly, 
-    // otherwise it might just append new ones. But this is the correct frontend way.)
     formData.append("existingImages", JSON.stringify(existingImages));
 
     // Append New Files
@@ -325,7 +323,17 @@ export default function EditProductPage() {
                         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {existingImages.map((img, idx) => (
                                 <div key={idx} className="relative w-20 h-20 rounded-2xl overflow-hidden border border-zinc-200 flex-shrink-0 group bg-white">
-                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}${img}`} alt="Existing" fill className="object-cover" />
+                                    <Image 
+                                        // ✅ FIX: Smart URL Check for Admin Edit Page
+                                        src={
+                                            img.startsWith("http") 
+                                            ? img 
+                                            : `${process.env.NEXT_PUBLIC_API_URL}${img}`
+                                        } 
+                                        alt="Existing" 
+                                        fill 
+                                        className="object-cover" 
+                                    />
                                     {/* Delete Button Overlay */}
                                     <button 
                                         type="button" 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Import Input
 import {
   Plus,
   Trash2,
@@ -14,7 +15,9 @@ import {
   Clock,
   IndianRupee,
   ArrowLeft,
-  Filter, // Added Filter icon
+  Filter,
+  Search, // Added Search icon
+  X, // Added X icon for clearing
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
@@ -38,8 +41,9 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<DecorationProduct[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // --- NEW: Filter State ---
+  // --- Filter & Search State ---
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 New Search State
 
   useEffect(() => {
     if (token) fetchProducts();
@@ -94,12 +98,20 @@ export default function AdminProductsPage() {
     }
   };
 
-  // --- FILTER LOGIC ---
+  // --- FILTER LOGIC (Category + Search) ---
   const categories = ["All", "Wedding", "Anniversary", "Haldi", "Birthday", "Corporate"];
 
-  const filteredProducts = selectedCategory === "All"
-    ? products
-    : products.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
+  const filteredProducts = products.filter((p) => {
+    // 1. Check Category
+    const matchesCategory = selectedCategory === "All" || p.category.toLowerCase() === selectedCategory.toLowerCase();
+    
+    // 2. Check Search (Name or ID)
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = p.name.toLowerCase().includes(searchLower) || 
+                          p._id.toLowerCase().includes(searchLower);
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50/50 pt-24 pb-12">
@@ -107,32 +119,57 @@ export default function AdminProductsPage() {
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Header Section */}
-        <div className="flex justify-between mt-10 mb-8">
-          <Link
-            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black transition-colors font-bold uppercase text-xs tracking-widest" 
-            href={"/admin/dashboard"}        
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
-          <Button
-            onClick={() => router.push("/admin/products/new")}
-            className="bg-black text-white rounded-full px-8 h-12 shadow-lg shadow-black/10 hover:scale-[1.02] transition-all font-bold tracking-wide"
-          >
-            <Plus className="w-4 h-4 mr-2" /> Add New Package
-          </Button>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-10 mb-8 gap-4">
+          <div>
+            <Link
+                className="flex items-center gap-2 text-zinc-400 hover:text-black transition-colors font-bold uppercase text-xs tracking-widest mb-2" 
+                href={"/admin/dashboard"}        
+            >
+                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </Link>
+            <h1 className="text-3xl font-serif font-bold text-zinc-900">Product Catalog</h1>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+             {/* 🔍 SEARCH BAR */}
+             <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input 
+                    placeholder="Search package or ID..." 
+                    className="pl-9 pr-8 h-12 rounded-full border-zinc-200 bg-white shadow-sm focus-visible:ring-black"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                    <button 
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
+             </div>
+
+             <Button
+                onClick={() => router.push("/admin/products/new")}
+                className="bg-black text-white rounded-full px-6 h-12 shadow-lg shadow-black/10 hover:scale-[1.02] transition-all font-bold tracking-wide shrink-0"
+             >
+                <Plus className="w-4 h-4 mr-2" /> Add Package
+             </Button>
+          </div>
         </div>
 
-        {/* --- FILTER BAR (NEW) --- */}
-        <div className="mb-6 overflow-x-auto pb-2">
+        {/* --- CATEGORY FILTER --- */}
+        <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 mr-4 text-zinc-400 font-bold uppercase text-[10px] tracking-widest">
+                <div className="flex items-center gap-2 mr-4 text-zinc-400 font-bold uppercase text-[10px] tracking-widest shrink-0">
                     <Filter className="w-4 h-4" /> Filter By:
                 </div>
                 {categories.map((cat) => (
                     <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-5 py-2 rounded-full text-xs font-bold transition-all border ${
+                        className={`px-5 py-2 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${
                             selectedCategory === cat
                                 ? "bg-black text-white border-black shadow-md"
                                 : "bg-white text-zinc-500 border-zinc-200 hover:border-black hover:text-black"
@@ -178,7 +215,6 @@ export default function AdminProductsPage() {
                     </td>
                   </tr>
                 ) : filteredProducts.length > 0 ? (
-                  // ✅ FIXED: Mapping filteredProducts instead of products
                   filteredProducts.map((p) => (
                     <tr
                       key={p._id}
@@ -201,7 +237,7 @@ export default function AdminProductsPage() {
                             />
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900 leading-tight">
+                            <p className="font-semibold text-gray-900 leading-tight line-clamp-1 max-w-[200px]">
                               {p.name}
                             </p>
                             <p className="text-[10px] text-gray-400 mt-1 uppercase font-mono tracking-tighter">
@@ -259,14 +295,14 @@ export default function AdminProductsPage() {
                           No Products Found
                         </h3>
                         <p className="text-gray-400 text-sm mt-1 mb-6">
-                           Try changing the category filter or add a new package.
+                           Try adjusting your search or filter.
                         </p>
                         <Button
                           variant="outline"
-                          onClick={() => router.push("/admin/products/new")}
+                          onClick={() => { setSearchTerm(""); setSelectedCategory("All"); }}
                           className="rounded-full border-gray-300 hover:border-black hover:bg-black hover:text-white transition-all"
                         >
-                          Add New Package
+                          Clear Filters
                         </Button>
                       </div>
                     </td>

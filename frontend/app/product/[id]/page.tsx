@@ -3,6 +3,7 @@
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext"; // ✅ IMPORT AUTH CONTEXT
 import { 
   Star, Clock, ShieldCheck, CalendarDays, Share2, Info, CheckCircle2, Loader2, 
   Leaf, Truck, BadgePercent, ChevronLeft, ChevronRight, XCircle, ArrowRight, HelpCircle, Sparkles
@@ -26,6 +27,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/a
 export default function ProductPage() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { token } = useAuth(); // ✅ GET TOKEN
   const router = useRouter(); 
 
   const [product, setProduct] = useState<any>(null);
@@ -97,7 +99,16 @@ export default function ProductPage() {
     ? originalPrice - (originalPrice * (discountPercent / 100))
     : originalPrice;
 
+  // ✅ UPDATED ADD TO CART LOGIC
   const handleAddToCart = () => {
+    // 1. Check if user is logged in
+    if (!token) {
+        toast.error("Please login to book an event");
+        router.push("/login");
+        return;
+    }
+
+    // 2. Add to cart if logged in
     if (!product?._id) return;
     addToCart(product._id.toString(), quantity);
     toast.success(`${product.name} added to cart!`);
@@ -120,7 +131,7 @@ export default function ProductPage() {
 
       <main className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-32 lg:pb-24">
         
-        {/* ✅ BACK BUTTON ADDED HERE */}
+        {/* ✅ BACK BUTTON */}
         <div className="mb-6">
             <button 
                 onClick={() => router.back()} 
