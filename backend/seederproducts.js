@@ -6,12 +6,12 @@ const fs = require("fs");
 
 // Models
 const connectDB = require("./config/db");
-const User = require("./models/Users"); // Ensure filename matches (User.js vs Users.js)
+const User = require("./models/Users"); 
 const Product = require("./models/Product");
 const Order = require("./models/Order");
 
 // Data
-const products = require("./data/products");
+const products = require("./data/birthday");
 
 dotenv.config();
 mongoose.connect(process.env.MONGO_URI);

@@ -47,6 +47,7 @@ function NavbarContent() {
     { href: "/shop?category=haldi", label: "Haldi", cat: "haldi" },
     { href: "/shop?category=corporate", label: "Corporate", cat: "corporate" },
     { href: "/shop?category=anniversary", label: "Anniversary", cat: "anniversary" },
+    { href: "/shop?category=babywelcome", label: "Baby Welcome", cat: "babywelcome" },
   ];
 
   const finalLink: NavLinkItem =

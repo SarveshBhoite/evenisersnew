@@ -18,6 +18,7 @@ export default function HomePage() {
     { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
     { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
     { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
+    { name: "Baby Welcome", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=babywelcome" },
   ];
 
   return (
@@ -131,7 +132,7 @@ export default function HomePage() {
         </div>
         <div className="relative z-10 max-w-3xl mx-auto text-white">
             <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 leading-tight">
-             Planning a Wedding in 2025?
+             Planning a Wedding in 2026?
             </h2>
             <p className="text-zinc-300 mb-10 text-lg font-light">
              Dates are filling up fast. Secure your consultation with our lead designers today.
