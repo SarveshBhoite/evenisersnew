@@ -295,6 +295,7 @@ export default function EditProductPage() {
                         <option value="haldi">Haldi</option>
                         <option value="birthday">Birthday</option>
                         <option value="corporate">Corporate</option>
+                        <option value="babywelcome">Baby Welcome</option>
                     </select>
                 </div>
 
