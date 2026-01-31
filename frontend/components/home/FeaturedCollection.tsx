@@ -13,7 +13,7 @@ export function FeaturedCollection() {
   const [categorySections, setCategorySections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const targetCategories = ["wedding", "birthday", "haldi", "corporate", "anniversary", "babywelcome"];
+  const targetCategories = ["wedding", "birthday", "haldi", "corporate", "anniversary", "babywelcome", "namingceremony"];
 
   useEffect(() => {
     const fetchAndOrganizeEvents = async () => {

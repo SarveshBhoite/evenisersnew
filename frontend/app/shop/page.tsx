@@ -25,7 +25,11 @@ export default function ShopPage() {
           : `${API_URL}/products`;
 
         const res = await axios.get(url);
-        setProducts(res.data);
+        
+        // ✅ ONLY CHANGE: Randomly shuffle the products array
+        const shuffledData = res.data.sort(() => 0.5 - Math.random());
+        
+        setProducts(shuffledData);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -66,7 +70,7 @@ export default function ShopPage() {
               </Link>
             </div>
           ) : (
-            // ✅ UPDATED GRID: 2 Columns on Mobile, 5 on Desktop
+            // ✅ YOUR ORIGINAL GRID
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
               {products.map((product) => {
                 // Calculate Discount

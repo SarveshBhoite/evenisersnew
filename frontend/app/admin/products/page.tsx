@@ -99,7 +99,7 @@ export default function AdminProductsPage() {
   };
 
   // --- FILTER LOGIC (Category + Search) ---
-  const categories = ["All", "Wedding", "Anniversary", "Haldi", "Birthday", "Corporate", "BabyWelcome"];
+  const categories = ["All", "Wedding", "Anniversary", "Haldi", "Birthday", "Corporate", "BabyWelcome", "NamingCeremony"];
 
   const filteredProducts = products.filter((p) => {
     // 1. Check Category
