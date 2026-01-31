@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // 1. Target the images folder
-const imagesDir = path.join(__dirname, 'data', 'babywelcome');
+const imagesDir = path.join(__dirname, 'data', 'namingceremony');
 
 console.log(`📂 Scanning folder: ${imagesDir}...`);
 
