@@ -39,6 +39,7 @@ export function Footer() {
             <li><Link href="/shop?category=haldi">Haldi & Rituals</Link></li>
             <li><Link href="/shop?category=anniversary">Anniversary Designs</Link></li>
             <li><Link href="/shop?category=babywelcome">Baby Welcome Decor</Link></li>
+            <li><Link href="/shop?category=namingceremony">Naming Ceremony</Link></li>
           </ul>
         </div>
 

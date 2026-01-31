@@ -18,7 +18,8 @@ export default function HomePage() {
     { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
     { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
     { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
-    { name: "Baby Welcome", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=babywelcome" },
+    { name: "Baby Welcome", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=babywelcome" },
+    { name: "Naming Ceremony", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=namingceremony" },
   ];
 
   return (
@@ -68,7 +69,7 @@ export default function HomePage() {
           </div>
 
           {/* Premium Cards Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
             {categoriesList.map((cat) => (
               <Link
                 key={cat.name}
