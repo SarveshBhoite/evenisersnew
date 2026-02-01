@@ -20,6 +20,7 @@ export default function HomePage() {
     { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
     { name: "Baby Welcome", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=babywelcome" },
     { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
+    { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
   ];
 
   return (

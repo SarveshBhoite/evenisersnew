@@ -198,6 +198,7 @@ export default function NewProductPage() {
                         <option value="corporate">Corporate</option>
                         <option value="babywelcome">Baby Welcome</option>
                         <option value="namingceremony">Naming Ceremony</option>
+                        <option value="romantic">Romantic</option>
                     </select>
                 </div>
 
