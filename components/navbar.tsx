@@ -50,6 +50,7 @@ function NavbarContent() {
     { href: "/shop?category=namingceremony", label: "Naming Ceremony", icon: "🕯️" },
     { href: "/shop?category=haldi", label: "Haldi", icon: "✨" },
     { href: "/shop?category=anniversary", label: "Anniversary", icon: "🥂" },
+    { href: "/shop?category=romantic", label: "Romantic", icon: "🥂" },
     { href: "/shop?category=corporate", label: "Corporate", icon: "🏢" },
   ];
 
