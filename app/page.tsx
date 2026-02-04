@@ -21,6 +21,7 @@ export default function HomePage() {
     { name: "Baby Welcome", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=babywelcome" },
     { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
     { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
+    { name: "Baby Shower", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=babyshower" },
   ];
 
   return (
