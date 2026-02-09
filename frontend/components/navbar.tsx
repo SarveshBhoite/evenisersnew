@@ -104,7 +104,7 @@ function NavbarContent() {
           {/* --- LEFT: Logo & Location --- */}
           <div className="flex items-center gap-4 shrink-0">
             <Link href="/" className="font-serif text-xl md:text-2xl font-bold text-foreground tracking-tight">
-              evenizers
+              Evenizers
             </Link>
 
             <div className="hidden md:block h-6 w-[1px] bg-zinc-300 mx-1"></div>
@@ -277,7 +277,7 @@ function NavbarContent() {
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild><Button variant="ghost" size="icon" className="-mr-2 h-9 w-9"><Menu className="h-6 w-6" /></Button></SheetTrigger>
                 <SheetContent side="right" className="w-[300px] flex flex-col p-6">
-                    <SheetHeader className="text-left mb-6 border-b pb-4"><SheetTitle className="font-serif text-3xl font-bold">evenizers</SheetTitle></SheetHeader>
+                    <SheetHeader className="text-left mb-6 border-b pb-4"><SheetTitle className="font-serif text-3xl font-bold">Evenizers</SheetTitle></SheetHeader>
                     
                     {user && (
                         <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-4 mb-6">
