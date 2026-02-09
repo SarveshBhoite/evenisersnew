@@ -11,41 +11,65 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 // @route   POST /api/auth/signup
 // @desc    Register user & Send OTP (No Token yet)
+// @route   POST /api/auth/signup
 router.post("/signup", async (req, res) => {
   try {
+    console.log("👉 Signup Request Received:", req.body.email); // Debug Log
+
     const { name, email, password } = req.body;
     let user = await User.findOne({ email });
 
+    // 1. Check if user exists
     if (user) {
-        // If user exists AND is verified, stop them
         if (user.isVerified) {
             return res.status(400).json({ message: "User already exists" });
         }
-        
-        // If user exists but is NOT verified, update their details and resend OTP
+        // Resend OTP logic
+        console.log("👉 Resending OTP to existing unverified user");
         const otp = generateOTP();
         user.name = name;
-        user.password = password; // Will be hashed by pre-save hook
+        user.password = password;
         user.otp = otp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+        user.otpExpires = Date.now() + 10 * 60 * 1000;
         await user.save();
 
-        await sendOTPEmail(email, otp);
+        try {
+            await sendOTPEmail(email, otp);
+            console.log("✅ OTP Resent Successfully");
+        } catch (emailErr) {
+            console.error("❌ Email Failed:", emailErr.message);
+            return res.status(500).json({ message: "Error sending email. Please try again." });
+        }
         return res.status(200).json({ message: "Verification code resent to email", email });
     }
 
-    // New User Logic
+    // 2. Create New User
+    console.log("👉 Creating New User in DB...");
     const otp = generateOTP();
     user = await User.create({
       name,
       email,
       password,
       otp,
-      otpExpires: Date.now() + 10 * 60 * 1000, // 10 mins expires
+      otpExpires: Date.now() + 10 * 60 * 1000,
       isVerified: false
     });
+    console.log("✅ User Created in DB:", user._id);
 
-    await sendOTPEmail(email, otp);
+    // 3. Send OTP (With Safety Block)
+    try {
+        console.log("👉 Attempting to send OTP Email...");
+        await sendOTPEmail(email, otp);
+        console.log("✅ OTP Email Sent Successfully");
+    } catch (emailErr) {
+        console.error("❌ FATAL EMAIL ERROR:", emailErr);
+        // Delete the user so they can try again
+        await User.findByIdAndDelete(user._id);
+        return res.status(500).json({ 
+            message: "Failed to send email. Check server logs.",
+            error: emailErr.message 
+        });
+    }
 
     res.status(201).json({ 
         message: "Verification code sent to email", 
@@ -53,8 +77,8 @@ router.post("/signup", async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    console.error("🔥 SERVER CRASH IN SIGNUP:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 });
 

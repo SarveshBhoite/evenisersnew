@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
+// Import Routes
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -14,24 +15,28 @@ const userRoutes = require("./routes/userRoutes");
 const vendorRoutes = require("./routes/vendorRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 
+// Load Env Vars
 dotenv.config();
+
 const app = express();
 
-// 🚨 FIX 1: Update CORS to allow your Vercel Domain
+// 🚨 DEBUG: Log every request to see if it reaches the server
+app.use((req, res, next) => {
+  console.log(`👉 Request received: ${req.method} ${req.url}`);
+  next();
+});
+
+// 🚨 FIX 1: Allow ALL CORS temporarily to rule out domain issues
 app.use(cors({
-  origin: [
-    "http://localhost:3000",                // For local development
-    "https://evenisersnew.vercel.app",      // For production Vercel frontend
-    process.env.CLIENT_URL                  // Fallback from .env
-  ],
+  origin: "*", 
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
 
 app.use(express.json());
-
-// Static Folder Access
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Connect DB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
@@ -47,8 +52,17 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/payment",paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 
-// 🚨 FIX 2: Use Dynamic Port for Render (process.env.PORT)
+// 🚨 FIX 2: Global Error Handler (Prevents 502 Crashes)
+app.use((err, req, res, next) => {
+  console.error("🔥 SERVER CRASH ERROR:", err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: "Internal Server Error", 
+    error: err.message 
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
