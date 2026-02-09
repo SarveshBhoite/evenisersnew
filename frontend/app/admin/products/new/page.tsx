@@ -201,6 +201,7 @@ export default function NewProductPage() {
                         <option value="romantic">Romantic</option>
                         <option value="babyshower">Baby Shower</option>
                         <option value="bridetobe">Bride To Be</option>
+                        <option value="agedtoperfection">Aged To Perfection</option>
                     </select>
                 </div>
 

@@ -43,6 +43,7 @@ export function Footer() {
             <li><Link href="/shop?category=romantic">Romantic & Celebration Decor</Link></li>
             <li><Link href="/shop?category=babyshower">Baby Shower Decor</Link></li>
             <li><Link href="/shop?category=bridetobe">Bride To Be Decor</Link></li>
+            <li><Link href="/shop?category=agedtoperfection">Aged to Perfection Celebrations</Link></li>
           </ul>
         </div>
 
