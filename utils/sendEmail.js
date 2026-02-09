@@ -6,20 +6,22 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUND");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  host: "smtp-relay.brevo.com", // ✅ Brevo's Host
+  port: 587,                    // ✅ Standard Secure Port
+  secure: false,                // ✅ Must be false for 587
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER, // Your Brevo Login
+    pass: process.env.EMAIL_PASS, // Your SMTP Key
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  // 🚨 NETWORK FIX: Force IPv4 and standard DNS lookup
-  family: 4, 
-  dnsTimeout: 10000, 
-  socketTimeout: 30000, // Wait 30s
+});
+
+// Verify connection on start
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Brevo Connection Error:", error);
+  } else {
+    console.log("✅ Connected to Brevo SMTP Successfully!");
+  }
 });
 
 // 1. Send Order Email to Admin
