@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 const sendOrderEmail = async (orderData) => {
   const recipient = process.env.ADMIN_EMAIL || orderData.userEmail;
   const mailOptions = {
-    from: `"Evenisers Order" <${process.env.EMAIL_USER}>`,
+    from: `"evenizers Order" <${process.env.EMAIL_USER}>`,
     to: recipient,
     subject: `New Order Received! #${orderData._id}`,
     html: `<h2>New Order Notification</h2><p>Total: ₹${orderData.totalAmount}</p>`,
@@ -34,7 +34,7 @@ const sendOrderEmail = async (orderData) => {
 // 2. Send Contact Form Emails
 const sendContactEmail = async (contactData) => {
   const adminMailOptions = {
-    from: `"Evenisers Website" <${process.env.EMAIL_USER}>`,
+    from: `"evenizers Website" <${process.env.EMAIL_USER}>`,
     replyTo: contactData.email,
     to: process.env.ADMIN_EMAIL,
     subject: `New Inquiry: ${contactData.subject}`,
@@ -47,17 +47,17 @@ const sendContactEmail = async (contactData) => {
   };
 
   const userMailOptions = {
-    from: `"Evenisers" <${process.env.EMAIL_USER}>`,
+    from: `"evenizers" <${process.env.EMAIL_USER}>`,
     to: contactData.email,
     subject: `We received your message: ${contactData.subject}`,
     html: `
       <div style="font-family: serif; padding: 20px; color: #333;">
         <h1 style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">Hello ${contactData.name},</h1>
-        <p>Thank you for reaching out to Evenisers.</p>
+        <p>Thank you for reaching out to evenizers.</p>
         <p>We have received your message regarding <b>"${contactData.subject}"</b> and our team will get back to you within 24-48 hours.</p>
         <br />
         <p>Best regards,</p>
-        <p><b>Evenisers Team</b></p>
+        <p><b>evenizers Team</b></p>
       </div>
     `,
   };
@@ -76,13 +76,13 @@ const sendContactEmail = async (contactData) => {
 // 3. Send OTP Email
 const sendOTPEmail = async (email, otp) => {
   const mailOptions = {
-    from: `"Evenisers Security" <${process.env.EMAIL_USER}>`,
+    from: `"evenizers Security" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `Your Verification Code: ${otp}`,
     html: `
       <div style="font-family: sans-serif; padding: 20px; color: #333;">
         <h2>Verify Your Account</h2>
-        <p>Your One-Time Password (OTP) for Evenisers is:</p>
+        <p>Your One-Time Password (OTP) for evenizers is:</p>
         <h1 style="letter-spacing: 5px; background: #eee; padding: 10px; display: inline-block;">${otp}</h1>
         <p>This code expires in 10 minutes.</p>
         <p>If you did not request this, please ignore this email.</p>
@@ -150,7 +150,7 @@ const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) =
 
 const sendResetEmail = async (email, resetUrl) => {
   const mailOptions = {
-    from: `"Evenisers Security" <${process.env.EMAIL_USER}>`,
+    from: `"evenizers Security" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Reset Your Password",
     html: `

@@ -107,7 +107,7 @@ export default function CheckoutPage() {
             key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
             amount: orderData.amount, 
             currency: "INR",
-            name: "Evenisers Events",
+            name: "evenizers Events",
             description: paymentOption === 'advance' ? "Advance Payment (40%)" : "Full Payment",
             order_id: orderData.id,
             

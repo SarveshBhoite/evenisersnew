@@ -21,7 +21,7 @@ export default function LogoutPage() {
       <Navbar />
       <div className="text-center">
         <h1 className="font-serif text-3xl mb-4">Logging you out...</h1>
-        <p className="text-muted-foreground">Thank you for visiting Evenisers. We hope to see you again soon!</p>
+        <p className="text-muted-foreground">Thank you for visiting evenizers. We hope to see you again soon!</p>
         <div className="mt-8 animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto"></div>
       </div>
     </div>

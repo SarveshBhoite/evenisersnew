@@ -24,7 +24,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "Evenisers — Premium Fashion & Lifestyle",
+  title: "evenizers — Premium Fashion & Lifestyle",
   description: "Discover timeless elegance with our curated collection of luxury fashion and lifestyle essentials",
   generator: "v0.app",
   icons: {

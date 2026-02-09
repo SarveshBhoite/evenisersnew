@@ -22,6 +22,7 @@ export default function HomePage() {
     { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
     { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
     { name: "Baby Shower", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=babyshower" },
+    { name: "Bride To Be", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=bridetobe" },
   ];
 
   return (
