@@ -8,21 +8,18 @@ console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUN
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Must be false for port 587
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
   tls: {
-    ciphers: "SSLv3",
     rejectUnauthorized: false,
   },
-  // 🚨 NETWORK FIXES 🚨
-  logger: true,        // Log every step to Render console
-  debug: true,         // Show SMTP traffic
-  connectionTimeout: 20000, // Wait 20 seconds for connection
-  greetingTimeout: 20000,   // Wait 20 seconds for "Hello"
-  socketTimeout: 20000,     // Wait 20 seconds for data
+  // 🚨 NETWORK FIX: Force IPv4 and standard DNS lookup
+  family: 4, 
+  dnsTimeout: 10000, 
+  socketTimeout: 30000, // Wait 30s
 });
 
 // 1. Send Order Email to Admin
