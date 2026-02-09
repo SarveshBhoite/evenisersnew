@@ -9,7 +9,7 @@ const Product = require("./models/Product"); // Ensure this matches your file ca
 const User = require("./models/Users");
 
 // 👇 CHANGE THIS LINE to point to the file you want to seed
-const productData = require("./data/agedtoperfection"); 
+const productData = require("./data/birthday"); 
 
 dotenv.config();
 
@@ -46,7 +46,7 @@ mongoose.connect(process.env.MONGO_URI)
 const findImageFile = (filename) => {
     if (!filename) return null;
     
-    const basePath = path.join(__dirname, "data", "agedtoperfection");
+    const basePath = path.join(__dirname, "data", "birthday");
     const originalPath = path.join(basePath, filename);
 
     if (fs.existsSync(originalPath)) return originalPath;
