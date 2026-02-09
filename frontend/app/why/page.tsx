@@ -126,7 +126,6 @@ export default function WhyUsPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
