@@ -6,17 +6,23 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUND");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",  // ✅ Explicit Host
-  port: 587,               // ✅ Render LOVES Port 587 (Standard for Cloud)
-  secure: false,           // ✅ Must be false for Port 587 (uses STARTTLS)
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // Must be false for port 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
   tls: {
-    rejectUnauthorized: false // ✅ Helps prevent handshake errors on cloud servers
+    ciphers: "SSLv3",
+    rejectUnauthorized: false,
   },
-  connectionTimeout: 10000, // 10 seconds timeout
+  // 🚨 NETWORK FIXES 🚨
+  logger: true,        // Log every step to Render console
+  debug: true,         // Show SMTP traffic
+  connectionTimeout: 20000, // Wait 20 seconds for connection
+  greetingTimeout: 20000,   // Wait 20 seconds for "Hello"
+  socketTimeout: 20000,     // Wait 20 seconds for data
 });
 
 // 1. Send Order Email to Admin
