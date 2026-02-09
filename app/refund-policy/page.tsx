@@ -159,7 +159,6 @@ export default function RefundPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
