@@ -5,13 +5,14 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUND");
 
+// ✅ 1. AUTHENTICATION (Uses the weird ID: 96f0a2001@smtp-brevo.com)
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: process.env.SMTP_PORT || 2525,
   secure: false, 
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER, // The Login ID
+    pass: process.env.EMAIL_PASS, // The API Key
   },
   // 🚨 NETWORK FIXES 🚨
   tls: {
@@ -33,11 +34,15 @@ transporter.verify((error, success) => {
   }
 });
 
+// ✅ 2. THE SENDER IDENTITY (Uses your verified Gmail: rajb81008@gmail.com)
+// We use ADMIN_EMAIL because that is the verified address in Brevo
+const SENDER_IDENTITY = `"Evenizers Team" <${process.env.ADMIN_EMAIL}>`;
+
 // 1. Send Order Email to Admin
 const sendOrderEmail = async (orderData) => {
   const recipient = process.env.ADMIN_EMAIL || orderData.userEmail;
   const mailOptions = {
-    from: `"evenizers Order" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed: Sends from verified email
     to: recipient,
     subject: `New Order Received! #${orderData._id}`,
     html: `<h2>New Order Notification</h2><p>Total: ₹${orderData.totalAmount}</p>`,
@@ -54,7 +59,7 @@ const sendOrderEmail = async (orderData) => {
 // 2. Send Contact Form Emails
 const sendContactEmail = async (contactData) => {
   const adminMailOptions = {
-    from: `"evenizers Website" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed
     replyTo: contactData.email,
     to: process.env.ADMIN_EMAIL,
     subject: `New Inquiry: ${contactData.subject}`,
@@ -67,7 +72,7 @@ const sendContactEmail = async (contactData) => {
   };
 
   const userMailOptions = {
-    from: `"evenizers" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed
     to: contactData.email,
     subject: `We received your message: ${contactData.subject}`,
     html: `
@@ -96,7 +101,7 @@ const sendContactEmail = async (contactData) => {
 // 3. Send OTP Email
 const sendOTPEmail = async (email, otp) => {
   const mailOptions = {
-    from: `"evenizers Security" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed
     to: email,
     subject: `Your Verification Code: ${otp}`,
     html: `
@@ -112,18 +117,17 @@ const sendOTPEmail = async (email, otp) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`✅ OTP sent to ${email}`);
+    console.log(`✅ OTP sent to ${email} FROM ${process.env.ADMIN_EMAIL}`);
   } catch (error) {
     console.error("❌ OTP Email Error:", error.message);
     throw new Error("Email could not be sent");
   }
 };
 
-// 4. 🚨 NEW: Send Vendor Broadcast Email (Moved OUTSIDE sendOTPEmail)
+// 4. Send Vendor Broadcast Email
 const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) => {
   const uniqueId = Math.random().toString(36).substring(7);
 
-  // 1. Generate HTML list of ALL items
   const itemsHtml = order.items.map(item => `
     <div style="margin-bottom: 10px; border-bottom: 1px dashed #ddd; padding-bottom: 10px;">
         <p style="margin: 2px 0;"><strong>🎉 Event:</strong> ${item.product?.name || "Event Package"}</p>
@@ -133,7 +137,7 @@ const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) =
   `).join("");
 
   const mailOptions = {
-    from: `"Event Manager" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed
     to: vendorEmail,
     subject: `🔥 New Order (${order.items.length} Events) in ${order.shippingAddress.city}! [${uniqueId}]`, 
     html: `
@@ -170,7 +174,7 @@ const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) =
 
 const sendResetEmail = async (email, resetUrl) => {
   const mailOptions = {
-    from: `"evenizers Security" <${process.env.EMAIL_USER}>`,
+    from: SENDER_IDENTITY, // ✅ Fixed
     to: email,
     subject: "Reset Your Password",
     html: `
