@@ -23,13 +23,29 @@ cloudinary.config({
 // 2. Global Defaults (Used if data file has empty fields)
 const GLOBAL_FAQS = [
   {
-    question: "Is electricity required?",
-    answer: "Yes, a standard plug point is required nearby."
+    question: "What services do you provide?",
+    answer: "We offer complete event planning, decoration, entertainment, catering, photography, and venue arrangements.",
   },
   {
-    question: "What is your cancellation policy?",
-    answer: "Cancellations made 48 hours in advance are eligible for a 50% refund."
-  }
+    question: "Which cities do you serve?",
+    answer: "We started in Pune and now provide services across multiple cities in India.",
+  },
+  {
+    question: "Do you offer customized decorations?",
+    answer: "Yes, we provide theme-based and fully customized decoration services.",
+  },
+  {
+    question: "Do you manage complete events?",
+    answer: "Yes, we provide both decoration-only and full event management services.",
+  },
+  {
+    question: "How early should I book my event?",
+    answer: "We recommend booking at least 4 days days in advance.",
+  },
+  {
+    question: "How much does event planning cost?",
+    answer: "Pricing depends on event type, theme, and services required. We offer customized packages.",
+  },
 ];
 
 const DEFAULT_CARE_INFO = "Keep away from sharp objects, Do not use water nearby";
