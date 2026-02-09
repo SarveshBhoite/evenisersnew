@@ -13,11 +13,11 @@ import { FAQSection } from "@/components/home/FAQSection";
 export default function HomePage() {
   
   const categoriesList = [
-    { name: "Weddings", image: "/luxury-silk-scarf.png", href: "/shop?category=wedding" },
+    // { name: "Weddings", image: "/luxury-silk-scarf.png", href: "/shop?category=wedding" },
     { name: "Birthdays", image: "/luxury-cashmere-blazer.jpg", href: "/shop?category=birthday" },
-    { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
-    { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
-    { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
+    // { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
+    // { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
+    // { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
     { name: "Baby Welcome", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=babywelcome" },
     { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
     { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
