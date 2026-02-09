@@ -11,7 +11,7 @@ export function Footer() {
         {/* BRAND */}
         <div className="col-span-2">
           <h3 className="font-serif text-3xl font-bold mb-6 italic">
-            evenizers EVENTS
+            EVENIZERS EVENTS
           </h3>
           <p className="text-zinc-500 max-w-sm leading-relaxed mb-6">
             Transforming spaces and creating memories. We are a full-service event
