@@ -10,20 +10,28 @@ import {
 
 const FAQS = [
   {
-    question: "How far in advance should I book?",
-    answer: "For weddings, we recommend 6-12 months. For smaller events, 2-3 months is sufficient.",
+    question: "What services do you provide?",
+    answer: "We offer complete event planning, decoration, entertainment, catering, photography, and venue arrangements.",
   },
   {
-    question: "Do you travel for destination weddings?",
-    answer: "Yes! We specialize in destination weddings across Goa, Udaipur, Jaipur, and Kerala.",
+    question: "Which cities do you serve?",
+    answer: "We started in Pune and now provide services across multiple cities in India.",
   },
   {
-    question: "Can I customize the packages?",
-    answer: "Absolutely. All packages are starting points. We tailor every detail to your vision.",
+    question: "Do you offer customized decorations?",
+    answer: "Yes, we provide theme-based and fully customized decoration services.",
   },
   {
-    question: "What is your refund policy?",
-    answer: "Full refund 30 days prior. 50% refund 15-30 days prior. No refund under 15 days.",
+    question: "Do you manage complete events?",
+    answer: "Yes, we provide both decoration-only and full event management services.",
+  },
+  {
+    question: "How early should I book my event?",
+    answer: "We recommend booking at least 4 days days in advance.",
+  },
+  {
+    question: "How much does event planning cost?",
+    answer: "Pricing depends on event type, theme, and services required. We offer customized packages.",
   },
 ];
 
