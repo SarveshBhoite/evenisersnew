@@ -23,6 +23,7 @@ export default function HomePage() {
     { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
     { name: "Baby Shower", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=babyshower" },
     { name: "Bride To Be", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=bridetobe" },
+    { name: "Aged to Perfection", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=agedtoperfection" },
   ];
 
   return (

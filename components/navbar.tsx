@@ -49,6 +49,7 @@ function NavbarContent() {
     { href: "/shop?category=babywelcome", label: "Baby Welcome", icon: "👶" },
     { href: "/shop?category=namingceremony", label: "Naming Ceremony", icon: "🕯️" },
     { href: "/shop?category=bridetobe", label: "Bride To Be", icon: "🕯️" },
+    { href: "/shop?category=agedtoperfection", label: "Aged To Perfection", icon: "🕯️" },
     { href: "/shop?category=haldi", label: "Haldi", icon: "✨" },
     { href: "/shop?category=anniversary", label: "Anniversary", icon: "🥂" },
     { href: "/shop?category=romantic", label: "Romantic", icon: "🥂" },
