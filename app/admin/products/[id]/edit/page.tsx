@@ -299,6 +299,7 @@ export default function EditProductPage() {
                         <option value="namingceremony">Naming Ceremony</option>
                         <option value="romantic">Romantic</option>
                         <option value="babyshower">Baby Shower</option>
+                        <option value="bridetobe">Bride To Be</option>
                     </select>
                 </div>
 
