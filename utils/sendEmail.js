@@ -7,7 +7,7 @@ console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUN
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
-  port: 587,
+  port: process.env.SMTP_PORT || 2525,
   secure: false, 
   auth: {
     user: process.env.EMAIL_USER,
