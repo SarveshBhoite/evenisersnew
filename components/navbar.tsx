@@ -53,7 +53,7 @@ function NavbarContent() {
     // { href: "/shop?category=haldi", label: "Haldi", icon: "✨" },
     // { href: "/shop?category=anniversary", label: "Anniversary", icon: "🥂" },
     { href: "/shop?category=romantic", label: "Romantic", icon: "🥂" },
-    // { href: "/shop?category=corporate", label: "Corporate", icon: "🏢" },
+    { href: "/corporate", label: "Corporate", icon: "🏢" },
     { href: "/shop?category=babyshower", label: "Baby Shower", icon: "🏢" },
   ];
 

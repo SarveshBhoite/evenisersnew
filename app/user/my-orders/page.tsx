@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Loader2, Star, X } from "lucide-react";
+import { Calendar, Clock, Loader2, Star, CheckCircle2, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
@@ -60,12 +60,14 @@ export default function MyOrdersPage() {
   };
 
   const getStatusStyle = (status: string) => {
+      if (!status) return "bg-gray-100 text-gray-600 border-gray-200";
       switch(status) {
-          case "completed": return "bg-green-100 text-green-700 border-green-200 hover:bg-green-100";
-          case "in_progress": return "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100";
-          case "paid": return "bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800";
-          case "cancelled": return "bg-red-50 text-red-600 border-red-200 hover:bg-red-50";
-          default: return "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-50";
+          case "completed": return "bg-green-100 text-green-700 border-green-200";
+          case "in_progress": return "bg-blue-100 text-blue-700 border-blue-200";
+          case "partial_paid": return "bg-purple-100 text-purple-700 border-purple-200";
+          case "paid": return "bg-zinc-900 text-white border-zinc-900";
+          case "cancelled": return "bg-red-50 text-red-600 border-red-200";
+          default: return "bg-orange-50 text-orange-600 border-orange-200";
       }
   };
 
@@ -84,33 +86,43 @@ export default function MyOrdersPage() {
                 <p className="text-zinc-400 font-medium">Loading your events...</p>
             </div>
         ) : orders.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-[2rem] border border-zinc-100">
+            <div className="text-center py-20 bg-white rounded-[2rem] border border-zinc-100 shadow-sm">
                 <p className="text-zinc-400">No orders found.</p>
-                <Link href="/shop" className="text-black font-bold underline mt-2 block">Book an Event</Link>
+                <Link href="/shop" className="text-[#D4AF37] font-bold underline mt-2 block hover:text-black transition-colors">Book an Event</Link>
             </div>
         ) : (
-            <div className="space-y-6">
-                {orders.map((order) => (
+            <div className="space-y-8">
+                {orders.map((order) => {
+                    // 🚨 FIX: Determine Status Correctly (Check both fields)
+                    const currentStatus = order.paymentStatus || order.status || "";
+                    const isPartial = currentStatus === "partial_paid";
+                    
+                    const totalAmount = order.totalAmount;
+                    const paidAmount = order.amountPaid || 0; 
+                    const remainingAmount = totalAmount - paidAmount;
+
+                    return (
                     <div key={order._id} className="group bg-white rounded-[2rem] border border-zinc-100 overflow-hidden hover:shadow-xl hover:shadow-zinc-200/40 transition-all duration-300">
+                        
                         {/* Header */}
-                        <div className="bg-zinc-50/50 px-6 py-4 border-b border-zinc-100 flex flex-wrap gap-4 justify-between items-center">
+                        <div className="bg-zinc-50/80 backdrop-blur-sm px-6 py-4 border-b border-zinc-100 flex flex-wrap gap-4 justify-between items-center">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Order ID</span>
                                 <span className="font-mono text-sm font-bold text-zinc-700">#{order._id.slice(-8).toUpperCase()}</span>
                             </div>
-                            <div className="flex flex-col text-right">
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Booked On</span>
-                                <span className="text-sm font-medium text-zinc-700">{new Date(order.createdAt).toLocaleDateString()}</span>
-                            </div>
+                            
+                            <Badge className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${getStatusStyle(currentStatus)}`}>
+                                {currentStatus.replace("_", " ")}
+                            </Badge>
                         </div>
 
-                        {/* Items */}
-                        <div className="p-6 space-y-6">
+                        {/* Items List */}
+                        <div className="p-6 space-y-8">
                             {order.items.map((item: any, idx: number) => (
                                 <div key={idx} className="flex flex-col md:flex-row gap-6 items-start">
-                                    <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-zinc-100 shrink-0 border border-zinc-100">
+                                    {/* Image */}
+                                    <div className="relative w-full h-48 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-zinc-100 shrink-0 border border-zinc-100 shadow-sm">
                                         <Image 
-                                            // ✅ FIX: Applied Smart URL Check Logic
                                             src={
                                                 item.product?.image 
                                                 ? (item.product.image.startsWith("http") 
@@ -120,35 +132,51 @@ export default function MyOrdersPage() {
                                             }
                                             alt={item.product?.name || "Product"} 
                                             fill 
-                                            className="object-cover"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
                                     </div>
 
+                                    {/* Content */}
                                     <div className="flex-1 w-full">
-                                            <div className="flex justify-between items-start mb-2">
+                                            {/* Mobile Layout Fix */}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start w-full gap-2 mb-3">
                                                 <div>
-                                                    <h3 className="font-serif text-xl font-bold text-zinc-900 truncate">{item.product?.name || "Product Unavailable"}</h3>
-                                                    <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mt-1">{item.product?.category || "Event"}</p>
+                                                    <h3 className="font-serif text-xl font-bold text-zinc-900 leading-tight">
+                                                        {item.product?.name || "Product Unavailable"}
+                                                    </h3>
+                                                    <p className="text-xs text-[#D4AF37] font-bold uppercase tracking-wider mt-1">
+                                                        {item.product?.category || "Event"}
+                                                    </p>
                                                 </div>
-                                                <span className="font-bold text-lg text-black">₹{(item.price * item.quantity).toLocaleString()}</span>
+                                                
+                                                {/* Price Aligned Properly */}
+                                                <div className="text-left sm:text-right mt-1 sm:mt-0">
+                                                    <span className="font-bold text-lg text-black block">
+                                                        ₹{(item.price * item.quantity).toLocaleString()}
+                                                    </span>
+                                                    <span className="text-[10px] text-zinc-400 uppercase font-medium">Base Price</span>
+                                                </div>
                                             </div>
 
-                                            <div className="flex gap-4 mt-2">
-                                                <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
-                                                    {item.eventDate || "Date Pending"}
+                                            {/* Dates & Times */}
+                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 hover:bg-zinc-200">
+                                                    <Calendar className="w-3 h-3 mr-1" />
+                                                    {item.eventDate ? new Date(item.eventDate).toDateString() : "Date Pending"}
                                                 </Badge>
-                                                <Badge variant="outline" className="rounded-md px-2 bg-zinc-50 border-zinc-200 text-zinc-500 font-medium">
+                                                <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 hover:bg-zinc-200">
+                                                    <Clock className="w-3 h-3 mr-1" />
                                                     {item.timeSlot || "Time Pending"}
                                                 </Badge>
                                             </div>
 
-                                            {/* 🚨 REVIEW BUTTON (Only if Completed) */}
-                                            {order.status === "completed" && item.product && (
+                                            {/* Review Button */}
+                                            {currentStatus === "completed" && item.product && (
                                                 <Button 
                                                     onClick={() => handleOpenReview(item.product)}
                                                     variant="ghost" 
                                                     size="sm" 
-                                                    className="mt-4 text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] p-0 h-auto"
+                                                    className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] p-0 h-auto"
                                                 >
                                                     <Star className="w-3 h-3 mr-1" /> Write a Review
                                                 </Button>
@@ -158,22 +186,58 @@ export default function MyOrdersPage() {
                             ))}
                         </div>
 
-                        {/* Footer Status */}
-                        <div className="px-6 py-4 bg-white border-t border-zinc-100 flex flex-wrap justify-between items-center gap-4">
-                            <Badge className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${getStatusStyle(order.status)}`}>
-                                {order.status.replace("_", " ")}
-                            </Badge>
-                            <div className="text-right">
-                                <p className="text-xs text-zinc-400 font-bold uppercase">Total Amount</p>
-                                <p className="text-xl font-serif font-bold text-black">₹{order.totalAmount.toLocaleString()}</p>
+                        {/* 💰 FINANCIAL BREAKDOWN FOOTER */}
+                        <div className="px-6 py-6 bg-zinc-50 border-t border-zinc-100">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                
+                                <div className="text-xs text-zinc-400 max-w-sm leading-relaxed">
+                                    *Total includes all logistics, transportation, and GST charges applied to your selected package.
+                                </div>
+
+                                <div className="w-full md:w-auto bg-white p-4 rounded-xl border border-zinc-100 shadow-sm min-w-[250px]">
+                                    
+                                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-dashed border-zinc-200">
+                                        <span className="text-xs font-bold text-zinc-500 uppercase">Grand Total</span>
+                                        <span className="font-serif text-lg font-bold text-zinc-900">₹{totalAmount.toLocaleString()}</span>
+                                    </div>
+
+                                    {/* 🚨 FIX: Correct Conditional Logic */}
+                                    {isPartial ? (
+                                        <>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <CheckCircle2 className="w-3 h-3 text-green-600" />
+                                                    <span className="text-xs font-medium text-zinc-500">Paid Amount</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-green-600">₹{paidAmount.toLocaleString()}</span>
+                                            </div>
+
+                                            <div className="flex justify-between items-center bg-red-50 p-2 rounded-lg mt-2">
+                                                <div className="flex items-center gap-1.5">
+                                                    <AlertCircle className="w-3 h-3 text-red-600" />
+                                                    <span className="text-xs font-bold text-red-700 uppercase">Balance Due</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-red-700">₹{remainingAmount.toLocaleString()}</span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex justify-center mt-2">
+                                            <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100">
+                                                Fully Paid ✅
+                                            </Badge>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
+
                     </div>
-                ))}
+                    );
+                })}
             </div>
         )}
 
-        {/* 🚨 REVIEW MODAL */}
+        {/* REVIEW MODAL */}
         <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
             <DialogContent className="rounded-[2rem] p-8 max-w-md">
                 <DialogHeader className="mb-4">

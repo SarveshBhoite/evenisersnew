@@ -12,9 +12,9 @@ import {
   UserCheck, 
   AlertTriangle, 
   Camera, 
-  HeartHandshake, 
   Headphones,
-  ShieldCheck 
+  ShieldCheck,
+  Box // ✅ Added for the new section
 } from "lucide-react";
 
 export default function TermsPage() {
@@ -166,6 +166,18 @@ const termsData = [
                 <li>Ensuring electricity points and space availability.</li>
                 <li>Informing our team of any venue restrictions in advance.</li>
             </ul>
+        )
+    },
+    // ✅ NEW SECTION ADDED HERE
+    {
+        title: "Rental & Reusable Material Responsibility",
+        icon: Box, 
+        content: (
+            <p>
+                All reusable décor materials, props, lighting equipment, stands, frames, and other assets supplied by Evenizers.com remain company property and are provided on a temporary usage basis. 
+                Customers are responsible for ensuring the safety and proper handling of these materials until they are collected by the Evenizers team. 
+                Any damage, loss, theft, or non-return of items may result in additional repair, replacement, or recovery charges payable by the customer.
+            </p>
         )
     },
     {
