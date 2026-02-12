@@ -12,18 +12,24 @@ import { FAQSection } from "@/components/home/FAQSection";
 
 export default function HomePage() {
   
+  // ✅ UPDATED CATEGORY LIST (Matches Navbar)
   const categoriesList = [
-    // { name: "Weddings", image: "/luxury-silk-scarf.png", href: "/shop?category=wedding" },
     { name: "Birthdays", image: "/luxury-cashmere-blazer.jpg", href: "/shop?category=birthday" },
-    { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/shop?category=corporate" },
-    // { name: "Haldi", image: "/luxury-leather-belt.jpg", href: "/shop?category=haldi" },
-    // { name: "Anniversary", image: "/designer-sunglasses-luxury.jpg", href: "/shop?category=anniversary" },
-    { name: "Baby Welcome", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=babywelcome" },
-    { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
-    { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
+    { name: "Weddings", image: "/hero-event-decoration.jpg", href: "/shop?category=wedding" },
+    { name: "Haldi & Mehandi", image: "/hero-event-decoration.jpg", href: "/shop?category=haldi-mehandi" },
+    { name: "Engagement", image: "/hero-event-decoration.jpg", href: "/shop?category=engagement" },
+    { name: "Anniversary", image: "/luxury-fashion-store-interior-beige.jpg", href: "/shop?category=anniversary" },
+    { name: "Festivals & Events", image: "/hero-event-decoration.jpg", href: "/shop?category=festival" },
     { name: "Baby Shower", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=babyshower" },
+    { name: "Baby Welcome", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=babywelcome" },
+    { name: "Naming Ceremony", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=namingceremony" },
+    { name: "Annaprashan", image: "/hero-event-decoration.jpg", href: "/shop?category=annaprashan" },
+    { name: "House Warming", image: "/hero-event-decoration.jpg", href: "/shop?category=housewarming" },
     { name: "Bride To Be", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=bridetobe" },
-    { name: "Aged to Perfection", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=agedtoperfection" },
+    { name: "Romantic", image: "/luxury-fashion-accessories.jpg", href: "/shop?category=romantic" },
+    { name: "Corporate", image: "/luxury-mens-fashion-minimalist.jpg", href: "/corporate" },
+    { name: "Catering Services", image: "/hero-event-decoration.jpg", href: "/catering" },
+    { name: "Games & Activities", image: "/hero-event-decoration.jpg", href: "/games" },
   ];
 
   return (
@@ -73,12 +79,12 @@ export default function HomePage() {
           </div>
 
           {/* Premium Cards Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             {categoriesList.map((cat) => (
               <Link
                 key={cat.name}
                 href={cat.href}
-                className="group relative h-[250px] md:h-[220px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                className="group relative h-[250px] md:h-[280px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
               >
                 <Image
                   src={cat.image}
@@ -90,7 +96,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                 
                 <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-white text-lg md:text-xl font-serif font-bold mb-1">
+                  <h3 className="text-white text-lg md:text-xl font-serif font-bold mb-1 leading-tight">
                     {cat.name}
                   </h3>
                   <div className="h-0.5 w-12 bg-white/50 mb-2 group-hover:w-full transition-all duration-500" />
@@ -165,21 +171,21 @@ export default function HomePage() {
              
              <div className="grid md:grid-cols-3 gap-8">
                 {[
-                    {
-                    name: "Ananya Iyer",
-                    role: "Bride",
-                    quote: "The floral mandap they designed was beyond my dreams. It felt like walking into a fairytale. Truly the best decorators.",
-                    },
-                    {
-                    name: "Rajesh Mehra",
-                    role: "Corporate HR",
-                    quote: "Exceptional coordination for our annual gala. The lighting and stage setup were world-class. Professional & timely.",
-                    },
-                    {
-                    name: "Sneha Kapoor",
-                    role: "Mother",
-                    quote: "The theme execution for my son's first year was so magical. Every detail, from the entrance to the cake table, was perfect.",
-                    },
+                   {
+                   name: "Ananya Iyer",
+                   role: "Bride",
+                   quote: "The floral mandap they designed was beyond my dreams. It felt like walking into a fairytale. Truly the best decorators.",
+                   },
+                   {
+                   name: "Rajesh Mehra",
+                   role: "Corporate HR",
+                   quote: "Exceptional coordination for our annual gala. The lighting and stage setup were world-class. Professional & timely.",
+                   },
+                   {
+                   name: "Sneha Kapoor",
+                   role: "Mother",
+                   quote: "The theme execution for my son's first year was so magical. Every detail, from the entrance to the cake table, was perfect.",
+                   },
                 ].map((t, i) => (
                     <div key={i} className="bg-white p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 group">
                         <div className="flex gap-1 mb-6">

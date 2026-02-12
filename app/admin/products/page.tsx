@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Import Input
+import { Input } from "@/components/ui/input";
 import {
   Plus,
   Trash2,
@@ -16,8 +16,8 @@ import {
   IndianRupee,
   ArrowLeft,
   Filter,
-  Search, // Added Search icon
-  X, // Added X icon for clearing
+  Search,
+  X,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
@@ -30,10 +30,32 @@ interface DecorationProduct {
   name: string;
   price: number;
   category: string;
+  theme?: string; // ✅ Added Theme support
   image: string;
   setupTime?: string;
   included?: string;
 }
+
+// ✅ UPDATED CATEGORY FILTERS (Matches Schema)
+const CATEGORY_FILTERS = [
+    { label: "All", value: "All" },
+    { label: "Birthday", value: "birthday" },
+    { label: "Wedding", value: "wedding" },
+    { label: "Haldi & Mehandi", value: "haldi-mehandi" },
+    { label: "Engagement", value: "engagement" },
+    { label: "Anniversary", value: "anniversary" },
+    { label: "Festivals", value: "festival" },
+    { label: "Baby Shower", value: "babyshower" },
+    { label: "Baby Welcome", value: "babywelcome" },
+    { label: "Naming Ceremony", value: "namingceremony" },
+    { label: "Annaprashan", value: "annaprashan" },
+    { label: "House Warming", value: "housewarming" },
+    { label: "Bride To Be", value: "bridetobe" },
+    { label: "Romantic", value: "romantic" },
+    { label: "Corporate", value: "corporate" },
+    { label: "Catering", value: "catering" },
+    { label: "Games", value: "games" },
+];
 
 export default function AdminProductsPage() {
   const { token } = useAuth();
@@ -43,7 +65,7 @@ export default function AdminProductsPage() {
   
   // --- Filter & Search State ---
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchTerm, setSearchTerm] = useState(""); // 🔍 New Search State
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (token) fetchProducts();
@@ -98,17 +120,16 @@ export default function AdminProductsPage() {
     }
   };
 
-  // --- FILTER LOGIC (Category + Search) ---
-  const categories = ["All", "Wedding", "Anniversary", "Haldi", "Birthday", "Corporate", "BabyWelcome", "NamingCeremony", "Romantic", "BabyShower", "BrideToBe", "AgedToPerfection"];
-
+  // --- FILTER LOGIC ---
   const filteredProducts = products.filter((p) => {
-    // 1. Check Category
-    const matchesCategory = selectedCategory === "All" || p.category.toLowerCase() === selectedCategory.toLowerCase();
+    // 1. Check Category (Value Match)
+    const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
     
-    // 2. Check Search (Name or ID)
+    // 2. Check Search (Name or ID or Theme)
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = p.name.toLowerCase().includes(searchLower) || 
-                          p._id.toLowerCase().includes(searchLower);
+                          p._id.toLowerCase().includes(searchLower) ||
+                          (p.theme && p.theme.toLowerCase().includes(searchLower));
 
     return matchesCategory && matchesSearch;
   });
@@ -135,7 +156,7 @@ export default function AdminProductsPage() {
              <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input 
-                    placeholder="Search package or ID..." 
+                    placeholder="Search package..." 
                     className="pl-9 pr-8 h-12 rounded-full border-zinc-200 bg-white shadow-sm focus-visible:ring-black"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -159,23 +180,23 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* --- CATEGORY FILTER --- */}
+        {/* --- CATEGORY FILTER (Updated) --- */}
         <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2 mr-4 text-zinc-400 font-bold uppercase text-[10px] tracking-widest shrink-0">
                     <Filter className="w-4 h-4" /> Filter By:
                 </div>
-                {categories.map((cat) => (
+                {CATEGORY_FILTERS.map((cat) => (
                     <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
+                        key={cat.value}
+                        onClick={() => setSelectedCategory(cat.value)}
                         className={`px-5 py-2 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${
-                            selectedCategory === cat
+                            selectedCategory === cat.value
                                 ? "bg-black text-white border-black shadow-md"
                                 : "bg-white text-zinc-500 border-zinc-200 hover:border-black hover:text-black"
                         }`}
                     >
-                        {cat}
+                        {cat.label}
                     </button>
                 ))}
             </div>
@@ -247,9 +268,17 @@ export default function AdminProductsPage() {
                         </div>
                       </td>
                       <td className="px-8 py-5 text-sm">
-                        <span className="px-3 py-1 rounded-full bg-zinc-100 text-zinc-600 text-[11px] font-bold uppercase">
-                          {p.category}
-                        </span>
+                        <div className="flex flex-col items-start gap-1">
+                            <span className="px-3 py-1 rounded-full bg-zinc-100 text-zinc-600 text-[11px] font-bold uppercase">
+                            {p.category}
+                            </span>
+                            {/* ✅ Show Theme if exists */}
+                            {p.theme && (
+                                <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-tight">
+                                    {p.theme}
+                                </span>
+                            )}
+                        </div>
                       </td>
                       <td className="px-8 py-5">
                         <div className="flex items-center font-bold text-gray-900">

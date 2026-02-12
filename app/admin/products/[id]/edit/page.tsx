@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
@@ -33,6 +33,38 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
+// ✅ CONSTANT: Categories with their specific themes
+const CATEGORY_OPTIONS = [
+    { label: "Birthday", value: "birthday", themes: ["Kids Theme", "Adult Setup", "First Birthday", "Milestone (30th/50th)"] },
+    { label: "Wedding", value: "wedding" },
+    { label: "Haldi & Mehandi", value: "haldi-mehandi" },
+    { label: "Engagement", value: "engagement" },
+    { label: "Anniversary", value: "anniversary", themes: ["Silver Jubilee (25th)", "Golden Jubilee (50th)", "Romantic Dinner"] },
+    { 
+        label: "Festivals & Events", 
+        value: "festival", 
+        themes: [
+            "Diwali Celebration", 
+            "Holi Festival", 
+            "Ganesh Chaturthi", 
+            "Makar Sankranti / Lohri", 
+            "Christmas Decoration", 
+            "Republic / Independence Day", 
+            "New Year Decoration"
+        ] 
+    },
+    { label: "Baby Shower", value: "babyshower" },
+    { label: "Baby Welcome", value: "babywelcome" },
+    { label: "Naming Ceremony", value: "namingceremony" },
+    { label: "Annaprashan", value: "annaprashan" },
+    { label: "House Warming", value: "housewarming" },
+    { label: "Bride To Be", value: "bridetobe" },
+    { label: "Romantic", value: "romantic" },
+    { label: "Corporate", value: "corporate" },
+    { label: "Catering", value: "catering" },
+    { label: "Games", value: "games" },
+];
+
 export default function EditProductPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -42,21 +74,19 @@ export default function EditProductPage() {
   const [updating, setUpdating] = useState(false);
   
   // --- States ---
-  // Basic Form
   const [form, setForm] = useState({
     name: "",
     price: "",
     category: "wedding",
+    theme: "", // ✅ Store Theme
     description: "",
     setupTime: "",
     discount: "",
   });
 
-  // Images
-  const [existingImages, setExistingImages] = useState<string[]>([]); // URLs from DB
-  const [newFiles, setNewFiles] = useState<File[]>([]); // New files to upload
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]); 
 
-  // Dynamic Lists
   const [includedList, setIncludedList] = useState<string[]>([]);
   const [includedInput, setIncludedInput] = useState("");
 
@@ -66,8 +96,13 @@ export default function EditProductPage() {
   const [careList, setCareList] = useState<string[]>([]);
   const [careInput, setCareInput] = useState("");
 
-  // FAQs
   const [faqs, setFaqs] = useState([{ question: "", answer: "" }]);
+
+  // ✅ DERIVED STATE: Smart Theme Dropdown
+  const availableThemes = useMemo(() => {
+      const selectedCat = CATEGORY_OPTIONS.find(c => c.value === form.category);
+      return selectedCat?.themes || [];
+  }, [form.category]);
 
   // --- 1. FETCH DATA ---
   const fetchProduct = useCallback(async () => {
@@ -78,26 +113,25 @@ export default function EditProductPage() {
 
       const data = res.data;
 
+      // ✅ Populate Form (Including Theme)
       setForm({
         name: data.name || "",
         price: data.price?.toString() || "",
         category: data.category || "wedding",
+        theme: data.theme || "", // <--- THIS POPULATES IT
         description: data.description || "",
         setupTime: data.setupTime || "",
         discount: data.discount?.toString() || "",
       });
 
-      // Parse Lists (Handle empty or existing strings)
       if (data.included) setIncludedList(data.included.split(",").map((s: string) => s.trim()).filter(Boolean));
       if (data.notIncluded) setNotIncludedList(data.notIncluded.split(",").map((s: string) => s.trim()).filter(Boolean));
       if (data.careInfo) setCareList(data.careInfo.split(",").map((s: string) => s.trim()).filter(Boolean));
 
-      // Parse FAQs
       if (data.faqs && Array.isArray(data.faqs) && data.faqs.length > 0) {
         setFaqs(data.faqs);
       }
 
-      // Handle Images (Combine 'images' array + legacy 'image' field if needed)
       let imgs: string[] = [];
       if (data.images && data.images.length > 0) {
         imgs = data.images;
@@ -119,12 +153,10 @@ export default function EditProductPage() {
 
   // --- 2. HANDLERS ---
 
-  // Text Inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Image Logic
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setNewFiles(prev => [...prev, ...Array.from(e.target.files!)]);
@@ -139,7 +171,6 @@ export default function EditProductPage() {
     setNewFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Tag Logic (Add/Remove)
   const addTag = (e: React.KeyboardEvent, input: string, setInput: (v: string) => void, list: string[], setList: (l: string[]) => void) => {
     if (e.key === 'Enter' && input.trim()) {
       e.preventDefault();
@@ -151,7 +182,6 @@ export default function EditProductPage() {
     setList(list.filter((_, i) => i !== index));
   };
 
-  // FAQ Logic
   const handleFaqChange = (index: number, field: "question" | "answer", value: string) => {
     const newFaqs = [...faqs];
     newFaqs[index][field] = value;
@@ -169,23 +199,20 @@ export default function EditProductPage() {
     formData.append("name", form.name);
     formData.append("price", form.price);
     formData.append("category", form.category);
+    formData.append("theme", form.theme); // ✅ SEND THEME TO BACKEND
     formData.append("description", form.description);
     formData.append("setupTime", form.setupTime);
     formData.append("discount", form.discount);
 
-    // Join Lists to Strings
     formData.append("included", includedList.join(", "));
     formData.append("notIncluded", notIncludedList.join(", "));
     formData.append("careInfo", careList.join(", "));
     
-    // JSON Stringify Complex Data
     const validFaqs = faqs.filter(f => f.question.trim() !== "");
     formData.append("faqs", JSON.stringify(validFaqs));
     
-    // Important: Send the list of existing images we want to KEEP
     formData.append("existingImages", JSON.stringify(existingImages));
 
-    // Append New Files
     if (newFiles.length > 0) {
         newFiles.forEach(file => formData.append("images", file));
     }
@@ -290,18 +317,38 @@ export default function EditProductPage() {
                         onChange={handleChange}
                         className="flex h-14 w-full rounded-2xl border-0 bg-zinc-50 px-3 py-2 text-sm font-bold ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     >
-                        <option value="wedding">Wedding</option>
-                        <option value="anniversary">Anniversary</option>
-                        <option value="haldi">Haldi</option>
-                        <option value="birthday">Birthday</option>
-                        <option value="corporate">Corporate</option>
-                        <option value="babywelcome">Baby Welcome</option>
-                        <option value="namingceremony">Naming Ceremony</option>
-                        <option value="romantic">Romantic</option>
-                        <option value="babyshower">Baby Shower</option>
-                        <option value="bridetobe">Bride To Be</option>
-                        <option value="agedtoperfection">Aged To Perfection</option>
+                        {CATEGORY_OPTIONS.map((cat) => (
+                            <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))}
                     </select>
+                </div>
+
+                {/* ✅ SMART THEME INPUT */}
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                        <Tag className="w-3 h-3" /> Theme / Sub-Category
+                    </Label>
+                    {availableThemes.length > 0 ? (
+                        <select 
+                            name="theme" 
+                            className="flex h-14 w-full rounded-2xl border-0 bg-zinc-50 px-3 py-2 text-sm font-bold ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 transition-all"
+                            value={form.theme} 
+                            onChange={handleChange}
+                        >
+                            <option value="">-- Select a Theme --</option>
+                            {availableThemes.map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                            ))}
+                        </select>
+                    ) : (
+                        <Input 
+                            name="theme" 
+                            placeholder="Optional custom theme..."
+                            value={form.theme} 
+                            onChange={handleChange} 
+                            className="bg-zinc-50 border-0 h-14 rounded-2xl font-bold text-black focus-visible:ring-black transition-all"
+                        />
+                    )}
                 </div>
 
                 <div className="space-y-2">
@@ -324,23 +371,21 @@ export default function EditProductPage() {
                         <ImageIcon className="w-3 h-3" /> Gallery Images
                     </Label>
                     
-                    {/* Existing Images Container */}
+                    {/* Existing Images */}
                     {existingImages.length > 0 && (
                         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {existingImages.map((img, idx) => (
                                 <div key={idx} className="relative w-20 h-20 rounded-2xl overflow-hidden border border-zinc-200 flex-shrink-0 group bg-white">
                                     <Image 
-                                        // ✅ FIX: Smart URL Check for Admin Edit Page
-                                        src={
-                                            img.startsWith("http") 
-                                            ? img 
-                                            : `${process.env.NEXT_PUBLIC_API_URL}${img}`
-                                        } 
-                                        alt="Existing" 
-                                        fill 
-                                        className="object-cover" 
+                                            src={
+                                                img.startsWith("http") 
+                                                ? img 
+                                                : `${process.env.NEXT_PUBLIC_API_URL}${img}`
+                                            } 
+                                            alt="Existing" 
+                                            fill 
+                                            className="object-cover" 
                                     />
-                                    {/* Delete Button Overlay */}
                                     <button 
                                         type="button" 
                                         onClick={() => removeExistingImage(idx)}
@@ -353,7 +398,7 @@ export default function EditProductPage() {
                         </div>
                     )}
 
-                    {/* New Files List */}
+                    {/* New Files */}
                     {newFiles.length > 0 && (
                         <div className="flex flex-col gap-2">
                             {newFiles.map((file, idx) => (
@@ -367,8 +412,7 @@ export default function EditProductPage() {
                         </div>
                     )}
 
-                    {/* Upload Box */}
-                    <label className="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-zinc-200 rounded-2xl cursor-pointer hover:border-black hover:bg-zinc-50 transition-all duration-300">
+                    <label className="flex flex-col items-center justify-center w-full h-[58px] border-2 border-dashed border-zinc-200 rounded-2xl cursor-pointer hover:border-black hover:bg-zinc-50 transition-all duration-300">
                         <div className="flex items-center gap-2">
                             <Upload className="w-4 h-4 text-zinc-400" />
                             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">
@@ -393,9 +437,7 @@ export default function EditProductPage() {
                 />
             </div>
 
-            {/* --- DYNAMIC LISTS --- */}
-
-            {/* INCLUDED */}
+            {/* DYNAMIC LISTS */}
             <div className="md:col-span-2 space-y-3 bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
                 <Label className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-green-600">
                     <CheckCircle2 className="w-3 h-3" /> Included Items
@@ -424,7 +466,6 @@ export default function EditProductPage() {
                 </div>
             </div>
 
-            {/* NOT INCLUDED */}
             <div className="md:col-span-2 space-y-3 bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
                 <Label className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-red-500">
                     <XCircle className="w-3 h-3" /> Not Included
@@ -453,7 +494,6 @@ export default function EditProductPage() {
                 </div>
             </div>
 
-            {/* CARE INFO */}
             <div className="md:col-span-2 space-y-3 bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
                 <Label className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-zinc-400">
                     <Info className="w-3 h-3" /> Care & Safety

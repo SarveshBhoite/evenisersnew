@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/navbar";
@@ -15,6 +15,38 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
+// ✅ CONSTANT: Categories with their specific themes
+const CATEGORY_OPTIONS = [
+    { label: "Birthday", value: "birthday", themes: ["Kids Theme", "Adult Setup", "First Birthday", "Milestone (30th/50th)"] },
+    { label: "Wedding", value: "wedding" },
+    { label: "Haldi & Mehandi", value: "haldi-mehandi" },
+    { label: "Engagement", value: "engagement" },
+    { label: "Anniversary", value: "anniversary", themes: ["Silver Jubilee (25th)", "Golden Jubilee (50th)", "Romantic Dinner"] },
+    { 
+        label: "Festivals & Events", 
+        value: "festival", 
+        themes: [
+            "Diwali Celebration", 
+            "Holi Festival", 
+            "Ganesh Chaturthi", 
+            "Makar Sankranti / Lohri", 
+            "Christmas Decoration", 
+            "Republic / Independence Day", 
+            "New Year Decoration"
+        ] 
+    },
+    { label: "Baby Shower", value: "babyshower" },
+    { label: "Baby Welcome", value: "babywelcome" },
+    { label: "Naming Ceremony", value: "namingceremony" },
+    { label: "Annaprashan", value: "annaprashan" },
+    { label: "House Warming", value: "housewarming" },
+    { label: "Bride To Be", value: "bridetobe" },
+    { label: "Romantic", value: "romantic" },
+    { label: "Corporate", value: "corporate" },
+    { label: "Catering", value: "catering" },
+    { label: "Games", value: "games" },
+];
+
 export default function NewProductPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -24,7 +56,8 @@ export default function NewProductPage() {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    category: "Wedding",
+    category: "wedding",
+    theme: "", 
     description: "",
     setupTime: "",
     discount: "",
@@ -46,6 +79,12 @@ export default function NewProductPage() {
   // --- Images State ---
   const [images, setImages] = useState<File[]>([]);
 
+  // ✅ DERIVED STATE: Get available themes for current category
+  const availableThemes = useMemo(() => {
+      const selectedCat = CATEGORY_OPTIONS.find(c => c.value === formData.category);
+      return selectedCat?.themes || [];
+  }, [formData.category]);
+
   // --- Handlers ---
 
   // 1. Basic Inputs
@@ -56,7 +95,7 @@ export default function NewProductPage() {
   // 2. Tag Logic (Add on Enter)
   const addTag = (e: React.KeyboardEvent, input: string, setInput: (v: string) => void, list: string[], setList: (l: string[]) => void) => {
     if (e.key === 'Enter' && input.trim()) {
-      e.preventDefault(); // Prevent form submission
+      e.preventDefault(); 
       setList([...list, input.trim()]);
       setInput("");
     }
@@ -78,7 +117,6 @@ export default function NewProductPage() {
   // 4. Image Logic
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      // Append new files to existing ones (optional) or replace. Here we replace.
       setImages(Array.from(e.target.files));
     }
   };
@@ -92,26 +130,23 @@ export default function NewProductPage() {
     data.append("name", formData.name);
     data.append("price", formData.price);
     data.append("category", formData.category);
+    data.append("theme", formData.theme); 
     data.append("description", formData.description);
     data.append("setupTime", formData.setupTime);
     data.append("discount", formData.discount || "0");
 
-    // Convert Arrays to Comma Separated Strings for Backend
     data.append("included", includedList.join(", "));
     data.append("notIncluded", notIncludedList.join(", "));
     data.append("careInfo", careList.join(", "));
 
-    // JSON Stringify FAQs
     const validFaqs = faqs.filter(f => f.question.trim() !== "");
     data.append("faqs", JSON.stringify(validFaqs));
 
-    // Append Multiple Images
     images.forEach((file) => {
       data.append("images", file);
     });
 
     try {
-      // Note: Use /api/admin/products/events endpoint from your routing setup
       await axios.post(`${API_URL}/admin/products/events`, data, {
         headers: { 
             Authorization: `Bearer ${token}`,
@@ -154,7 +189,6 @@ export default function NewProductPage() {
             
             {/* --- LEFT COLUMN: Basic Info --- */}
             <div className="space-y-8">
-                {/* NAME */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                         <Type className="w-3 h-3" /> Package Title
@@ -163,7 +197,6 @@ export default function NewProductPage() {
                         value={formData.name} onChange={handleChange} />
                 </div>
 
-                {/* PRICE */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                         <IndianRupee className="w-3 h-3" /> Price (INR)
@@ -172,7 +205,6 @@ export default function NewProductPage() {
                         value={formData.price} onChange={handleChange} />
                 </div>
 
-                {/* SETUP TIME */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                         <Clock className="w-3 h-3" /> Setup Duration
@@ -184,25 +216,45 @@ export default function NewProductPage() {
 
             {/* --- RIGHT COLUMN: Options --- */}
             <div className="space-y-8">
-                {/* CATEGORY */}
+                {/* CATEGORY DROPDOWN */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                         <Tag className="w-3 h-3" /> Event Category
                     </label>
                     <select name="category" className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none font-bold text-black transition-all"
                         value={formData.category} onChange={handleChange}>
-                        <option value="wedding">Wedding</option>
-                        <option value="anniversary">Anniversary</option>
-                        <option value="haldi">Haldi</option>
-                        <option value="birthday">Birthday</option>
-                        <option value="corporate">Corporate</option>
-                        <option value="babywelcome">Baby Welcome</option>
-                        <option value="namingceremony">Naming Ceremony</option>
-                        <option value="romantic">Romantic</option>
-                        <option value="babyshower">Baby Shower</option>
-                        <option value="bridetobe">Bride To Be</option>
-                        <option value="agedtoperfection">Aged To Perfection</option>
+                        {CATEGORY_OPTIONS.map((cat) => (
+                            <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))}
                     </select>
+                </div>
+
+                {/* ✅ SMART THEME INPUT (Dropdown or Text) */}
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                        <Tag className="w-3 h-3" /> Theme / Sub-Category
+                    </label>
+                    {availableThemes.length > 0 ? (
+                        <select 
+                            name="theme" 
+                            className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none font-bold text-black transition-all"
+                            value={formData.theme} 
+                            onChange={handleChange}
+                        >
+                            <option value="">-- Select a Theme --</option>
+                            {availableThemes.map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input 
+                            name="theme" 
+                            className="w-full bg-zinc-50 border-0 rounded-2xl p-4 focus:ring-2 ring-black outline-none font-bold text-black transition-all"
+                            placeholder="Optional custom theme..." 
+                            value={formData.theme} 
+                            onChange={handleChange} 
+                        />
+                    )}
                 </div>
 
                 {/* DISCOUNT */}
