@@ -23,11 +23,11 @@ const eventSchema = new mongoose.Schema({
     type: String,
     lowercase: true, // This solves your Anniversary vs anniversary problem!
     trim: true,
-    enum: ['wedding', 'anniversary', 'haldi', 'birthday', 'corporate', 'babywelcome', 'namingceremony', 'romantic', 'babyshower', 'bridetobe', 'agedtoperfection'], 
+    enum: ['wedding', 'anniversary', 'haldi-mehandi', 'birthday', 'corporate', 'babywelcome', 'namingceremony', 'romantic', 'babyshower', 'bridetobe', 'agedtoperfection', 'festival','engagement','housewarming','annaprashan', 'catering', 'games'], 
     required: true
   },
   description: { type: String, default: "" },
-  theme: { type: String },// Saved as "item1, item2, item3"
+  theme: { type: String, default: "" },// Saved as "item1, item2, item3"
   setupTime: { type: String },
   included: { type: String ,default: "" }, 
   notIncluded: { type: String, default: "" },
