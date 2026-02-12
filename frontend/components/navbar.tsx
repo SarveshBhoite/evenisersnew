@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShoppingCart, User, LogOut, Menu, MapPin, ChevronDown, Search, X, Loader2, LayoutGrid, Package, Lock } from "lucide-react";
+import { ShoppingCart, User, LogOut, Menu, MapPin, ChevronDown, Search, X, Loader2, LayoutGrid, Package, Lock, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, CITIES } from "@/context/LocationContext";
@@ -21,6 +21,39 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"; 
 const API_URL = `${SERVER_URL}/api`; 
 
+// ✅ DATA: All Categories & Themes
+const CATEGORY_DATA = [
+    { label: "Birthday", href: "/shop?category=birthday", icon: "🎂" },
+    { label: "Wedding", href: "/shop?category=wedding", icon: "💍" },
+    { label: "Haldi & Mehandi", href: "/shop?category=haldi-mehandi", icon: "✨" },
+    { label: "Engagement", href: "/shop?category=engagement", icon: "💍" },
+    { label: "Anniversary", href: "/shop?category=anniversary", icon: "🥂" },
+    { 
+        label: "Festivals & Events", 
+        href: "/shop?category=festival", 
+        icon: "🪔",
+        themes: [
+            { label: "Diwali Celebration", value: "diwali" },
+            { label: "Holi Festival", value: "holi" },
+            { label: "Ganesh Chaturthi", value: "ganesh-chaturthi" },
+            { label: "Makar Sankranti / Lohri", value: "makar-sankranti" },
+            { label: "Christmas Decoration", value: "christmas" },
+            { label: "Republic / Independence Day", value: "national-event" },
+            { label: "New Year Decoration", value: "new-year" }
+        ]
+    },
+    { label: "Baby Shower", href: "/shop?category=babyshower", icon: "🍼" },
+    { label: "Baby Welcome", href: "/shop?category=babywelcome", icon: "👶" },
+    { label: "Naming Ceremony", href: "/shop?category=namingceremony", icon: "🕯️" },
+    { label: "Annaprashan", href: "/shop?category=annaprashan", icon: "🍚" },
+    { label: "House Warming", href: "/shop?category=housewarming", icon: "🏠" },
+    { label: "Bride To Be", href: "/shop?category=bridetobe", icon: "👰" },
+    { label: "Romantic", href: "/shop?category=romantic", icon: "🌹" },
+    { label: "Corporate", href: "/corporate", icon: "🏢" },
+    { label: "Catering", href: "/catering", icon: "🍽️" },
+    { label: "Games", href: "/games", icon: "🎮" },
+];
+
 function NavbarContent() {
   const router = useRouter();
   const { cartCount } = useCart();
@@ -34,7 +67,10 @@ function NavbarContent() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   
+  // ✅ States for Hover Menu
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // 🚨 Ref for delay
   
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -43,23 +79,22 @@ function NavbarContent() {
     { href: "/shop", label: "All Packages" },
   ];
 
-  const categoryLinks = [
-    // { href: "/shop?category=wedding", label: "Wedding", icon: "💍" },
-    { href: "/shop?category=birthday", label: "Birthday", icon: "🎂" },
-    { href: "/shop?category=babywelcome", label: "Baby Welcome", icon: "👶" },
-    { href: "/shop?category=namingceremony", label: "Naming Ceremony", icon: "🕯️" },
-    { href: "/shop?category=bridetobe", label: "Bride To Be", icon: "🕯️" },
-    { href: "/shop?category=agedtoperfection", label: "Aged To Perfection", icon: "🕯️" },
-    // { href: "/shop?category=haldi", label: "Haldi", icon: "✨" },
-    // { href: "/shop?category=anniversary", label: "Anniversary", icon: "🥂" },
-    { href: "/shop?category=romantic", label: "Romantic", icon: "🥂" },
-    { href: "/corporate", label: "Corporate", icon: "🏢" },
-    { href: "/shop?category=babyshower", label: "Baby Shower", icon: "🏢" },
-  ];
-
   const finalLink = user?.role === "admin"
       ? { href: "/admin/dashboard", label: "Dashboard" }
       : { href: "/contact", label: "Contact Us" };
+
+  // ✅ HOVER HANDLERS (The Fix)
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsCategoryOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+        setIsCategoryOpen(false);
+        setHoveredCategory(null);
+    }, 200); // 200ms delay to bridge the gap
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -77,7 +112,7 @@ function NavbarContent() {
         setIsSearching(true);
         const lowerTerm = searchTerm.toLowerCase();
         
-        const categoryMatches = categoryLinks
+        const categoryMatches = CATEGORY_DATA
           .filter(link => link.label.toLowerCase().includes(lowerTerm))
           .map(link => ({
             _id: `cat-${link.label}`, name: link.label, category: "Category", image: null, type: "category", link: link.href
@@ -109,7 +144,6 @@ function NavbarContent() {
 
             <div className="hidden md:block h-6 w-[1px] bg-zinc-300 mx-1"></div>
             
-            {/* ✅ UPDATED LOCATION DROPDOWN */}
             <div className="hidden md:block">
                 <DropdownMenu>
                     <DropdownMenuTrigger className="outline-none">
@@ -120,7 +154,6 @@ function NavbarContent() {
                         </div>
                     </DropdownMenuTrigger>
                     
-                    {/* Bigger & Clearer Content */}
                     <DropdownMenuContent align="start" className="w-64 bg-white/95 backdrop-blur-md rounded-3xl p-3 shadow-xl border-zinc-100 mt-2">
                         <div className="text-xs font-bold uppercase text-zinc-400 px-3 py-2 mb-1 tracking-wider">Select City</div>
                         {CITIES.map((c) => (
@@ -149,36 +182,67 @@ function NavbarContent() {
                   </Link>
                 ))}
 
-                {/* HOVERABLE CATEGORIES DROPDOWN */}
+                {/* ✅ HOVERABLE CATEGORIES DROPDOWN WITH DELAY FIX */}
                 <div 
-                    onMouseEnter={() => setIsCategoryOpen(true)}
-                    onMouseLeave={() => setIsCategoryOpen(false)}
+                    className="relative pb-2 -mb-2" // 🚨 Added padding bottom to bridge gap physically too
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                 >
-                    <DropdownMenu open={isCategoryOpen} onOpenChange={setIsCategoryOpen} modal={false}>
-                        <DropdownMenuTrigger className="outline-none group">
-                            <div className={`flex items-center gap-1 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all cursor-pointer ${isCategoryOpen ? 'text-black bg-black/5' : 'text-zinc-500 group-hover:text-black group-hover:bg-black/5'}`}>
-                                Categories <ChevronDown className={`w-3.5 h-3.5 opacity-50 transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : ''}`}/>
-                            </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-72 bg-white/95 backdrop-blur-xl rounded-3xl p-4 shadow-2xl border-zinc-100 mt-4">
-                            <div className="text-xs font-bold uppercase text-zinc-400 px-3 py-2 mb-1 tracking-wider">Event Types</div>
-                            {categoryLinks.map((cat) => (
-                                <DropdownMenuItem key={cat.label} asChild>
-                                    <Link href={cat.href} className="flex items-center gap-4 cursor-pointer rounded-2xl py-3 px-4 hover:bg-zinc-50 transition-colors group">
-                                        <span className="text-2xl group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
-                                        <span className="font-semibold text-base text-zinc-700 group-hover:text-black">{cat.label}</span>
+                    <button className={`flex items-center gap-1 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all cursor-pointer outline-none ${isCategoryOpen ? 'text-black bg-black/5' : 'text-zinc-500 hover:text-black hover:bg-black/5'}`}>
+                         Categories <ChevronDown className={`w-3.5 h-3.5 opacity-50 transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : ''}`}/>
+                    </button>
+
+                    {isCategoryOpen && (
+                        // Horizontal Grid Dropdown
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[600px] bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-zinc-100 grid grid-cols-2 gap-2 animate-in fade-in zoom-in-95 duration-200">
+                             
+                             {/* Decorative Arrow */}
+                             <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-zinc-100"></div>
+
+                             {CATEGORY_DATA.map((cat) => (
+                                <div 
+                                    key={cat.label}
+                                    className="relative group/item"
+                                    onMouseEnter={() => setHoveredCategory(cat.label)}
+                                >
+                                    <Link 
+                                        href={cat.href} 
+                                        className="flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-zinc-50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xl group-hover/item:scale-110 transition-transform">{cat.icon}</span>
+                                            <span className="font-semibold text-sm text-zinc-700 group-hover/item:text-black">{cat.label}</span>
+                                        </div>
+                                        {/* Show Arrow if it has themes */}
+                                        {cat.themes && <ChevronRight className="w-4 h-4 text-zinc-300 group-hover/item:text-black" />}
                                     </Link>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+
+                                    {/* ✅ THEME FLYOUT */}
+                                    {cat.themes && hoveredCategory === cat.label && (
+                                        <div className="absolute top-0 left-full ml-2 w-64 bg-white rounded-2xl shadow-xl border border-zinc-100 p-2 overflow-hidden z-50 animate-in fade-in slide-in-from-left-2">
+                                            <div className="text-[10px] font-bold uppercase text-zinc-400 px-3 py-2 mb-1 tracking-wider border-b border-zinc-50">Select Theme</div>
+                                            {cat.themes.map((theme) => (
+                                                <Link 
+                                                    key={theme.value}
+                                                    href={`/shop?category=festival&theme=${theme.value}`}
+                                                    className="block px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-black transition-colors"
+                                                >
+                                                    {theme.label}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                             ))}
+                        </div>
+                    )}
                 </div>
 
                 <Link 
-                    href={finalLink.href} 
-                    className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-zinc-500 hover:text-black hover:bg-black/5 transition-all"
+                  href={finalLink.href} 
+                  className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-zinc-500 hover:text-black hover:bg-black/5 transition-all"
                 >
-                    {finalLink.label}
+                  {finalLink.label}
                 </Link>
               </div>
           )}
@@ -276,7 +340,7 @@ function NavbarContent() {
             <div className="md:hidden">
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild><Button variant="ghost" size="icon" className="-mr-2 h-9 w-9"><Menu className="h-6 w-6" /></Button></SheetTrigger>
-                <SheetContent side="right" className="w-[300px] flex flex-col p-6">
+                <SheetContent side="right" className="w-[300px] flex flex-col p-6 overflow-y-auto">
                     <SheetHeader className="text-left mb-6 border-b pb-4"><SheetTitle className="font-serif text-3xl font-bold">Evenizers</SheetTitle></SheetHeader>
                     
                     {user && (
@@ -305,7 +369,7 @@ function NavbarContent() {
                         </div>
                     )}
 
-                    <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+                    <div className="flex flex-col gap-1 flex-1">
                         <p className="text-[10px] uppercase font-bold text-zinc-400 mb-2 px-2">Browse</p>
                         {mainLinks.map((link) => (
                             <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-zinc-50 font-medium text-zinc-800 flex items-center gap-3">
@@ -314,14 +378,40 @@ function NavbarContent() {
                         ))}
                         <div className="h-px bg-zinc-100 my-2" />
                         <p className="text-[10px] uppercase font-bold text-zinc-400 mb-2 px-2">Events</p>
-                        {categoryLinks.map((link) => (
-                            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-zinc-50 font-medium text-zinc-600 flex items-center gap-3">
-                                <span className="text-lg">{link.icon}</span> {link.label}
-                            </Link>
+                        
+                        {/* ✅ Mobile Category Rendering */}
+                        {CATEGORY_DATA.map((link) => (
+                            <div key={link.label}>
+                                <Link 
+                                    href={link.href} 
+                                    onClick={() => !link.themes && setIsOpen(false)} 
+                                    className="px-3 py-2.5 rounded-xl hover:bg-zinc-50 font-medium text-zinc-600 flex items-center justify-between group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-lg">{link.icon}</span> {link.label}
+                                    </div>
+                                </Link>
+                                
+                                {/* ✅ Mobile Sub-Themes List */}
+                                {link.themes && (
+                                    <div className="pl-12 pr-2 pb-2 space-y-1">
+                                        {link.themes.map(theme => (
+                                            <Link 
+                                                key={theme.value} 
+                                                href={`/shop?category=festival&theme=${theme.value}`}
+                                                onClick={() => setIsOpen(false)}
+                                                className="block text-xs font-medium text-zinc-500 py-1.5 px-3 rounded-lg hover:bg-zinc-50 hover:text-black border-l border-zinc-200"
+                                            >
+                                                {theme.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
 
-                    <div className="border-t pt-4 mt-auto">
+                    <div className="border-t pt-4 mt-6">
                         {!user ? (
                             <Link href="/login" onClick={() => setIsOpen(false)} className="w-full flex items-center justify-center gap-2 bg-black text-white font-bold p-3 rounded-xl">Sign In</Link>
                         ) : (

@@ -13,7 +13,37 @@ export function FeaturedCollection() {
   const [categorySections, setCategorySections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const targetCategories = ["wedding", "birthday", "haldi", "corporate", "anniversary", "babywelcome", "namingceremony", "romantic", "babyshower", "bridetobe", "agedtoperfection"];
+  // ✅ UPDATED CATEGORY LIST (Matches DB Values)
+  const targetCategories = [
+    "birthday",
+    "wedding",
+    "haldi-mehandi",
+    "engagement",
+    "festival",
+    "anniversary",
+    "babyshower",
+    "babywelcome",
+    "namingceremony",
+    "annaprashan",
+    "housewarming",
+    "bridetobe",
+    "romantic",
+    "corporate",
+    "catering",
+    "games"
+  ];
+
+  // Helper to format category names (e.g., "haldi-mehandi" -> "Haldi & Mehandi")
+  const formatTitle = (slug: string) => {
+    if (slug === "haldi-mehandi") return "Haldi & Mehandi";
+    if (slug === "bridetobe") return "Bride To Be";
+    if (slug === "babywelcome") return "Baby Welcome";
+    if (slug === "namingceremony") return "Naming Ceremony";
+    if (slug === "babyshower") return "Baby Shower";
+    if (slug === "housewarming") return "House Warming";
+    if (slug === "agedtoperfection") return "Aged To Perfection";
+    return slug.charAt(0).toUpperCase() + slug.slice(1);
+  };
 
   useEffect(() => {
     const fetchAndOrganizeEvents = async () => {
@@ -23,15 +53,18 @@ export function FeaturedCollection() {
 
         const sections = targetCategories.map((cat) => {
           const filtered = allProducts.filter((p: any) => p.category === cat);
+          // Shuffle and pick 4
           const shuffled = filtered.sort(() => 0.5 - Math.random());
+          
           return {
-            title: cat.charAt(0).toUpperCase() + cat.slice(1),
+            title: formatTitle(cat), // Use helper for nice titles
             slug: cat,
             items: shuffled.slice(0, 4)
           };
         });
 
-        setCategorySections(sections);
+        // Only show sections that actually have items
+        setCategorySections(sections.filter(s => s.items.length > 0));
       } catch (error) {
         console.error("Failed to fetch events", error);
       } finally {
@@ -56,8 +89,7 @@ export function FeaturedCollection() {
   return (
     <div className="bg-white">
       {categorySections.map((section) => (
-        section.items.length > 0 && (
-          <section key={section.slug} className="py-12 md:py-16 px-4 md:px-6 border-b border-zinc-100 last:border-0">
+        <section key={section.slug} className="py-12 md:py-16 px-4 md:px-6 border-b border-zinc-100 last:border-0">
             <div className="max-w-7xl mx-auto">
               
               {/* Header Section */}
@@ -79,9 +111,7 @@ export function FeaturedCollection() {
                 </Link>
               </div>
 
-              {/* MOBILE: Horizontal Scroll Carousel 
-                  DESKTOP: Standard Grid 
-              */}
+              {/* MOBILE: Horizontal Scroll Carousel | DESKTOP: Standard Grid */}
               <div className="
                 flex overflow-x-auto gap-4 pb-8 -mx-4 px-4 snap-x snap-mandatory 
                 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]
@@ -104,7 +134,7 @@ export function FeaturedCollection() {
                       
                       {/* Mobile-Only Badge */}
                       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider sm:hidden shadow-sm">
-                         {section.title}
+                          {section.title}
                       </div>
 
                       {/* Desktop Hover Overlay */}
@@ -137,13 +167,12 @@ export function FeaturedCollection() {
               {/* Mobile View All Button (Bottom) */}
               <div className="mt-2 sm:hidden">
                 <Button asChild variant="outline" className="w-full rounded-full border-zinc-200 h-12 font-bold text-zinc-700">
-                   <Link href={`/shop?category=${section.slug}`}>View All {section.title}</Link>
+                    <Link href={`/shop?category=${section.slug}`}>View All {section.title}</Link>
                 </Button>
               </div>
 
             </div>
-          </section>
-        )
+        </section>
       ))}
     </div>
   );
