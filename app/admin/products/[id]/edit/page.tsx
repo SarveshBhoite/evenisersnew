@@ -59,6 +59,7 @@ const CATEGORY_OPTIONS = [
     { label: "Annaprashan", value: "annaprashan" },
     { label: "House Warming", value: "housewarming" },
     { label: "Bride To Be", value: "bridetobe" },
+    { label: "Aged To Perfection", value: "agedtoperfection" },
     { label: "Romantic", value: "romantic" },
     { label: "Corporate", value: "corporate" },
     { label: "Catering", value: "catering" },

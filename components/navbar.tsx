@@ -46,6 +46,7 @@ const CATEGORY_DATA = [
     { label: "Baby Welcome", href: "/shop?category=babywelcome", icon: "👶" },
     { label: "Naming Ceremony", href: "/shop?category=namingceremony", icon: "🕯️" },
     { label: "Annaprashan", href: "/shop?category=annaprashan", icon: "🍚" },
+    { label: "Aged To Perfection", href: "/shop?category=agedtoperfection", icon: "🍚" },
     { label: "House Warming", href: "/shop?category=housewarming", icon: "🏠" },
     { label: "Bride To Be", href: "/shop?category=bridetobe", icon: "👰" },
     { label: "Romantic", href: "/shop?category=romantic", icon: "🌹" },
