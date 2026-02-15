@@ -25,6 +25,7 @@ export function FeaturedCollection() {
     "babywelcome",
     "namingceremony",
     "annaprashan",
+    "agedtoperfection",
     "housewarming",
     "bridetobe",
     "romantic",

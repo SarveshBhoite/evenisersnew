@@ -49,6 +49,7 @@ const CATEGORY_FILTERS = [
     { label: "Baby Welcome", value: "babywelcome" },
     { label: "Naming Ceremony", value: "namingceremony" },
     { label: "Annaprashan", value: "annaprashan" },
+    { label: "Aged To Perfection", value: "agedtoperfection" },
     { label: "House Warming", value: "housewarming" },
     { label: "Bride To Be", value: "bridetobe" },
     { label: "Romantic", value: "romantic" },
