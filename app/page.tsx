@@ -15,10 +15,10 @@ export default function HomePage() {
   // ✅ UPDATED CATEGORY LIST (Matches Navbar)
   const categoriesList = [
     { name: "Birthdays", image: "/category/birthday.jpg", href: "/shop?category=birthday" },
-    { name: "Weddings", image: "/category/wedding.jpg", href: "/shop?category=wedding" },
+    { name: "Weddings", image: "/category/agedtoperfection.jpg", href: "/shop?category=wedding" },
     { name: "Haldi & Mehandi", image: "/category/haldimehandi.jpg", href: "/shop?category=haldi-mehandi" },
     { name: "Engagement", image: "/category/agedtoperfection.jpg", href: "/shop?category=engagement" },
-    { name: "Anniversary", image: "/category/anniversary.jpg", href: "/shop?category=anniversary" },
+    { name: "Anniversary", image: "/category/agedtoperfection.jpg", href: "/shop?category=anniversary" },
     { name: "Festivals & Events", image: "/category/agedtoperfection.jpg", href: "/shop?category=festival" },
     { name: "Baby Shower", image: "/category/babyshower.jpg", href: "/shop?category=babyshower" },
     { name: "Baby Welcome", image: "/category/babywelcome.jpg", href: "/shop?category=babywelcome" },
