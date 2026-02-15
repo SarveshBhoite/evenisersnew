@@ -192,7 +192,6 @@ export default function CorporatePage() {
          </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
