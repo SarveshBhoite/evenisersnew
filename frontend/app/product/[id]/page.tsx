@@ -164,7 +164,7 @@ export default function ProductPage() {
                     }
                     alt={product.name}
                     fill
-                    className="object-cover"
+                    className="object-contain bg-white"
                     priority
                 />
                 
