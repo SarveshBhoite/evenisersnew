@@ -164,7 +164,7 @@ export default function ProductPage() {
                     }
                     alt={product.name}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover"
                     priority
                 />
                 
