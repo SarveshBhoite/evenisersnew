@@ -38,4 +38,25 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect , admin };
+const requireRoleOrPermission = (permissionName) => {
+  return (req, res, next) => {
+    // Admin has full access
+    if (req.user && req.user.role === "admin") {
+      return next();
+    }
+
+    // Employee needs specific permission
+    if (req.user && req.user.role === "employee") {
+      if (req.user.permissions && req.user.permissions.includes(permissionName)) {
+        return next();
+      } else {
+        return res.status(403).json({ message: `Access denied. Requires '${permissionName}' permission.` });
+      }
+    }
+
+    // Other roles rejected
+    return res.status(401).json({ message: "Not authorized. Admin or granted Employee access required." });
+  };
+};
+
+module.exports = { protect, admin, requireRoleOrPermission };

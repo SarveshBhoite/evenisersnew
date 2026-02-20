@@ -8,42 +8,72 @@ import {
   Users, 
   IndianRupee, 
   ArrowUpRight, 
-  Truck
+  Truck,
+  UserPlus
 } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 export default function AdminDashboard() {
-  const adminCards = [
+  const { user } = useAuth();
+
+  const allAdminCards = [
     {
       title: "Manage Products",
       href: "/admin/products",
       icon: <Package className="w-6 h-6" />,
-      desc: "Add, edit, or remove inventory items"
+      desc: "Add, edit, or remove inventory items",
+      permission_key: "products"
     },
     {
       title: "Orders",
       href: "/admin/orders",
       icon: <ShoppingBag className="w-6 h-6" />,
-      desc: "Track shipments and order status"
+      desc: "Track shipments and order status",
+      permission_key: "orders"
     },
     {
       title: "Registered Users",
       href: "/admin/users",
       icon: <Users className="w-6 h-6" />,
-      desc: "Manage customer accounts and roles"
+      desc: "Manage customer accounts and roles",
+      permission_key: "users"
     },
     {
-      title: "Vendors & Partners", // --- NEW CARD ---
+      title: "Vendors & Partners",
       href: "/admin/vendors",
       icon: <Truck className="w-6 h-6" />,
-      desc: "Manage connected vendors per city"
+      desc: "Manage connected vendors per city",
+      permission_key: "vendors"
     },
     {
       title: "Total Revenue",
-      href: "/admin/revenue", // Add link if you have a report page
+      href: "/admin/revenue",
       icon: <IndianRupee className="w-6 h-6" />,
-      desc: "View earnings and sales reports"
+      desc: "View earnings and sales reports",
+      permission_key: "revenue"
+    },
+    {
+      title: "Manage Employees",
+      href: "/admin/employees",
+      icon: <UserPlus className="w-6 h-6" />,
+      desc: "Add and assign roles to employees",
+      permission_key: "employee"
     }
   ]
+
+  // Filter cards based on role and permissions
+  const adminCards = allAdminCards.filter(card => {
+    if (user?.role === "admin") return true; // Admin sees everything
+    
+    if (user?.role === "employee") {
+      // @ts-ignore - Handle mixed card properties safely
+      if (card.admin_only) return false; 
+      // @ts-ignore
+      if (user?.permissions?.includes(card.permission_key)) return true;
+    }
+    
+    return false; // Default hide
+  });
 
   return (
     <div className="min-h-screen bg-background pb-16">

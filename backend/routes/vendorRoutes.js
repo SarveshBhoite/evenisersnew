@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const { protect, admin } = require("../middleware/authMiddleware");
+const { protect, admin, requireRoleOrPermission } = require("../middleware/authMiddleware");
 const vendorController = require("../controllers/vendorController");
 
 // Base Route: /api/vendors
 router.route("/")
-    .post(protect, vendorController.addVendor) // Add Vendor
-    .get(protect, vendorController.getVendors); // Get Vendors (with ?city= query)
+    .post(protect, requireRoleOrPermission("vendors"), vendorController.addVendor) // Add Vendor
+    .get(protect, requireRoleOrPermission("vendors"), vendorController.getVendors); // Get Vendors (with ?city= query)
 
 router.post("/accept", vendorController.acceptOrder);
-router.get("/details/:orderId", vendorController.getPublicOrderDetails); 
+router.get("/details/:orderId", vendorController.getPublicOrderDetails);
 router.route("/:id")
-    .delete(protect, vendorController.deleteVendor);
+    .delete(protect, requireRoleOrPermission("vendors"), vendorController.deleteVendor);
 
 module.exports = router;

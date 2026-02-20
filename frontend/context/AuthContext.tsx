@@ -36,11 +36,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(userData);
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
-    if (userData.role === "admin") {
-  router.push("/admin/dashboard");
-} else {
-  router.push("/shop");
-}
+    if (userData.role === "admin" || userData.role === "employee") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/shop");
+    }
   };
 
   const logout = () => {
