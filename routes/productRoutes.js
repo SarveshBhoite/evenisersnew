@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { protect, admin } = require("../middleware/authMiddleware");
-const upload = require("../middleware/uploadMiddleware"); 
-const { 
-    getProducts, 
-    getProductById, 
-    createEvent, 
-    updateProduct, 
-    deleteProduct ,
+const { protect, requireRoleOrPermission } = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
+const {
+    getProducts,
+    getProductById,
+    createEvent,
+    updateProduct,
+    deleteProduct,
     createProductReview
 } = require("../controllers/productController");
 
@@ -20,11 +20,11 @@ router.get("/:id", getProductById);
 // --- ADMIN ROUTES (Protected) ---
 // Note: We use upload.array("images", 10) to allow multiple files.
 // This matches the frontend: data.append("images", file)
-router.post("/events", protect, admin, upload.array("images", 10), createEvent); 
+router.post("/events", protect, requireRoleOrPermission("products"), upload.array("images", 10), createEvent);
 
-router.put("/events/:id", protect, admin, upload.array("images", 10), updateProduct);
+router.put("/events/:id", protect, requireRoleOrPermission("products"), upload.array("images", 10), updateProduct);
 
-router.delete("/events/:id", protect, admin, deleteProduct);
+router.delete("/events/:id", protect, requireRoleOrPermission("products"), deleteProduct);
 
 router.post("/:id/reviews", protect, createProductReview);
 

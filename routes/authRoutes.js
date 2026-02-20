@@ -21,26 +21,26 @@ router.post("/signup", async (req, res) => {
 
     // 1. Check if user exists
     if (user) {
-        if (user.isVerified) {
-            return res.status(400).json({ message: "User already exists" });
-        }
-        // Resend OTP logic
-        console.log("👉 Resending OTP to existing unverified user");
-        const otp = generateOTP();
-        user.name = name;
-        user.password = password;
-        user.otp = otp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000;
-        await user.save();
+      if (user.isVerified) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+      // Resend OTP logic
+      console.log("👉 Resending OTP to existing unverified user");
+      const otp = generateOTP();
+      user.name = name;
+      user.password = password;
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      await user.save();
 
-        try {
-            await sendOTPEmail(email, otp);
-            console.log("✅ OTP Resent Successfully");
-        } catch (emailErr) {
-            console.error("❌ Email Failed:", emailErr.message);
-            return res.status(500).json({ message: "Error sending email. Please try again." });
-        }
-        return res.status(200).json({ message: "Verification code resent to email", email });
+      try {
+        await sendOTPEmail(email, otp);
+        console.log("✅ OTP Resent Successfully");
+      } catch (emailErr) {
+        console.error("❌ Email Failed:", emailErr.message);
+        return res.status(500).json({ message: "Error sending email. Please try again." });
+      }
+      return res.status(200).json({ message: "Verification code resent to email", email });
     }
 
     // 2. Create New User
@@ -58,22 +58,22 @@ router.post("/signup", async (req, res) => {
 
     // 3. Send OTP (With Safety Block)
     try {
-        console.log("👉 Attempting to send OTP Email...");
-        await sendOTPEmail(email, otp);
-        console.log("✅ OTP Email Sent Successfully");
+      console.log("👉 Attempting to send OTP Email...");
+      await sendOTPEmail(email, otp);
+      console.log("✅ OTP Email Sent Successfully");
     } catch (emailErr) {
-        console.error("❌ FATAL EMAIL ERROR:", emailErr);
-        // Delete the user so they can try again
-        await User.findByIdAndDelete(user._id);
-        return res.status(500).json({ 
-            message: "Failed to send email. Check server logs.",
-            error: emailErr.message 
-        });
+      console.error("❌ FATAL EMAIL ERROR:", emailErr);
+      // Delete the user so they can try again
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({
+        message: "Failed to send email. Check server logs.",
+        error: emailErr.message
+      });
     }
 
-    res.status(201).json({ 
-        message: "Verification code sent to email", 
-        email: user.email 
+    res.status(201).json({
+      message: "Verification code sent to email",
+      email: user.email
     });
 
   } catch (err) {
@@ -85,43 +85,44 @@ router.post("/signup", async (req, res) => {
 // @route   POST /api/auth/verify-otp
 // @desc    Verify OTP and Issue Token
 router.post("/verify-otp", async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        
-        const user = await User.findOne({ email });
+  try {
+    const { email, otp } = req.body;
 
-        if (!user) {
-            return res.status(400).json({ message: "User not found" });
-        }
+    const user = await User.findOne({ email });
 
-        // Check if OTP matches and hasn't expired
-        if (user.otp !== otp || user.otpExpires < Date.now()) {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
-        }
-
-        // Verify User
-        user.isVerified = true;
-        user.otp = undefined;       // Clear OTP
-        user.otpExpires = undefined;
-        await user.save();
-
-        // Create Token (Now that they are verified)
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-
-        res.json({
-            message: "Email verified successfully",
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
     }
+
+    // Check if OTP matches and hasn't expired
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Verify User
+    user.isVerified = true;
+    user.otp = undefined;       // Clear OTP
+    user.otpExpires = undefined;
+    await user.save();
+
+    // Create Token (Now that they are verified)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.json({
+      message: "Email verified successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // @route   POST /api/auth/login
@@ -135,7 +136,7 @@ router.post("/login", async (req, res) => {
 
     // Optional: Prevent login if not verified (Client preference)
     if (!user.isVerified) {
-         return res.status(400).json({ message: "Please verify your email first." });
+      return res.status(400).json({ message: "Please verify your email first." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -149,7 +150,8 @@ router.post("/login", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        permissions: user.permissions
       }
     });
   } catch (err) {

@@ -14,6 +14,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const userRoutes = require("./routes/userRoutes");
 const vendorRoutes = require("./routes/vendorRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const employeeRoutes = require("./routes/employeeRoutes"); // Added this line
 
 // Load Env Vars
 dotenv.config();
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 
 // 🚨 FIX 1: Allow ALL CORS temporarily to rule out domain issues
 app.use(cors({
-  origin: "*", 
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
@@ -45,7 +46,7 @@ mongoose
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/products", productRoutes);
-app.use("/api/admin", adminRoutes); 
+app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
@@ -53,14 +54,15 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/employees", employeeRoutes); // Added this line
 
 // 🚨 FIX 2: Global Error Handler (Prevents 502 Crashes)
 app.use((err, req, res, next) => {
   console.error("🔥 SERVER CRASH ERROR:", err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: "Internal Server Error", 
-    error: err.message 
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+    error: err.message
   });
 });
 
