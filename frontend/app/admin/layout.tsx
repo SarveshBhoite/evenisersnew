@@ -11,11 +11,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!isLoading) {
       if (!user) router.push("/admin/login")
-      if (user?.role !== "admin") router.push("/")
+      if (user?.role !== "admin" && user?.role !== "employee") router.push("/")
     }
   }, [user, isLoading])
 
-  if (isLoading || !user || user.role !== "admin") return null
+  if (isLoading || !user || (user.role !== "admin" && user.role !== "employee")) return null
 
   return <>{children}</>
 }
