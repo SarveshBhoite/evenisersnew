@@ -9,7 +9,7 @@ export default function AdminLoginPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (user?.role === "admin") {
+    if (user?.role === "admin" || user?.role === "employee") {
       router.push("/admin/dashboard")
     }
   }, [user, router])

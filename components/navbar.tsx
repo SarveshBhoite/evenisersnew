@@ -80,7 +80,7 @@ function NavbarContent() {
     { href: "/shop", label: "All Packages" },
   ];
 
-  const finalLink = user?.role === "admin"
+  const finalLink = (user?.role === "admin" || user?.role === "employee")
       ? { href: "/admin/dashboard", label: "Dashboard" }
       : { href: "/contact", label: "Contact Us" };
 
