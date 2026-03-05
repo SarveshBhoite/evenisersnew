@@ -4,7 +4,11 @@ const User = require("../models/Users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { sendOTPEmail, sendResetEmail } = require("../utils/sendEmail"); // Import the new function
+const { OAuth2Client } = require("google-auth-library");
+const { sendOTPEmail, sendResetEmail } = require("../utils/sendEmail");
+const { sendSMS } = require("../utils/sendMobile");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper: Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -159,6 +163,68 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// @route   POST /api/auth/google-login
+// @desc    Login or Signup with Google SSO
+router.post("/google-login", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Google token is required" });
+
+    console.log("👉 Google Login Attempt");
+    console.log("Using Client ID:", process.env.GOOGLE_CLIENT_ID);
+
+    // Verify Google Token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    console.log(`✅ Token verified for email: ${email}`);
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user via Google
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        authProvider: "google",
+        isVerified: true, // Google emails are pre-verified
+      });
+    } else {
+      // Link Google ID if it's an existing email/password user logging in with Google
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.authProvider = user.authProvider === "local" ? "google" : user.authProvider;
+        user.isVerified = true;
+        await user.save();
+      }
+    }
+
+    // Issue standard JWT
+    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.json({
+      token: jwtToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions
+      }
+    });
+
+  } catch (err) {
+    console.error("Google Login Error:", err);
+    res.status(500).json({ message: "Google Authentication failed" });
+  }
+});
+
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -225,6 +291,84 @@ router.put("/reset-password/:token", async (req, res) => {
     res.json({ message: "Password updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// @route   POST /api/auth/mobile/send-otp
+// @desc    Send OTP to Mobile Number
+router.post("/mobile/send-otp", async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ message: "Phone number is required" });
+
+    let user = await User.findOne({ phone });
+    const otp = generateOTP();
+
+    // If user doesn't exist, create a temporary stub
+    if (!user) {
+      user = await User.create({
+        phone,
+        authProvider: "mobile",
+        isVerified: false,
+        otp,
+        otpExpires: Date.now() + 10 * 60 * 1000 // 10 minutes
+      });
+    } else {
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      await user.save();
+    }
+
+    await sendSMS(phone, otp);
+
+    res.json({ message: "OTP sent successfully to " + phone });
+  } catch (error) {
+    console.error("Mobile OTP Error:", error);
+    res.status(500).json({ message: "Failed to send OTP", error: error.message });
+  }
+});
+
+// @route   POST /api/auth/mobile/verify-otp
+// @desc    Verify Mobile OTP & Login
+router.post("/mobile/verify-otp", async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" });
+
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Verify User
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.json({
+      message: "Login successful",
+      token: jwtToken,
+      user: {
+        id: user._id,
+        name: user.name || "User",
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        permissions: user.permissions
+      }
+    });
+
+  } catch (err) {
+    console.error("Verify OTP Error:", err);
+    res.status(500).json({ message: "Authentication failed" });
   }
 });
 
