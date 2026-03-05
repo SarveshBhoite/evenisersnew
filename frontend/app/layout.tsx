@@ -11,6 +11,7 @@ import { Suspense } from "react"
 import { Footer } from "@/components/footer"
 import { LocationProvider } from "@/context/LocationContext"
 import { Toaster as SonnerToaster } from "sonner"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 const lato = Lato({
   weight: ["300", "400", "700"],
@@ -55,20 +56,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${lato.variable} ${playfair.variable} font-sans antialiased`}>
-        <AuthProvider>
-          {/* CartProvider MUST be the parent of Navbar */}
-          <CartProvider>
-            <LocationProvider>
-              <Suspense fallback={<div className="h-16" /> /* or a skeleton navbar */}>
-                <Navbar />
-              </Suspense>
-              <main>{children}</main>
-              <Footer />
-              <Toaster />
-              <SonnerToaster position="bottom-right" richColors />
-            </LocationProvider>
-          </CartProvider>
-        </AuthProvider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "missing_client_id"}>
+          <AuthProvider>
+            {/* CartProvider MUST be the parent of Navbar */}
+            <CartProvider>
+              <LocationProvider>
+                <Suspense fallback={<div className="h-16" /> /* or a skeleton navbar */}>
+                  <Navbar />
+                </Suspense>
+                <main>{children}</main>
+                <Footer />
+                <Toaster />
+                <SonnerToaster position="bottom-right" richColors />
+              </LocationProvider>
+            </CartProvider>
+          </AuthProvider>
+        </GoogleOAuthProvider>
         <Analytics />
       </body>
     </html>

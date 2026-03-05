@@ -3,21 +3,28 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    name: { type: String, required: false },
+    email: { type: String, required: false, unique: true, sparse: true }, // Sparse allows multiple users WITHOUT emails
+    password: { type: String, required: false },
+    googleId: { type: String, required: false, unique: true, sparse: true },
+    phone: { type: String, required: false, unique: true, sparse: true },
+    authProvider: {
+      type: String,
+      enum: ["local", "google", "mobile"],
+      default: "local",
+    },
     role: {
       type: String,
       enum: ["user", "admin", "employee"],
       default: "user",
     },
-    permissions: { 
-      type: [String], 
-      default: [] 
+    permissions: {
+      type: [String],
+      default: []
     },
-    
+
     // 🚨 NEW FIELDS (For Profile & Checkout)
-    phone: { type: String },
+    // Checkout details
     address: { type: String },
     city: { type: String },
     state: { type: String },
@@ -34,7 +41,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+  if (!this.isModified("password") || !this.password) return;
   this.password = await bcrypt.hash(this.password, 10);
 });
 
