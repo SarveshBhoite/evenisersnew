@@ -24,7 +24,7 @@ interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (productId: string, quantity: number) => Promise<void>;
+  addToCart: (productId: string, quantity: number, token?: string) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, newQuantity: number) => Promise<void>;
   updateItemDetails: (productId: string, details: { eventDate?: string; timeSlot?: string; message?: string }) => Promise<void>;
@@ -60,8 +60,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     fetchCart();
   }, [token]);
 
-  const addToCart = async (productId: string, quantity: number) => {
-    if (!token) {
+  const addToCart = async (productId: string, quantity: number, overrideToken?: string) => {
+    // Check override, then state, then local storage to avoid race conditions
+    const effectiveToken = overrideToken || token || localStorage.getItem("token");
+
+    if (!effectiveToken) {
       toast.error("Please log in first");
       return;
     }
@@ -69,7 +72,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await axios.post(
         `${API_URL}/cart`,
         { productId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${effectiveToken}` } }
       );
       setCartItems(res.data.items);
       toast.success("Item added to cart successfully.");
@@ -98,15 +101,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const updateItemDetails = async (productId: string, details: { eventDate?: string; timeSlot?: string; message?: string }) => {
     if (!token) return;
     try {
-        const res = await axios.put(
-            `${API_URL}/cart/${productId}`,
-            details, // Sending updated details
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setCartItems(res.data.items);
+      const res = await axios.put(
+        `${API_URL}/cart/${productId}`,
+        details, // Sending updated details
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCartItems(res.data.items);
     } catch (err) {
-        console.error("Update details failed", err);
-        toast.error("Failed to save event details");
+      console.error("Update details failed", err);
+      toast.error("Failed to save event details");
     }
   };
 

@@ -7,6 +7,7 @@ interface AuthContextType {
   user: any;
   token: string | null;
   login: (userData: any, token: string) => void;
+  loginSilently: (userData: any, token: string) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -43,6 +44,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Silent login — sets credentials without redirecting (used by AuthModal)
+  const loginSilently = (userData: any, jwtToken: string) => {
+    setToken(jwtToken);
+    setUser(userData);
+    localStorage.setItem("token", jwtToken);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -52,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, loginSilently, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
