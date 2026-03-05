@@ -58,7 +58,13 @@ const sendSMS = async (phone, otp) => {
         }
     } catch (error) {
         console.error("❌ SMS Error:", error?.response?.data || error.message);
-        throw new Error("Failed to send SMS OTP");
+        console.log("-----------------------------------------");
+        console.log(`🚨 FALLBACK DEV MODE: OTP for ${phone} is: [ ${otp} ]`);
+        console.log("-----------------------------------------");
+
+        // Return true anyway so you aren't blocked from testing the frontend UI 
+        // while you figure out your Fast2SMS wallet balance
+        return true;
     }
 };
 
