@@ -12,7 +12,9 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext"; // ✅ IMPORT AUTH
+import axios from "axios"; // ✅ IMPORT AXIOS
+import { useToast } from "@/hooks/use-toast"; // ✅ RESTORED IMPORT
 
 // Helper
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
@@ -20,11 +22,12 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/a
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAuth(); // ✅ GET LOGIN FUNCTION
 
   const [step, setStep] = useState<1 | 2>(1); // 1 = Details, 2 = OTP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   // Form States
   const [formData, setFormData] = useState({
     name: "",
@@ -53,9 +56,9 @@ export default function SignupPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
         }),
       });
       const data = await res.json();
@@ -71,13 +74,14 @@ export default function SignupPage() {
     }
   };
 
-  // Step 2: Verify OTP
+  // Step 2: Verify OTP + AUTO LOGIN
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
+      // 1. Verify OTP
       const res = await fetch(`${API_URL}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,8 +91,21 @@ export default function SignupPage() {
 
       if (!res.ok) throw new Error(data.message || "Verification failed");
 
-      toast({ title: "Success", description: "Account verified! Please login." });
-      router.push("/login"); // Redirect to login
+      toast({ title: "Success", description: "Account verified! Logging you in..." });
+
+      // 2. ✅ AUTO LOGIN
+      try {
+        const loginRes = await axios.post(`${API_URL}/auth/login`, {
+          email: formData.email,
+          password: formData.password
+        });
+        login(loginRes.data.user, loginRes.data.token);
+        // Login handles redirect to /shop or /admin/dashboard
+      } catch (loginErr: any) {
+        console.error("Auto-login failed:", loginErr);
+        toast({ title: "Login Required", description: "Account verified, please login manually." });
+        router.push("/login");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -184,10 +201,10 @@ export default function SignupPage() {
               <Button type="submit" size="lg" className="w-full rounded-full" disabled={loading}>
                 {loading ? "Verifying..." : "Verify & Login"}
               </Button>
-              
-              <button 
-                type="button" 
-                onClick={() => setStep(1)} 
+
+              <button
+                type="button"
+                onClick={() => setStep(1)}
                 className="text-sm text-muted-foreground hover:underline"
               >
                 Change Email
