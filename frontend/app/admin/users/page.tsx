@@ -52,7 +52,7 @@ export default function AdminUsersPage() {
 
       <div className="max-w-6xl mx-auto">
         <Link
-            className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
+          className="flex items-center gap-2 mt-2 text-zinc-400 hover:text-black mb-8 transition-colors font-bold uppercase text-[20px] tracking-widest" href={"/admin/dashboard"}        >
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
         <h1 className="font-serif text-4xl font-bold mb-8 flex items-center gap-3">
@@ -107,9 +107,15 @@ export default function AdminUsersPage() {
                     </TableCell>
 
                     <TableCell>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 uppercase">
-                        {user.phone}
-                      </span>
+                      {user.phone ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 uppercase">
+                          +91 {user.phone}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-500 border border-stone-200">
+                          Not Provided
+                        </span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
