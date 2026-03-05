@@ -10,6 +10,7 @@ import { Navbar } from "@/components/navbar";
 import { Suspense } from "react"
 import { Footer } from "@/components/footer"
 import { LocationProvider } from "@/context/LocationContext"
+import { Toaster as SonnerToaster } from "sonner"
 
 const lato = Lato({
   weight: ["300", "400", "700"],
@@ -58,12 +59,13 @@ export default function RootLayout({
           {/* CartProvider MUST be the parent of Navbar */}
           <CartProvider>
             <LocationProvider>
-            <Suspense fallback={<div className="h-16" /> /* or a skeleton navbar */}>
-              <Navbar />
-            </Suspense> 
-            <main>{children}</main>
-            <Footer />
-            <Toaster />
+              <Suspense fallback={<div className="h-16" /> /* or a skeleton navbar */}>
+                <Navbar />
+              </Suspense>
+              <main>{children}</main>
+              <Footer />
+              <Toaster />
+              <SonnerToaster position="bottom-right" richColors />
             </LocationProvider>
           </CartProvider>
         </AuthProvider>

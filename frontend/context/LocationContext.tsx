@@ -13,8 +13,8 @@ interface LocationContextType {
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
-  // Default to first city or load from localStorage
-  const [city, setCity] = useState("Mumbai");
+  // Default to prompt or load from localStorage
+  const [city, setCity] = useState("Select City");
 
   useEffect(() => {
     const savedCity = localStorage.getItem("evenizers-city");

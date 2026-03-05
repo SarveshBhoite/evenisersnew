@@ -9,6 +9,8 @@ import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 // 3-Hour Time Slots
 const TIME_SLOTS = [
@@ -55,18 +57,18 @@ const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: a
     };
 
     return (
-        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-zinc-100 transition-all hover:shadow-md group">
+        <div className="bg-white rounded-[2rem] p-4 md:p-6 shadow-sm border border-zinc-100 transition-all hover:shadow-md group">
             {/* Top Section: Image & Basic Info */}
-            <div className="flex gap-6 items-start">
-                <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-zinc-100 shrink-0 bg-zinc-50">
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-start">
+                <div className="relative w-full sm:w-28 h-48 sm:h-28 rounded-2xl overflow-hidden border border-zinc-100 shrink-0 bg-zinc-50">
                     <Image
                         // ✅ FIX: Check if image is already a full URL (Cloudinary) or local path
                         src={
-                            product.image 
-                            ? (product.image.startsWith("http") 
-                                ? product.image 
-                                : `${process.env.NEXT_PUBLIC_API_URL}${product.image}`)
-                            : "/placeholder.svg"
+                            product.image
+                                ? (product.image.startsWith("http")
+                                    ? product.image
+                                    : `${process.env.NEXT_PUBLIC_API_URL}${product.image}`)
+                                : "/placeholder.svg"
                         }
                         alt={product.name}
                         fill
@@ -173,12 +175,36 @@ const CartItem = ({ item, removeFromCart, updateQuantity, updateItemDetails }: a
 // 2. MAIN CART PAGE
 // ---------------------------------------------------------
 export default function CartPage() {
+    const router = useRouter()
     const { cartItems, removeFromCart, updateQuantity, updateItemDetails, cartTotal } = useCart()
 
     const subtotal = cartTotal
     const shipping = subtotal > 0 ? (subtotal > 50000 ? 0 : 500) : 0
     const tax = subtotal * 0.18
     const total = subtotal + shipping + tax
+
+    const handleCheckout = () => {
+        // Validation: Check if all items have date and time
+        for (const item of cartItems) {
+            if (!item.eventDate || !item.timeSlot) {
+                toast(`Schedule your event for "${item.productId.name}"`, {
+                    description: "Please select a date and time slot to proceed.",
+                    icon: <Calendar className="w-5 h-5 text-[#D4AF37]" />,
+                    style: {
+                        background: '#fff',
+                        color: '#000',
+                        border: '1px solid #f3f4f6',
+                        borderRadius: '20px'
+                    }
+                });
+                return;
+            }
+        }
+
+        if (subtotal > 0) {
+            router.push("/checkout");
+        }
+    }
 
     if (cartItems.length === 0) {
         return (
@@ -199,29 +225,29 @@ export default function CartPage() {
     }
 
     return (
-        <div className="min-h-screen pt-32 pb-16 bg-[#FDFCFB]">
+        <div className="min-h-screen pt-32 pb-16 bg-[#FDFCFB] overflow-x-hidden">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-6">
-                <h1 className="font-serif text-4xl font-bold mb-10 text-zinc-900">Shopping Cart ({cartItems.length})</h1>
+            <div className="max-w-7xl mx-auto px-4 md:px-6">
+                <h1 className="font-serif text-3xl md:text-4xl font-bold mb-8 md:10 text-zinc-900">Shopping Cart ({cartItems.length})</h1>
 
-                <div className="grid lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
 
                     {/* Cart Items List */}
                     <div className="lg:col-span-2 space-y-6">
                         {cartItems.map((item) => (
-                            <CartItem 
-                                key={item.productId._id} 
-                                item={item} 
-                                removeFromCart={removeFromCart} 
-                                updateQuantity={updateQuantity} 
-                                updateItemDetails={updateItemDetails} 
+                            <CartItem
+                                key={item.productId._id}
+                                item={item}
+                                removeFromCart={removeFromCart}
+                                updateQuantity={updateQuantity}
+                                updateItemDetails={updateItemDetails}
                             />
                         ))}
                     </div>
 
                     {/* Checkout Summary */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-zinc-200/50 border border-zinc-100 sticky top-32">
+                    <div className="lg:col-span-1 h-fit">
+                        <div className="bg-white rounded-[2.5rem] p-6 md:p-8 shadow-xl shadow-zinc-200/50 border border-zinc-100 lg:sticky lg:top-32">
                             <h2 className="font-serif text-2xl font-bold mb-6 text-zinc-900">Order Summary</h2>
 
                             <div className="space-y-4 mb-8">
@@ -244,8 +270,11 @@ export default function CartPage() {
                                 </div>
                             </div>
 
-                            <Button asChild className="w-full rounded-2xl h-16 text-lg font-bold bg-black hover:bg-zinc-800 shadow-xl shadow-black/10 transition-all active:scale-[0.98]">
-                                <Link href="/checkout">Proceed to Checkout</Link>
+                            <Button
+                                onClick={handleCheckout}
+                                className="w-full rounded-2xl h-16 text-lg font-bold bg-black hover:bg-zinc-800 shadow-xl shadow-black/10 transition-all active:scale-[0.98]"
+                            >
+                                Proceed to Checkout
                             </Button>
 
                             <div className="mt-6 flex items-center justify-center gap-2 text-zinc-400 opacity-70">
