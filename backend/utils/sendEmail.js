@@ -9,7 +9,7 @@ console.log("Checking Email Auth:", process.env.EMAIL_USER ? "FOUND" : "NOT FOUN
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: process.env.SMTP_PORT || 2525,
-  secure: false, 
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER, // The Login ID
     pass: process.env.EMAIL_PASS, // The API Key
@@ -38,19 +38,89 @@ transporter.verify((error, success) => {
 // We use ADMIN_EMAIL because that is the verified address in Brevo
 const SENDER_IDENTITY = `"Evenizers Team" <${process.env.ADMIN_EMAIL}>`;
 
-// 1. Send Order Email to Admin
+// 1. Send Order Email to Admin & User
 const sendOrderEmail = async (orderData) => {
-  const recipient = process.env.ADMIN_EMAIL || orderData.userEmail;
+  const recipient = `${orderData.userEmail}`; // Send to user
+  const adminRecipient = process.env.ADMIN_EMAIL; // Also send to admin
+
+  const itemsHtml = orderData.items.map(item => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding: 12px 0;">
+        <p style="margin: 0; font-weight: bold; color: #333;">${item.product?.name || "Event Package"}</p>
+        <p style="margin: 0; font-size: 12px; color: #666;">Date: ${item.eventDate || "TBD"} | Time: ${item.timeSlot || "TBD"}</p>
+      </td>
+      <td style="padding: 12px 0; text-align: right; color: #333;">
+        ${item.quantity} x ₹${item.price}
+      </td>
+    </tr>
+  `).join("");
+
+  const htmlContent = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fafafa;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #000; margin: 0; font-size: 28px; letter-spacing: 2px;">EVENIZERS</h1>
+        <p style="color: #888; font-size: 14px; margin-top: 5px;">Your Event, Our Passion</p>
+      </div>
+
+      <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h2 style="margin-top: 0; font-size: 20px; color: #333;">Order Confirmation</h2>
+        <p style="color: #555;">Hello,</p>
+        <p style="color: #555;">Thank you for choosing <strong>Evenizers</strong>! We've received your booking and our team is already getting started.</p>
+        <p style="color: #555;"><strong>Order ID:</strong> <span style="font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">#${orderData._id}</span></p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+          <thead>
+            <tr style="border-bottom: 2px solid #333;">
+              <th style="text-align: left; padding-bottom: 10px; color: #333;">Package</th>
+              <th style="text-align: right; padding-bottom: 10px; color: #333;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+
+        <div style="border-top: 2px solid #eee; padding-top: 20px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: #666;">Total Amount:</span>
+            <strong style="color: #333; margin-left: auto;">₹${orderData.totalAmount}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #008000;">
+            <span>Amount Paid Online (${orderData.paymentType === "advance" ? "40% Advance" : "Full Payment"}):</span>
+            <strong style="margin-left: auto;">- ₹${orderData.amountPaid}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 10px; margin-top: 10px; border-top: 1px solid #eee; font-size: 18px;">
+            <span style="font-weight: bold; color: #000;">Balance to be Paid:</span>
+            <strong style="color: #d32f2f; margin-left: auto;">₹${orderData.remainingAmount}</strong>
+          </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+          <h3 style="margin-top: 0; font-size: 16px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 8px;">Shipping & Contact</h3>
+          <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Name:</strong> ${orderData.shippingAddress.firstName} ${orderData.shippingAddress.lastName}</p>
+          <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Phone:</strong> ${orderData.shippingAddress.phone}</p>
+          <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Address:</strong> ${orderData.shippingAddress.address}, ${orderData.shippingAddress.city}, ${orderData.shippingAddress.state}, ${orderData.shippingAddress.zip}</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
+        <p>&copy; ${new Date().getFullYear()} Evenizers. All rights reserved.</p>
+        <p>This is an automated receipt. Please do not reply to this email.</p>
+      </div>
+    </div>
+  `;
+
   const mailOptions = {
-    from: SENDER_IDENTITY, // ✅ Fixed: Sends from verified email
+    from: SENDER_IDENTITY,
     to: recipient,
-    subject: `New Order Received! #${orderData._id}`,
-    html: `<h2>New Order Notification</h2><p>Total: ₹${orderData.totalAmount}</p>`,
+    bcc: adminRecipient, // Admin gets a hidden copy
+    subject: `Booking Confirmed! Order #${orderData._id} - Evenizers`,
+    html: htmlContent,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Order email sent to admin");
+    console.log("✅ Order confirmation email sent.");
   } catch (error) {
     console.error("❌ Order Email Error:", error.message);
   }
@@ -139,7 +209,7 @@ const sendVendorBroadcast = async (vendorEmail, vendorName, order, acceptLink) =
   const mailOptions = {
     from: SENDER_IDENTITY, // ✅ Fixed
     to: vendorEmail,
-    subject: `🔥 New Order (${order.items.length} Events) in ${order.shippingAddress.city}! [${uniqueId}]`, 
+    subject: `🔥 New Order (${order.items.length} Events) in ${order.shippingAddress.city}! [${uniqueId}]`,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #ffffff;">
         <h2 style="color: #000; margin-bottom: 10px;">New Event Request</h2>
@@ -201,10 +271,10 @@ const sendResetEmail = async (email, resetUrl) => {
 };
 
 // 🚨 EXPORT ALL FUNCTIONS
-module.exports = { 
-    sendOrderEmail, 
-    sendContactEmail, 
-    sendOTPEmail, 
-    sendVendorBroadcast,
-    sendResetEmail,
+module.exports = {
+  sendOrderEmail,
+  sendContactEmail,
+  sendOTPEmail,
+  sendVendorBroadcast,
+  sendResetEmail,
 };
