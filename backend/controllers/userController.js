@@ -21,6 +21,7 @@ exports.updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      // Allow updating name and other details
       user.name = req.body.name || user.name;
       user.phone = req.body.phone || user.phone;
       user.address = req.body.address || user.address;
@@ -28,6 +29,16 @@ exports.updateUserProfile = async (req, res) => {
       user.state = req.body.state || user.state;
       user.zip = req.body.zip || user.zip;
       user.country = req.body.country || user.country;
+
+      // 🚨 Special Handling for Email (Allow setting if missing or changing)
+      if (req.body.email && req.body.email !== user.email) {
+        // Check if new email is already taken by another user
+        const emailExists = await User.findOne({ email: req.body.email, _id: { $ne: user._id } });
+        if (emailExists) {
+          return res.status(400).json({ message: "Email is already in use by another account" });
+        }
+        user.email = req.body.email;
+      }
 
       const updatedUser = await user.save();
 
