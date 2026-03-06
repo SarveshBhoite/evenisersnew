@@ -15,6 +15,9 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext"; // ✅ IMPORT AUTH
 import axios from "axios"; // ✅ IMPORT AXIOS
 import { useToast } from "@/hooks/use-toast"; // ✅ RESTORED IMPORT
+import GoogleAuthButton from "@/components/GoogleAuthButton";
+import { Eye, EyeOff } from "lucide-react";
+import MobileAuthForm from "@/components/MobileAuthForm";
 
 // Helper
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
@@ -27,6 +30,9 @@ export default function SignupPage() {
   const [step, setStep] = useState<1 | 2>(1); // 1 = Details, 2 = OTP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<"email" | "mobile">("email");
 
   // Form States
   const [formData, setFormData] = useState({
@@ -124,57 +130,90 @@ export default function SignupPage() {
 
           {/* --- STEP 1 FORM --- */}
           {step === 1 && (
-            <form className="space-y-6" onSubmit={handleSignup}>
-              <div>
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  required
-                  className="mt-2"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  className="mt-2"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  className="mt-2"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  required
-                  className="mt-2"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
+            <div className="space-y-6">
+              <div className="mb-6">
+                <GoogleAuthButton isSilent={false} />
+                <div className="relative mt-6 mb-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-stone-200/60" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-2 text-zinc-400 font-medium tracking-wide">Or continue with</span>
+                  </div>
+                </div>
+
+                <div className="flex bg-stone-100 p-1 rounded-full mt-4 mb-2">
+                  <button
+                    onClick={() => setLoginMethod("email")}
+                    className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all ${loginMethod === "email" ? "bg-white shadow-sm text-black" : "text-zinc-500 hover:text-zinc-700"}`}
+                  >
+                    Email
+                  </button>
+                  <button
+                    onClick={() => setLoginMethod("mobile")}
+                    className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all ${loginMethod === "mobile" ? "bg-white shadow-sm text-black" : "text-zinc-500 hover:text-zinc-700"}`}
+                  >
+                    Mobile Number
+                  </button>
+                </div>
               </div>
 
-              {error && <p className="text-sm text-destructive text-center">{error}</p>}
+              {loginMethod === "email" ? (
+                <form className="space-y-6" onSubmit={handleSignup}>
+                  <div>
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      required
+                      className="mt-2"
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      className="mt-2"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      className="mt-2"
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      required
+                      className="mt-2"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <Button type="submit" size="lg" className="w-full rounded-full" disabled={loading}>
-                {loading ? "Sending OTP..." : "Sign Up"}
-              </Button>
-            </form>
+                  {error && <p className="text-sm text-destructive text-center">{error}</p>}
+
+                  <Button type="submit" size="lg" className="w-full rounded-full" disabled={loading}>
+                    {loading ? "Sending OTP..." : "Sign Up"}
+                  </Button>
+                </form>
+              ) : (
+                <MobileAuthForm isSilent={false} />
+              )}
+            </div>
           )}
 
           {/* --- STEP 2 FORM (OTP) --- */}

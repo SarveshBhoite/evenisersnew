@@ -11,7 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useCart } from "@/context/CartContext";
 import { useLocation, CITIES } from "@/context/LocationContext";
 import { useAuth } from "@/context/AuthContext";
-import { Truck, CheckCircle, Wallet, CreditCard, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Truck, CheckCircle, Wallet, CreditCard, Loader2 } from "lucide-react";
 import axios from "axios";
 import Script from "next/script";
 import { toast } from "sonner";
@@ -198,6 +199,12 @@ export default function CheckoutPage() {
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6">
+                <Link
+                    href="/cart"
+                    className="flex items-center gap-2 text-zinc-400 hover:text-black mb-6 transition-colors font-bold uppercase text-sm tracking-widest"
+                >
+                    <ArrowLeft className="w-4 h-4" /> Back to Cart
+                </Link>
                 <h1 className="font-serif text-5xl uppercase mb-12 text-zinc-900">Checkout</h1>
 
                 <form onSubmit={handlePayment}>

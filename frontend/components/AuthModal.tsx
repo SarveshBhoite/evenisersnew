@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
+import GoogleAuthButton from "./GoogleAuthButton";
+import MobileAuthForm from "./MobileAuthForm";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
 
@@ -45,7 +47,7 @@ interface AuthModalProps {
     onAuthSuccess: (token: string) => void;
 }
 
-type AuthTab = "signin" | "signup";
+type AuthTab = "signin" | "signup" | "mobile";
 type SignupStep = 1 | 2;
 
 export default function AuthModal({ isOpen, onClose, product, onAuthSuccess }: AuthModalProps) {
@@ -346,7 +348,7 @@ export default function AuthModal({ isOpen, onClose, product, onAuthSuccess }: A
                             <div className="flex bg-stone-100 p-1 rounded-full">
                                 <button
                                     onClick={() => { setActiveTab("signin"); setSignInError(""); }}
-                                    className={`flex-1 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === "signin"
+                                    className={`flex-1 py-1.5 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === "signin"
                                         ? "bg-black text-white shadow-md"
                                         : "text-zinc-400 hover:text-zinc-700"
                                         }`}
@@ -355,12 +357,21 @@ export default function AuthModal({ isOpen, onClose, product, onAuthSuccess }: A
                                 </button>
                                 <button
                                     onClick={() => { setActiveTab("signup"); setSignUpError(""); setSignUpStep(1); }}
-                                    className={`flex-1 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === "signup"
+                                    className={`flex-1 py-1.5 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === "signup"
                                         ? "bg-black text-white shadow-md"
                                         : "text-zinc-400 hover:text-zinc-700"
                                         }`}
                                 >
                                     Sign Up
+                                </button>
+                                <button
+                                    onClick={() => { setActiveTab("mobile"); }}
+                                    className={`flex-1 py-1.5 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === "mobile"
+                                        ? "bg-black text-white shadow-md"
+                                        : "text-zinc-400 hover:text-zinc-700"
+                                        }`}
+                                >
+                                    Mobile
                                 </button>
                             </div>
                         </div>
@@ -370,143 +381,169 @@ export default function AuthModal({ isOpen, onClose, product, onAuthSuccess }: A
 
                             {/* ── SIGN IN FORM ── */}
                             {activeTab === "signin" && (
-                                <form onSubmit={handleSignIn} className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div>
-                                        <Label htmlFor="modal-signin-email" className="text-xs font-semibold text-zinc-700">
-                                            Email Address
-                                        </Label>
-                                        <Input
-                                            id="modal-signin-email"
-                                            type="email"
-                                            required
-                                            placeholder="you@example.com"
-                                            className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
-                                            value={signInForm.email}
-                                            onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
-                                        />
+                                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <div className="mb-2">
+                                        <GoogleAuthButton isSilent={true} onSuccess={onAuthSuccess} />
+                                        <div className="relative mt-5 mb-1">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <span className="w-full border-t border-stone-200" />
+                                            </div>
+                                            <div className="relative flex justify-center text-[10px] md:text-xs min-h-[0px]">
+                                                <span className="bg-white px-2 text-zinc-400 font-semibold uppercase tracking-widest">or continue with email</span>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div>
-                                        <div className="flex justify-between items-center">
-                                            <Label htmlFor="modal-signin-password" className="text-xs font-semibold text-zinc-700">
-                                                Password
+                                    <form onSubmit={handleSignIn} className="space-y-5">
+                                        <div>
+                                            <Label htmlFor="modal-signin-email" className="text-xs font-semibold text-zinc-700">
+                                                Email Address
                                             </Label>
-                                            <Link
-                                                href="/forgot-password"
-                                                className="text-[10px] md:text-xs text-zinc-400 hover:text-black transition-colors"
-                                                onClick={onClose}
-                                            >
-                                                Forgot password?
-                                            </Link>
-                                        </div>
-                                        <div className="relative mt-1.5">
                                             <Input
-                                                id="modal-signin-password"
-                                                type={showSignInPassword ? "text" : "password"}
+                                                id="modal-signin-email"
+                                                type="email"
                                                 required
-                                                placeholder="••••••••"
-                                                className="h-11 md:h-12 rounded-xl border-stone-200 pr-10 [&::-ms-reveal]:hidden"
-                                                value={signInForm.password}
-                                                onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
+                                                placeholder="you@example.com"
+                                                className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                                                value={signInForm.email}
+                                                onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowSignInPassword(!showSignInPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
-                                            >
-                                                {showSignInPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-                                            </button>
                                         </div>
-                                    </div>
 
-                                    {signInError && (
-                                        <p className="text-xs text-red-500 text-center bg-red-50 py-2 px-4 rounded-xl">{signInError}</p>
-                                    )}
+                                        <div>
+                                            <div className="flex justify-between items-center">
+                                                <Label htmlFor="modal-signin-password" className="text-xs font-semibold text-zinc-700">
+                                                    Password
+                                                </Label>
+                                                <Link
+                                                    href="/forgot-password"
+                                                    className="text-[10px] md:text-xs text-zinc-400 hover:text-black transition-colors"
+                                                    onClick={onClose}
+                                                >
+                                                    Forgot password?
+                                                </Link>
+                                            </div>
+                                            <div className="relative mt-1.5">
+                                                <Input
+                                                    id="modal-signin-password"
+                                                    type={showSignInPassword ? "text" : "password"}
+                                                    required
+                                                    placeholder="••••••••"
+                                                    className="h-11 md:h-12 rounded-xl border-stone-200 pr-10 [&::-ms-reveal]:hidden"
+                                                    value={signInForm.password}
+                                                    onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowSignInPassword(!showSignInPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                                                >
+                                                    {showSignInPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        disabled={signInLoading}
-                                        className="w-full h-11 md:h-13 rounded-full bg-black text-white hover:bg-[#D4AF37] hover:text-white transition-all duration-300 font-bold text-xs md:text-sm shadow-lg shadow-black/20"
-                                    >
-                                        {signInLoading ? "Signing In..." : "Sign In & Book Event"}
-                                    </Button>
-                                </form>
+                                        {signInError && (
+                                            <p className="text-xs text-red-500 text-center bg-red-50 py-2 px-4 rounded-xl">{signInError}</p>
+                                        )}
+
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            disabled={signInLoading}
+                                            className="w-full h-11 md:h-13 rounded-full bg-black text-white hover:bg-[#D4AF37] hover:text-white transition-all duration-300 font-bold text-xs md:text-sm shadow-lg shadow-black/20"
+                                        >
+                                            {signInLoading ? "Signing In..." : "Sign In & Book Event"}
+                                        </Button>
+                                    </form>
+                                </div>
                             )}
 
                             {/* ── SIGN UP FORM ── */}
                             {activeTab === "signup" && signUpStep === 1 && (
-                                <form onSubmit={handleSignUp} className="space-y-3.5 md:space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div>
-                                        <Label htmlFor="modal-signup-name" className="text-xs font-semibold text-zinc-700">Full Name</Label>
-                                        <Input
-                                            id="modal-signup-name"
-                                            required
-                                            placeholder="Your full name"
-                                            className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
-                                            value={signUpForm.name}
-                                            onChange={(e) => setSignUpForm({ ...signUpForm, name: e.target.value })}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="modal-signup-email" className="text-xs font-semibold text-zinc-700">Email</Label>
-                                        <Input
-                                            id="modal-signup-email"
-                                            type="email"
-                                            required
-                                            placeholder="you@example.com"
-                                            className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
-                                            value={signUpForm.email}
-                                            onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="modal-signup-password" className="text-xs font-semibold text-zinc-700">Password</Label>
-                                        <div className="relative mt-1.5">
-                                            <Input
-                                                id="modal-signup-password"
-                                                type={showSignUpPassword ? "text" : "password"}
-                                                required
-                                                placeholder="Create a password"
-                                                className="h-11 md:h-12 rounded-xl border-stone-200 pr-10 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
-                                                value={signUpForm.password}
-                                                onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowSignUpPassword(!showSignUpPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
-                                            >
-                                                {showSignUpPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-                                            </button>
+                                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300 pt-2">
+                                    <div className="mb-2">
+                                        <GoogleAuthButton isSilent={true} onSuccess={onAuthSuccess} />
+                                        <div className="relative mt-5 mb-1">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <span className="w-full border-t border-stone-200" />
+                                            </div>
+                                            <div className="relative flex justify-center text-[10px] md:text-xs min-h-[0px]">
+                                                <span className="bg-white px-2 text-zinc-400 font-semibold uppercase tracking-widest">or sign up with email</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <Label htmlFor="modal-signup-confirm" className="text-xs font-semibold text-zinc-700">Confirm Password</Label>
-                                        <Input
-                                            id="modal-signup-confirm"
-                                            type="password"
-                                            required
-                                            placeholder="Repeat your password"
-                                            className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
-                                            value={signUpForm.confirmPassword}
-                                            onChange={(e) => setSignUpForm({ ...signUpForm, confirmPassword: e.target.value })}
-                                        />
-                                    </div>
+                                    <form onSubmit={handleSignUp} className="space-y-3.5 md:space-y-4">
+                                        <div>
+                                            <Label htmlFor="modal-signup-name" className="text-xs font-semibold text-zinc-700">Full Name</Label>
+                                            <Input
+                                                id="modal-signup-name"
+                                                required
+                                                placeholder="Your full name"
+                                                className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                                                value={signUpForm.name}
+                                                onChange={(e) => setSignUpForm({ ...signUpForm, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="modal-signup-email" className="text-xs font-semibold text-zinc-700">Email</Label>
+                                            <Input
+                                                id="modal-signup-email"
+                                                type="email"
+                                                required
+                                                placeholder="you@example.com"
+                                                className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                                                value={signUpForm.email}
+                                                onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="modal-signup-password" className="text-xs font-semibold text-zinc-700">Password</Label>
+                                            <div className="relative mt-1.5">
+                                                <Input
+                                                    id="modal-signup-password"
+                                                    type={showSignUpPassword ? "text" : "password"}
+                                                    required
+                                                    placeholder="Create a password"
+                                                    className="h-11 md:h-12 rounded-xl border-stone-200 pr-10 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                                                    value={signUpForm.password}
+                                                    onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                                                >
+                                                    {showSignUpPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="modal-signup-confirm" className="text-xs font-semibold text-zinc-700">Confirm Password</Label>
+                                            <Input
+                                                id="modal-signup-confirm"
+                                                type="password"
+                                                required
+                                                placeholder="Repeat your password"
+                                                className="mt-1.5 h-11 md:h-12 rounded-xl border-stone-200 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                                                value={signUpForm.confirmPassword}
+                                                onChange={(e) => setSignUpForm({ ...signUpForm, confirmPassword: e.target.value })}
+                                            />
+                                        </div>
 
-                                    {signUpError && (
-                                        <p className="text-xs text-red-500 text-center bg-red-50 py-2 px-4 rounded-xl">{signUpError}</p>
-                                    )}
+                                        {signUpError && (
+                                            <p className="text-xs text-red-500 text-center bg-red-50 py-2 px-4 rounded-xl">{signUpError}</p>
+                                        )}
 
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        disabled={signUpLoading}
-                                        className="w-full h-11 md:h-13 rounded-full bg-black text-white hover:bg-[#D4AF37] hover:text-white transition-all duration-300 font-bold text-xs md:text-sm shadow-lg shadow-black/20"
-                                    >
-                                        {signUpLoading ? "Sending OTP..." : "Create Account & Book"}
-                                    </Button>
-                                </form>
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            disabled={signUpLoading}
+                                            className="w-full h-11 md:h-13 rounded-full bg-black text-white hover:bg-[#D4AF37] hover:text-white transition-all duration-300 font-bold text-xs md:text-sm shadow-lg shadow-black/20"
+                                        >
+                                            {signUpLoading ? "Sending OTP..." : "Create Account & Book"}
+                                        </Button>
+                                    </form>
+                                </div>
                             )}
                             {/* ── OTP VERIFICATION STEP ── */}
                             {activeTab === "signup" && signUpStep === 2 && (
@@ -557,6 +594,13 @@ export default function AuthModal({ isOpen, onClose, product, onAuthSuccess }: A
                                         ← Use a different email
                                     </button>
                                 </form>
+                            )}
+
+                            {/* ── MOBILE AUTH FORM ── */}
+                            {activeTab === "mobile" && (
+                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 pt-2">
+                                    <MobileAuthForm isSilent={true} onSuccess={onAuthSuccess} />
+                                </div>
                             )}
                         </div>
 

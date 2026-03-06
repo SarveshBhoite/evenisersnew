@@ -51,7 +51,10 @@ exports.createOrder = async (req, res) => {
     setImmediate(async () => {
         try {
             await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
-            await sendOrderEmail(savedOrder);
+            
+            // 🚨 Populate product data so the email can show names/images
+            const fullySavedOrder = await Order.findById(savedOrder._id).populate("items.product", "name image");
+            await sendOrderEmail(fullySavedOrder);
         } catch (err) {
             console.error("Background error:", err.message);
         }
