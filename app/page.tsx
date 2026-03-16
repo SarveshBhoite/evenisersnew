@@ -940,7 +940,7 @@ export default function HomePage() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 h-14"
+                    className="rounded-full border-white/20 text-black hover:bg-white/10 px-8 h-14"
                   >
                     <Link href="/shop?category=wedding">View Packages</Link>
                   </Button>
@@ -1106,7 +1106,7 @@ export default function HomePage() {
               asChild
               size="lg"
               variant="outline"
-              className="rounded-full border-white/30 text-white hover:bg-white/10 px-10 h-16 text-lg"
+              className="rounded-full border-white/30 text-black hover:bg-white/10 px-10 h-16 text-lg"
             >
               <Link href="/shop">Browse Events</Link>
             </Button>
