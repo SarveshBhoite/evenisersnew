@@ -55,7 +55,7 @@ const sendOrderEmail = async (orderData) => {
     </tr>
   `).join("");
 
-  const htmlContent = `
+  const commonHtml = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fafafa;">
       <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="color: #000; margin: 0; font-size: 28px; letter-spacing: 2px;">EVENIZERS</h1>
@@ -63,9 +63,7 @@ const sendOrderEmail = async (orderData) => {
       </div>
 
       <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-        <h2 style="margin-top: 0; font-size: 20px; color: #333;">Order Confirmation</h2>
-        <p style="color: #555;">Hello,</p>
-        <p style="color: #555;">Thank you for choosing <strong>Evenizers</strong>! We've received your booking and our team is already getting started.</p>
+        <h2 style="margin-top: 0; font-size: 20px; color: #333;">Order Details</h2>
         <p style="color: #555;"><strong>Order ID:</strong> <span style="font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">#${orderData._id}</span></p>
 
         <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
@@ -100,27 +98,52 @@ const sendOrderEmail = async (orderData) => {
           <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Name:</strong> ${orderData.shippingAddress.firstName} ${orderData.shippingAddress.lastName}</p>
           <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Phone:</strong> ${orderData.shippingAddress.phone}</p>
           <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Address:</strong> ${orderData.shippingAddress.address}, ${orderData.shippingAddress.city}, ${orderData.shippingAddress.state}, ${orderData.shippingAddress.zip}</p>
+          <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Email:</strong> ${orderData.userEmail}</p>
         </div>
       </div>
 
       <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
         <p>&copy; ${new Date().getFullYear()} Evenizers. All rights reserved.</p>
-        <p>This is an automated receipt. Please do not reply to this email.</p>
       </div>
     </div>
   `;
 
-  const mailOptions = {
+  // 1. Customer Email
+  const customerMailOptions = {
     from: SENDER_IDENTITY,
     to: recipient,
-    bcc: adminRecipient, // Admin gets a hidden copy
     subject: `Booking Confirmed! Order #${orderData._id} - Evenizers`,
-    html: htmlContent,
+    html: `
+      <div style="text-align: center; padding: 20px;">
+        <h2 style="color: #333;">Thank you for your booking!</h2>
+        <p>We've received your order and are processing it now.</p>
+      </div>
+      ${commonHtml}
+    `,
+  };
+
+  // 2. Admin Email
+  const adminMailOptions = {
+    from: SENDER_IDENTITY,
+    to: adminRecipient,
+    replyTo: orderData.userEmail,
+    subject: `🚨 NEW ORDER RECEIVED: #${orderData._id} - ${orderData.shippingAddress.firstName}`,
+    html: `
+      <div style="text-align: center; padding: 20px; background: #fff3cd; border-radius: 8px; margin-bottom: 20px;">
+        <h2 style="color: #856404; margin: 0;">New Order Alert!</h2>
+        <p style="margin: 5px 0;">A new booking has been placed. Review details below.</p>
+      </div>
+      ${commonHtml}
+    `,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log("✅ Order confirmation email sent.");
+    // Send both emails
+    await Promise.all([
+      transporter.sendMail(customerMailOptions),
+      transporter.sendMail(adminMailOptions)
+    ]);
+    console.log("✅ Order confirmation emails sent to Customer & Admin.");
   } catch (error) {
     console.error("❌ Order Email Error:", error.message);
   }
