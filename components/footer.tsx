@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Calendar, MapPin, Mail, Phone, Instagram, Facebook, Twitter } from "lucide-react";
 
 export function Footer() {
@@ -12,16 +13,22 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
           
           {/* 1. BRAND & SOCIALS (Spans 2 cols on Desktop) */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="font-serif text-3xl font-bold mb-6 italic block text-black">
-              EVENISERS
+          <div className="lg:col-span-2 flex flex-col items-center text-center">
+            <Link href="/" className="mb-6 block">
+              <Image
+                src="/logonamebg.png"
+                alt="EVENISERS"
+                width={400}
+                height={120}
+                className="h-32 w-auto object-contain"
+              />
             </Link>
             <p className="text-zinc-500 max-w-sm leading-relaxed mb-8 text-sm">
               Transforming spaces and creating memories. We are a full-service event
               management and decoration agency, dedicated to making your special moments timeless.
             </p>
             
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-center">
               <a href="#" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
                 <Instagram className="w-4 h-4" />
               </a>
