@@ -9,21 +9,30 @@ const axios = require("axios");
  */
 const sendSMS = async (phone, otp) => {
     try {
-        // 1. MSG91 Implementation (Primary Recommend)
+        // 1. MSG91 Implementation (Multichannel Flow)
         if (process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID) {
-            console.log(`📡 Sending OTP ${otp} to ${phone} via MSG91 (WhatsApp/SMS)...`);
+            console.log(`📡 Sending OTP ${otp} to ${phone} via MSG91 (WhatsApp/SMS Flow)...`);
 
-            // MSG91 SendOTP API
-            const response = await axios.get(`https://control.msg91.com/api/v5/otp`, {
-                params: {
-                    template_id: process.env.MSG91_TEMPLATE_ID,
+            const response = await axios.post(`https://control.msg91.com/api/v5/flow/`, {
+                template_id: process.env.MSG91_TEMPLATE_ID,
+                sender: process.env.MSG91_SENDER || "",
+                recipients: [{
+                    mobiles: `91${phone}`,
                     mobile: `91${phone}`,
+                    OTP: otp,
                     otp: otp,
-                    authkey: process.env.MSG91_AUTH_KEY
+                    var: otp,
+                    var1: otp,
+                    // Matched to user's ##OTP## template variable
+                }]
+            }, {
+                headers: {
+                    "authkey": process.env.MSG91_AUTH_KEY,
+                    "Content-Type": "application/json"
                 }
             });
 
-            console.log("✅ MSG91 Response:", response.data);
+            console.log("✅ MSG91 Flow Response:", response.data);
             return true;
         }
 
