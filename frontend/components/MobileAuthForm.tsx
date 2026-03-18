@@ -95,7 +95,7 @@ export default function MobileAuthForm({ onSuccess, isSilent = false }: MobileAu
                             type="tel"
                             required
                             maxLength={10}
-                            placeholder="9876543210"
+                            placeholder="9096949909"
                             className="flex-1 h-11 md:h-12 border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 tabular-nums px-4"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}

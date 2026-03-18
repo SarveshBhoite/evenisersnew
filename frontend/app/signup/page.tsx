@@ -218,7 +218,7 @@ export default function SignupPage() {
                 {/* Stats */}
                 <div className="flex items-center gap-6 pt-6 border-t border-white/10">
                   <div>
-                    <p className="text-2xl font-serif font-bold text-[#D4AF37]">30K+</p>
+                    <p className="text-2xl font-serif font-bold text-[#D4AF37]">50K+</p>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider">Events</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />

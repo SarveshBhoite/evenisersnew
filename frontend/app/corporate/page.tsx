@@ -142,7 +142,7 @@ export default function CorporatePage() {
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                <a href="tel:+919876543210" className="flex items-center gap-3 px-4 py-2 text-white/60 hover:text-white transition-colors">
+                <a href="tel:+919096949909" className="flex items-center gap-3 px-4 py-2 text-white/60 hover:text-white transition-colors">
                   <span className="w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center hover:border-[#D4AF37] transition-colors">
                     <Phone className="w-5 h-5" />
                   </span>
@@ -153,9 +153,9 @@ export default function CorporatePage() {
               {/* Stats */}
               <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
                 {[
-                  { val: "10+", label: "Years Exp." },
-                  { val: "200+", label: "Corporate Events" },
-                  { val: "50+", label: "Brands Served" },
+                  { val: "7+", label: "Years Exp." },
+                  { val: "50k+", label: "Events Done" },
+                  { val: "1k+", label: "Clients Served" },
                 ].map((stat, i) => (
                   <div key={i}>
                     <p className="text-2xl md:text-3xl font-serif font-bold text-[#D4AF37]">{stat.val}</p>
@@ -658,7 +658,7 @@ export default function CorporatePage() {
                     <Building2 className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <p className="text-3xl font-serif font-bold text-zinc-900">10+</p>
+                    <p className="text-3xl font-serif font-bold text-zinc-900">7+</p>
                     <p className="text-xs text-zinc-500 uppercase tracking-wider">Years Experience</p>
                   </div>
                 </div>
@@ -753,10 +753,10 @@ export default function CorporatePage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
-              { val: "200+", label: "Events Delivered" },
-              { val: "50+", label: "Brands Served" },
+              { val: "50k+", label: "Events Delivered" },
+              { val: "1k+", label: "Brands Served" },
               { val: "100%", label: "Client Satisfaction" },
-              { val: "25+", label: "Cities Covered" },
+              { val: "16", label: "Cities Covered" },
             ].map((stat, i) => (
               <div key={i} className="p-6 bg-zinc-50 border border-zinc-100">
                 <p className="text-3xl md:text-4xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#D4AF37] to-[#B8860B]">
@@ -814,7 +814,7 @@ export default function CorporatePage() {
               <ArrowRight className="w-5 h-5" />
             </button>
             <a
-              href="tel:+919876543210"
+              href="tel:+919096949909"
               className="h-14 px-10 border-2 border-white/30 text-white hover:bg-white/10 font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
             >
               <Phone className="w-4 h-4" />

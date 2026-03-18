@@ -503,7 +503,7 @@ export function CityShowcase() {
             </div>
             <div className="w-px bg-zinc-200" />
             <div className="text-center">
-              <p className="font-serif text-3xl md:text-4xl font-bold text-[#D4AF37]">30K+</p>
+              <p className="font-serif text-3xl md:text-4xl font-bold text-[#D4AF37]">50K+</p>
               <p className="text-xs text-zinc-500 uppercase tracking-wider mt-1">Events</p>
             </div>
           </div>

@@ -115,8 +115,8 @@ export default function PrivacyPage() {
                         For privacy-related queries, data correction requests, or grievances:
                     </p>
                     <div className="space-y-2 text-sm font-medium">
-                        <p>📧 info@evenisers.com</p>
-                        <p>📞 +91 98765 43210</p>
+                        <p>📧 evenisers909@gmail.com</p>
+                        <p>📞 +91 90969 49909</p>
                     </div>
                 </div>
 
@@ -160,7 +160,6 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

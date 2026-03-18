@@ -29,14 +29,11 @@ export function Footer() {
             </p>
             
             <div className="flex gap-3 justify-center">
-              <a href="#" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
+              <a href="https://www.instagram.com/evenizerss/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
+              <a href="https://www.facebook.com/profile.php?id=61578877696029" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
                 <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-black hover:text-white hover:border-black transition-all">
-                <Twitter className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -83,15 +80,15 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-zinc-500">
               <li className="flex gap-3 items-start">
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-                <span className="leading-tight">102 Luxury Tower,<br />MG Road, Pune, MH</span>
+                <span className="leading-tight">Jai Malhar Nagar, Lane no.2,<br />Near Bodke Cycles, Thergaon,<br />Pimpri-Chinchwad, Pune 411033</span>
               </li>
               <li className="flex gap-3 items-center">
                 <Phone className="w-4 h-4 shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+919096949909" className="hover:text-black transition-colors">+91 90969 49909</a>
               </li>
               <li className="flex gap-3 items-center">
                 <Mail className="w-4 h-4 shrink-0" />
-                <span>info@evenisers.com</span>
+                <a href="mailto:evenisers909@gmail.com" className="hover:text-black transition-colors">evenisers909@gmail.com</a>
               </li>
               <li className="flex gap-3 items-center text-xs text-zinc-400 mt-4">
                 <Calendar className="w-3 h-3 shrink-0" />

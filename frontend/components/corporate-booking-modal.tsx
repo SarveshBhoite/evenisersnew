@@ -114,7 +114,7 @@ export function CorporateBookingModal({ isOpen, onClose }: ModalProps) {
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-zinc-500 uppercase">Phone</label>
-                <input required type="tel" name="phone" onChange={handleChange} className="w-full p-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="+91 98765..." />
+                <input required type="tel" name="phone" onChange={handleChange} className="w-full p-3 rounded-xl border border-zinc-200 bg-zinc-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="+91 90969 49909" />
              </div>
           </div>
 
