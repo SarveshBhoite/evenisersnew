@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { 
   ShieldCheck, 
   Globe2, 
@@ -116,12 +117,16 @@ export default function WhyUsPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="px-8 py-4 bg-[#D4AF37] text-black font-bold rounded-full hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-[#D4AF37]/20">
-                    Plan My Event
-                </button>
-                <button className="px-8 py-4 bg-transparent border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300">
-                    Contact Us
-                </button>
+                <Link href="/contact">
+                  <button className="px-8 py-4 bg-[#D4AF37] text-black font-bold rounded-full hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-[#D4AF37]/20">
+                      Plan My Event
+                  </button>
+                </Link>
+                <Link href="/contact">
+                  <button className="px-8 py-4 bg-transparent border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300">
+                      Contact Us
+                  </button>
+                </Link>
             </div>
         </div>
       </section>
