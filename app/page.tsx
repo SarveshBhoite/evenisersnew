@@ -58,6 +58,7 @@ export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [activeCategorySlugs, setActiveCategorySlugs] = useState<Set<string>>(new Set());
+  const [categoryImages, setCategoryImages] = useState<Map<string, string>>(new Map());
   const [isLoadingCats, setIsLoadingCats] = useState(true);
 
   useEffect(() => {
@@ -65,13 +66,26 @@ export default function HomePage() {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll);
     
-    // Fetch products to determine active categories
+    // Fetch products to determine active categories and their primary images
     const fetchActiveCategories = async () => {
       try {
         const res = await axios.get(`${API_URL}/products`);
         const products = Array.isArray(res.data) ? res.data : (res.data.products || []);
-        const slugs = new Set((products as any[]).map((p: any) => String(p.category).toLowerCase().trim()));
-        setActiveCategorySlugs(slugs as Set<string>);
+        
+        const slugs = new Set<string>();
+        const imagesMap = new Map<string, string>();
+        
+        products.forEach((p: any) => {
+          const slug = String(p.category).toLowerCase().trim();
+          slugs.add(slug);
+          // Store first product image found for this category
+          if (!imagesMap.has(slug) && p.image) {
+            imagesMap.set(slug, p.image);
+          }
+        });
+        
+        setActiveCategorySlugs(slugs);
+        setCategoryImages(imagesMap);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       } finally {
@@ -85,31 +99,39 @@ export default function HomePage() {
 
   const fullCategoriesList = [
     { name: "Birthdays", image: "/category/birthday.jpg", href: "/shop?category=birthday", slug: "birthday" },
-    { name: "Weddings", image: "/category/agedtoperfection.jpg", href: "/shop?category=wedding", slug: "wedding" },
+    { name: "Weddings", image: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop", href: "/shop?category=wedding", slug: "wedding" },
     { name: "Haldi & Mehandi", image: "/category/haldimehandi.jpg", href: "/shop?category=haldi-mehandi", slug: "haldi-mehandi" },
-    { name: "Engagement", image: "/category/agedtoperfection.jpg", href: "/shop?category=engagement", slug: "engagement" },
-    { name: "Anniversary", image: "/category/agedtoperfection.jpg", href: "/shop?category=anniversary", slug: "anniversary" },
-    { name: "Festivals", image: "/category/agedtoperfection.jpg", href: "/shop?category=festival", slug: "festival" },
+    { name: "Engagement", image: "/category/engagement.jpg", href: "/shop?category=engagement", slug: "engagement" },
+    { name: "Anniversary", image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=2070&auto=format&fit=crop", href: "/shop?category=anniversary", slug: "anniversary" },
+    { name: "Festivals", image: "https://images.unsplash.com/photo-1541675154750-0444c7d51e8e?q=80&w=2060&auto=format&fit=crop", href: "/shop?category=festival", slug: "festival" },
     { name: "Baby Shower", image: "/category/babyshower.jpg", href: "/shop?category=babyshower", slug: "babyshower" },
     { name: "Baby Welcome", image: "/category/babywelcome.jpg", href: "/shop?category=babywelcome", slug: "babywelcome" },
     { name: "Naming Ceremony", image: "/category/namingceremony.jpg", href: "/shop?category=namingceremony", slug: "namingceremony" },
     { name: "Annaprashan", image: "/category/annaprashan.png", href: "/shop?category=annaprashan", slug: "annaprashan" },
     { name: "Aged To Perfection", image: "/category/agedtoperfection.jpg", href: "/shop?category=agedtoperfection", slug: "agedtoperfection" },
-    { name: "House Warming", image: "/category/agedtoperfection.jpg", href: "/shop?category=housewarming", slug: "housewarming" },
+    { name: "House Warming", image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop", href: "/shop?category=housewarming", slug: "housewarming" },
     { name: "Bride To Be", image: "/category/bridetobe.jpg", href: "/shop?category=bridetobe", slug: "bridetobe" },
     { name: "Romantic", image: "/category/romantic.jpg", href: "/shop?category=romantic", slug: "romantic" },
-    { name: "Corporate", image: "/category/agedtoperfection.jpg", href: "/corporate", slug: "corporate" },
-    { name: "Catering", image: "/category/agedtoperfection.jpg", href: "/catering", slug: "catering" },
+    { name: "Corporate", image: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=2069&auto=format&fit=crop", href: "/corporate", slug: "corporate" },
+    { name: "Catering", image: "https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=2070&auto=format&fit=crop", href: "/catering", slug: "catering" },
   ];
 
   const categoriesList = useMemo(() => {
+    const list = fullCategoriesList.map(cat => ({
+      ...cat,
+      // Priority 1: Use first product image from API
+      // Priority 2: Use local category image (already in cat.image)
+      // Priority 3: Default is birthday.jpg if nothing else exists
+      image: (categoryImages.get(cat.slug) || cat.image || "/category/birthday.jpg")
+    }));
+
     // Partition full list into available and unavailable
-    const available = fullCategoriesList.filter(cat => activeCategorySlugs.has(cat.slug));
-    const unavailable = fullCategoriesList.filter(cat => !activeCategorySlugs.has(cat.slug));
+    const available = list.filter(cat => activeCategorySlugs.has(cat.slug));
+    const unavailable = list.filter(cat => !activeCategorySlugs.has(cat.slug));
     
     // Combine them, putting available ones at the front
     return [...available, ...unavailable];
-  }, [activeCategorySlugs]);
+  }, [activeCategorySlugs, categoryImages]);
 
   return (
     <div className="min-h-screen bg-[#FDFCF8] text-zinc-900 selection:bg-[#D4AF37] selection:text-white overflow-x-hidden">
