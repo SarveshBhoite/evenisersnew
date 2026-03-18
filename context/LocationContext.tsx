@@ -3,7 +3,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // Define the available cities
-export const CITIES = ["Mumbai", "Pune", "Delhi", "Bangalore", "Goa", "Jaipur"];
+export const CITIES = [
+  "Mumbai",
+  "Delhi NCR",
+  "Bengaluru",
+  "Hyderabad",
+  "Pune",
+  "Chennai",
+  "Chhtrapati Sambhajinagar",
+  "Ahmedabad",
+  "Kolkata",
+  "Jaipur",
+  "Surat",
+  "Lucknow",
+  "Chandigarh",
+  "Nagpur",
+  "Nashik",
+  "Vadodara"
+];
 
 interface LocationContextType {
   city: string;
