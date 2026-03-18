@@ -184,6 +184,9 @@ function NavbarContent() {
                                 className="h-10 w-auto object-contain"
                                 priority
                             />
+                            <span className="ml-2 font-serif text-lg md:text-lg font-bold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#C5A028] to-[#B8860B] select-none shrink-0">
+                                EVENIZERS
+                            </span>
                         </Link>
 
                         <div className="hidden md:block h-6 w-[1px] bg-zinc-300 mx-1" />
@@ -243,7 +246,7 @@ function NavbarContent() {
 
                     {/* ═══ MIDDLE: Links (Desktop) ═══ */}
                     {!isSearchOpen && (
-                        <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+                        <div className="hidden lg:flex items-center gap-1 flex-1 justify-end mr-6">
                             {mainLinks.map((link) => (
                                 <Link
                                     key={link.href}
@@ -533,13 +536,18 @@ function NavbarContent() {
                                     {/* Mobile Header */}
                                     <SheetHeader className="text-left p-6 border-b border-zinc-100">
                                         <SheetTitle>
-                                            <Image
-                                                src="/logobg.png"
-                                                alt="Evenizers Logo"
-                                                width={40}
-                                                height={40}
-                                                className="h-10 w-auto object-contain"
-                                            />
+                                            <div className="flex items-center">
+                                                <Image
+                                                    src="/logobg.png"
+                                                    alt="Evenizers Logo"
+                                                    width={40}
+                                                    height={40}
+                                                    className="h-10 w-auto object-contain"
+                                                />
+                                                <span className="ml-2 font-serif text-lg font-bold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#C5A028] to-[#B8860B]">
+                                                    EVENIZERS
+                                                </span>
+                                            </div>
                                         </SheetTitle>
                                     </SheetHeader>
 

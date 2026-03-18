@@ -269,9 +269,10 @@ export default function HomePage() {
           {/* First Row - Scrolling Left */}
           <div className="flex gap-4 animate-scroll-left mb-4">
             {(categoriesList.length > 0 ? [...categoriesList, ...categoriesList] : []).map((cat, i) => (
-              <div 
-                key={`row1-${i}`} 
-                className="relative flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden border-2 border-white shadow-lg"
+              <Link
+                key={`row1-${i}`}
+                href={cat.href}
+                className="relative flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden border-2 border-white shadow-lg active:scale-95 transition-transform"
                 style={{
                   transform: `rotate(${i % 2 === 0 ? '-3deg' : '3deg'})`,
                 }}
@@ -286,16 +287,17 @@ export default function HomePage() {
                 <span className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-bold truncate">
                   {cat.name}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
           
           {/* Second Row - Scrolling Right */}
           <div className="flex gap-4 animate-scroll-right">
             {(categoriesList.length > 0 ? [...categoriesList.slice().reverse(), ...categoriesList.slice().reverse()] : []).map((cat, i) => (
-              <div 
-                key={`row2-${i}`} 
-                className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-lg"
+              <Link
+                key={`row2-${i}`}
+                href={cat.href}
+                className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-lg active:scale-95 transition-transform"
                 style={{
                   transform: `rotate(${i % 2 === 0 ? '3deg' : '-3deg'})`,
                 }}
@@ -310,7 +312,7 @@ export default function HomePage() {
                 <span className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-bold truncate">
                   {cat.name}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
           
