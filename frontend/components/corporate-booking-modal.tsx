@@ -60,6 +60,7 @@ export function CorporateBookingModal({ isOpen, onClose }: ModalProps) {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone, // Added phone field
           subject: `🏢 Corporate Inquiry: ${formData.companyName} (${formData.eventType})`,
           message: fullMessage,
         }),

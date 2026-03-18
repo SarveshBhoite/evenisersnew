@@ -152,39 +152,82 @@ const sendOrderEmail = async (orderData) => {
 // 2. Send Contact Form Emails
 const sendContactEmail = async (contactData) => {
   const adminMailOptions = {
-    from: SENDER_IDENTITY, // ✅ Fixed
+    from: SENDER_IDENTITY,
     replyTo: contactData.email,
     to: process.env.ADMIN_EMAIL,
-    subject: `New Inquiry: ${contactData.subject}`,
+    subject: `📩 New Inquiry: ${contactData.subject}`,
     html: `
-      <h3>New Website Message</h3>
-      <p><b>From:</b> ${contactData.name}</p>
-      <p><b>Email:</b> ${contactData.email}</p>
-      <p><b>Message:</b> ${contactData.message}</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fafafa;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #000; margin: 0; font-size: 28px; letter-spacing: 2px;">EVENIZERS</h1>
+          <p style="color: #888; font-size: 14px; margin-top: 5px;">New Website Inquiry</p>
+        </div>
+
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+          <h2 style="margin-top: 0; font-size: 20px; color: #333; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; display: inline-block;">Inquiry Details</h2>
+          
+          <div style="margin-top: 20px;">
+            <p style="margin: 10px 0; color: #555;"><strong>Name:</strong> ${contactData.name}</p>
+            <p style="margin: 10px 0; color: #555;"><strong>Email:</strong> <a href="mailto:${contactData.email}" style="color: #D4AF37; text-decoration: none;">${contactData.email}</a></p>
+            <p style="margin: 10px 0; color: #555;"><strong>Phone:</strong> ${contactData.phone || "Not Provided"}</p>
+            <p style="margin: 10px 0; color: #555;"><strong>Subject:</strong> ${contactData.subject}</p>
+          </div>
+
+          <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #D4AF37;">
+            <h3 style="margin-top: 0; font-size: 16px; color: #333;">Message:</h3>
+            <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.6;">${contactData.message}</p>
+          </div>
+          
+          <div style="margin-top: 30px; text-align: center;">
+            <a href="mailto:${contactData.email}" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reply to Client</a>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} Evenizers. All rights reserved.</p>
+        </div>
+      </div>
     `,
   };
 
   const userMailOptions = {
-    from: SENDER_IDENTITY, // ✅ Fixed
+    from: SENDER_IDENTITY,
     to: contactData.email,
-    subject: `We received your message: ${contactData.subject}`,
+    subject: `✨ We've Received Your Inquiry: ${contactData.subject}`,
     html: `
-      <div style="font-family: serif; padding: 20px; color: #333;">
-        <h1 style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">Hello ${contactData.name},</h1>
-        <p>Thank you for reaching out to evenizers.</p>
-        <p>We have received your message regarding <b>"${contactData.subject}"</b> and our team will get back to you within 24-48 hours.</p>
-        <br />
-        <p>Best regards,</p>
-        <p><b>evenizers Team</b></p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fafafa;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #000; margin: 0; font-size: 28px; letter-spacing: 2px;">EVENIZERS</h1>
+          <p style="color: #888; font-size: 14px; margin-top: 5px;">Your Event, Our Passion</p>
+        </div>
+
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+          <h2 style="margin-top: 0; font-size: 20px; color: #333;">Hello ${contactData.name},</h2>
+          <p style="color: #555; line-height: 1.6;">Thank you for reaching out to <strong>Evenizers</strong>!</p>
+          <p style="color: #555; line-height: 1.6;">We have received your message regarding <strong>"${contactData.subject}"</strong>. Our team is already reviewing your details and will get back to you within 24-48 hours to discuss how we can make your event extraordinary.</p>
+          
+          <div style="margin: 30px 0; padding: 20px; border: 1px dashed #D4AF37; border-radius: 8px;">
+            <p style="margin: 0; font-size: 14px; color: #888; font-style: italic;">"Transforming spaces and creating memories that last a lifetime."</p>
+          </div>
+
+          <p style="color: #555; line-height: 1.6;">In the meantime, feel free to explore our latest event collections on our website.</p>
+          
+          <p style="margin-top: 30px; color: #333;">Best regards,<br><strong>Team Evenizers</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} Evenizers. All rights reserved.</p>
+        </div>
       </div>
     `,
   };
 
   try {
-    await transporter.sendMail(adminMailOptions);
-    console.log("✅ Contact email sent to ADMIN");
-    await transporter.sendMail(userMailOptions);
-    console.log("✅ Confirmation email sent to USER");
+    await Promise.all([
+      transporter.sendMail(adminMailOptions),
+      transporter.sendMail(userMailOptions)
+    ]);
+    console.log("✅ Inquiry emails sent successfully.");
   } catch (error) {
     console.error("❌ Email Error:", error.message);
     throw error;
@@ -293,6 +336,49 @@ const sendResetEmail = async (email, resetUrl) => {
   }
 };
 
+// 5. Send Review Notification to Admin
+const sendReviewNotification = async (reviewData, productName) => {
+  const mailOptions = {
+    from: SENDER_IDENTITY,
+    to: process.env.ADMIN_EMAIL,
+    subject: `⭐ New Review for ${productName}`,
+    html: `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fafafa;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #000; margin: 0; font-size: 28px; letter-spacing: 2px;">EVENIZERS</h1>
+          <p style="color: #888; font-size: 14px; margin-top: 5px;">New Customer Review</p>
+        </div>
+
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+          <h2 style="margin-top: 0; font-size: 20px; color: #333; border-bottom: 2px solid #ffcc00; padding-bottom: 10px; display: inline-block;">Review Details</h2>
+          
+          <div style="margin-top: 20px;">
+            <p style="margin: 10px 0; color: #555;"><strong>Product:</strong> ${productName}</p>
+            <p style="margin: 10px 0; color: #555;"><strong>Reviewer:</strong> ${reviewData.name}</p>
+            <p style="margin: 10px 0; color: #555;"><strong>Rating:</strong> ${"⭐".repeat(reviewData.rating)} (${reviewData.rating}/5)</p>
+          </div>
+
+          <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffcc00;">
+            <h3 style="margin-top: 0; font-size: 16px; color: #333;">Comment:</h3>
+            <p style="margin: 0; font-size: 14px; color: #555; line-height: 1.6;">${reviewData.comment || "No comment provided."}</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} Evenizers. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Review notification sent to ADMIN");
+  } catch (error) {
+    console.error("❌ Review Notification Error:", error.message);
+  }
+};
+
 // 🚨 EXPORT ALL FUNCTIONS
 module.exports = {
   sendOrderEmail,
@@ -300,4 +386,5 @@ module.exports = {
   sendOTPEmail,
   sendVendorBroadcast,
   sendResetEmail,
-};
+  sendReviewNotification,
+};
