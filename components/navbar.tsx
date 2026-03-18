@@ -73,8 +73,39 @@ function NavbarContent() {
     const [isSearching, setIsSearching] = useState(false);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchRef = useRef<HTMLDivElement>(null);
+
+    // ✅ SCROLL DIRECTION DETECTION
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            
+            // Show navbar when near top (< 100px)
+            if (currentScrollY < 100) {
+                setIsVisible(true);
+            } 
+            // Hide on scroll DOWN, Show on scroll UP
+            else if (currentScrollY > lastScrollY) {
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            
+            setLastScrollY(currentScrollY);
+            
+            // Set global variable for sticky elements to sync
+            document.documentElement.style.setProperty(
+                '--navbar-offset', 
+                currentScrollY < 100 || (currentScrollY < lastScrollY) ? '88px' : '0px'
+            );
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [lastScrollY]);
 
     // ALL LINKS - UNCHANGED
     const mainLinks = [
@@ -136,7 +167,9 @@ function NavbarContent() {
     }, [searchTerm]);
 
     return (
-        <nav className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isSearchOpen ? 'w-[95%] max-w-5xl' : 'w-[95%] md:w-[85%] lg:w-[75%] max-w-5xl'}`}>
+        <nav className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-in-out ${
+            isVisible ? 'top-6 opacity-100' : '-top-24 opacity-0'
+        } ${isSearchOpen ? 'w-[95%] max-w-5xl' : 'w-[95%] md:w-[85%] lg:w-[75%] max-w-5xl'}`}>
             <div className="backdrop-blur-xl bg-white/85 rounded-full border border-white/60 shadow-xl px-6 py-3 relative">
                 <div className="flex items-center justify-between">
 

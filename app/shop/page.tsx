@@ -258,7 +258,10 @@ export default function ShopPage() {
       {/* ════════════════════════════════════════════════════════
           STICKY FILTER BAR - Fixed positioning
       ════════════════════════════════════════════════════════ */}
-      <section className="sticky top-[64px] md:top-[72px] z-40 bg-white border-b border-zinc-200 shadow-sm">
+      <section 
+        className="sticky z-40 bg-white border-b border-zinc-200 shadow-sm transition-all duration-500 ease-in-out"
+        style={{ top: 'var(--navbar-offset, 72px)' }}
+      >
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           {/* Main Filter Row */}
           <div className="flex items-center justify-between gap-3 py-3">
