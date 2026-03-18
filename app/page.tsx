@@ -336,15 +336,15 @@ export default function HomePage() {
       {/* Stats Row - Compact */}
       <div className="flex justify-center gap-8 mt-8 pt-6 border-t border-zinc-200/50">
         <div className="text-center">
-          <p className="text-2xl font-serif font-bold text-[#D4AF37]">12+</p>
+          <p className="text-2xl font-serif font-bold text-[#D4AF37]">7+</p>
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Years</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-serif font-bold text-[#D4AF37]">30K+</p>
+          <p className="text-2xl font-serif font-bold text-[#D4AF37]">50K+</p>
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Events</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-serif font-bold text-[#D4AF37]">25+</p>
+          <p className="text-2xl font-serif font-bold text-[#D4AF37]">16</p>
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Cities</p>
         </div>
       </div>
@@ -473,7 +473,7 @@ export default function HomePage() {
                 <Award className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-3xl font-serif font-bold text-zinc-900">12+</p>
+                <p className="text-3xl font-serif font-bold text-zinc-900">7+</p>
                 <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Years Legacy</p>
               </div>
             </div>
@@ -881,10 +881,10 @@ export default function HomePage() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
-              { icon: Calendar, val: "30K+", label: "Events Crafted" },
-              { icon: Users, val: "500+", label: "Happy Families" },
-              { icon: Award, val: "12+", label: "Years Excellence" },
-              { icon: MapPin, val: "25+", label: "Cities Covered" },
+              { icon: Calendar, val: "50K+", label: "Events Crafted" },
+              { icon: Users, val: "1k+", label: "Happy Families" },
+              { icon: Award, val: "7+", label: "Years Excellence" },
+              { icon: MapPin, val: "16", label: "Cities Covered" },
             ].map((stat, i) => (
               <div 
                 key={i} 

@@ -135,7 +135,7 @@ export default function GamesPage() {
           <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
         </Button>
       </Link>
-      <a href="tel:+919876543210" className="hidden md:flex items-center gap-3 px-4 py-2 text-zinc-500 hover:text-[#D4AF37] transition-colors">
+      <a href="tel:+919096949909" className="hidden md:flex items-center gap-3 px-4 py-2 text-zinc-500 hover:text-[#D4AF37] transition-colors">
         <span className="w-12 h-12 rounded-full border-2 border-zinc-200 hover:border-[#D4AF37] flex items-center justify-center transition-colors">
           <Phone className="w-5 h-5" />
         </span>
@@ -573,7 +573,7 @@ export default function GamesPage() {
               variant="outline"
               className="h-14 px-10 border-white/30 text-white hover:bg-white/10 font-bold uppercase tracking-wider rounded-full"
             >
-              <a href="tel:+919876543210">
+              <a href="tel:+919096949909">
                 <Phone className="w-4 h-4 mr-2" />
                 Call Now
               </a>

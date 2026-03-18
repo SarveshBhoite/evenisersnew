@@ -111,24 +111,24 @@ export default function ContactPage() {
 
                 {/* Contact Details */}
                 <div className="space-y-6">
-                  <a href="tel:+919876543210" className="flex items-start gap-4 group">
+                  <a href="tel:+919096949909" className="flex items-start gap-4 group">
                     <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4AF37]/20 group-hover:border-[#D4AF37]/30 transition-all">
                       <Phone className="w-5 h-5 text-[#D4AF37]" />
                     </div>
                     <div>
                       <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Phone</p>
-                      <p className="text-white font-medium group-hover:text-[#D4AF37] transition-colors">+91 98765 43210</p>
+                      <p className="text-white font-medium group-hover:text-[#D4AF37] transition-colors">+91 90969 49909</p>
                       <p className="text-white/40 text-xs mt-0.5">Mon - Sat, 10am - 7pm</p>
                     </div>
                   </a>
 
-                  <a href="mailto:hello@evenizers.com" className="flex items-start gap-4 group">
+                  <a href="mailto:evenisers909@gmail.com" className="flex items-start gap-4 group">
                     <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4AF37]/20 group-hover:border-[#D4AF37]/30 transition-all">
                       <Mail className="w-5 h-5 text-[#D4AF37]" />
                     </div>
                     <div>
                       <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Email</p>
-                      <p className="text-white font-medium group-hover:text-[#D4AF37] transition-colors">hello@evenizers.com</p>
+                      <p className="text-white font-medium group-hover:text-[#D4AF37] transition-colors">evenisers909@gmail.com</p>
                       <p className="text-white/40 text-xs mt-0.5">We reply within 24 hours</p>
                     </div>
                   </a>
@@ -139,7 +139,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Office</p>
-                      <p className="text-white font-medium">Mumbai, Maharashtra</p>
+                      <p className="text-white font-medium">Thergaon, Pune</p>
                       <p className="text-white/40 text-xs mt-0.5">Pan India Services</p>
                     </div>
                   </div>
@@ -161,7 +161,7 @@ export default function ContactPage() {
               <div className="relative mt-10 pt-8 border-t border-white/10">
                 <div className="flex items-center gap-6">
                   <div>
-                    <p className="text-2xl font-serif font-bold text-[#D4AF37]">30K+</p>
+                    <p className="text-2xl font-serif font-bold text-[#D4AF37]">50K+</p>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider">Events</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />
@@ -248,7 +248,7 @@ export default function ContactPage() {
                         name="phone"
                         type="tel"
                         required
-                        placeholder="+91 98765 43210"
+                        placeholder="+91 90969 49909"
                         className="h-12 bg-zinc-50 border-2 border-zinc-200 rounded-none focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-[#D4AF37]/10 transition-all text-sm"
                       />
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] transform scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300 origin-left" />
@@ -331,7 +331,7 @@ export default function ContactPage() {
                 <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold mb-4 text-center">Or Reach Us Directly</p>
                 <div className="grid grid-cols-2 gap-3">
                   <a 
-                    href="tel:+919876543210" 
+                    href="tel:+919096949909" 
                     className="group flex items-center gap-3 p-4 bg-zinc-50 border border-zinc-200 hover:border-[#D4AF37]/30 hover:bg-[#D4AF37]/5 transition-all"
                   >
                     <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center group-hover:bg-green-500 transition-colors">
@@ -339,12 +339,12 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-zinc-900">Call Us</p>
-                      <p className="text-[10px] text-zinc-500">+91 98765 43210</p>
+                      <p className="text-[10px] text-zinc-500">+91 90969 49909</p>
                     </div>
                   </a>
 
                   <a 
-                    href="https://wa.me/919876543210" 
+                    href="https://wa.me/919096949909" 
                     target="_blank"
                     className="group flex items-center gap-3 p-4 bg-zinc-50 border border-zinc-200 hover:border-[#D4AF37]/30 hover:bg-[#D4AF37]/5 transition-all"
                   >

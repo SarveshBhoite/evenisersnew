@@ -62,7 +62,7 @@ export default function AboutPage() {
                      ))}
                   </div>
                   <div className="text-left">
-                     <p className="font-bold text-lg leading-none">50k+</p>
+                     <p className="font-bold text-lg leading-none">1k+</p>
                      <p className="text-xs text-zinc-500 uppercase tracking-wide">Happy Clients</p>
                   </div>
                </div>

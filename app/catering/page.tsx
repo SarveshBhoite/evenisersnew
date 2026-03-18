@@ -113,7 +113,7 @@ export default function CateringPage() {
                   </Button>
                 </Link>
 
-                <a href="tel:+919876543210" className="flex items-center gap-3 px-4 py-2 text-white/70 hover:text-white transition-colors">
+                <a href="tel:+919096949909" className="flex items-center gap-3 px-4 py-2 text-white/70 hover:text-white transition-colors">
                   <span className="w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center hover:border-[#D4AF37] transition-colors">
                     <Phone className="w-5 h-5" />
                   </span>
@@ -124,7 +124,7 @@ export default function CateringPage() {
               {/* Quick Stats */}
               <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
                 {[
-                  { val: "500+", label: "Events Served" },
+                  { val: "50k+", label: "Events Served" },
                   { val: "50+", label: "Menu Options" },
                   { val: "4.9", label: "Client Rating" },
                 ].map((stat, i) => (
@@ -543,7 +543,7 @@ export default function CateringPage() {
               variant="outline"
               className="h-14 px-10 border-white/30 text-white hover:bg-white/10 font-bold uppercase tracking-wider"
             >
-              <a href="tel:+919876543210">
+              <a href="tel:+919096949909">
                 <Phone className="w-4 h-4 mr-2" />
                 Call Now
               </a>

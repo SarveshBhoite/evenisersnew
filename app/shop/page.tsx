@@ -244,7 +244,7 @@ export default function ShopPage() {
                     <span>4.9 Rated</span>
                   </div>
                   <span className="w-1 h-1 rounded-full bg-white/40" />
-                  <span>Trusted by 30K+</span>
+                  <span>Trusted by 1k+</span>
                 </div>
               </div>
             </div>
@@ -669,7 +669,7 @@ export default function ShopPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="tel:+919876543210"
+                href="tel:+919096949909"
                 className="inline-flex items-center gap-2 px-6 py-3 border-2 border-zinc-900 text-zinc-900 text-sm font-bold uppercase tracking-wider hover:bg-zinc-900 hover:text-white transition-colors"
               >
                 Call Now

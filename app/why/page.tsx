@@ -50,9 +50,9 @@ export default function WhyUsPage() {
         <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-zinc-100">
                 {[
-                    { number: "09+", label: "Years Experience" },
+                    { number: "07+", label: "Years Experience" },
                     { number: "50k+", label: "Events Executed" },
-                    { number: "100+", label: "Cities Covered" },
+                    { number: "16", label: "Cities Covered" },
                     { number: "100%", label: "Success Rate" },
                 ].map((stat, i) => (
                     <div key={i} className="flex flex-col items-center">
@@ -139,13 +139,13 @@ export default function WhyUsPage() {
 const features = [
     {
         title: "Proven Experience & Trust",
-        desc: "With 9+ years of industry experience and 50,000+ successfully executed events, Evenizers.com has built strong credibility. We handle events of all sizes with confidence.",
+        desc: "With 7+ years of industry experience and 50,000+ successfully executed events, Evenizers.com has built strong credibility. We handle events of all sizes with confidence.",
         icon: ShieldCheck,
         span: false
     },
     {
         title: "Nationwide Network",
-        desc: "Operating across 100+ cities in India, we make it easy to manage events at multiple locations through a single platform. Our vendor network ensures consistent quality.",
+        desc: "Operating across 16 cities in India, we make it easy to manage events at multiple locations through a single platform. Our vendor network ensures consistent quality.",
         icon: Globe2,
         span: false
     },
