@@ -2,6 +2,7 @@ const Product = require("../models/Product");
 const Order = require("../models/Order");
 const cloudinary = require("cloudinary").v2; // ✅ Import Cloudinary
 const fs = require("fs"); // ✅ Import FS for cleaning up temp files
+const { sendReviewNotification } = require("../utils/sendEmail");
 
 // ✅ Configure Cloudinary (Make sure .env has these keys)
 cloudinary.config({
@@ -259,6 +260,14 @@ exports.createProductReview = async (req, res) => {
       product.reviews.length;
 
     await product.save();
+
+    // 🚨 ADMIN NOTIFICATION
+    try {
+        await sendReviewNotification(review, product.name);
+    } catch (err) {
+        console.error("Failed to send review notification:", err.message);
+    }
+
     res.status(201).json({ message: "Review added" });
   } else {
     res.status(404).json({ message: "Product not found" });
