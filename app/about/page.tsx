@@ -13,12 +13,45 @@ import {
   Utensils, 
   Mic2,
   Users,
-  Sparkles
+  Sparkles,
+  User
 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
 
 export default function AboutPage() {
+  const [productImages, setProductImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/products`);
+        const products = Array.isArray(res.data) ? res.data : (res.data.products || []);
+        if (products.length > 0) {
+          // Shuffle and pick 3 random images
+          const shuffled = products
+            .filter((p: any) => p.image)
+            .sort(() => 0.5 - Math.random());
+          const selected = shuffled.slice(0, 3).map((p: any) => 
+            p.image.startsWith("http") ? p.image : `${process.env.NEXT_PUBLIC_API_URL}${p.image}`
+          );
+          setProductImages(selected);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products for about page:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const displayImages = productImages.length >= 3 
+    ? productImages 
+    : ["/hero-event-decoration.jpg", "/category/birthday.jpg", "/category/haldimehandi.jpg"];
+
   return (
     // ✅ BG is transparent so your global layout animation (stars/particles) shows through
     <div className="min-h-screen">
@@ -53,14 +86,13 @@ export default function AboutPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                <div className="flex items-center gap-4">
-                  <div className="flex -space-x-4">
-                     {[1,2,3].map((i) => (
-                        <div key={i} className="w-12 h-12 rounded-full border-2 border-white bg-zinc-200 relative overflow-hidden">
-                           {/* Placeholder avatars */}
-                           <div className="absolute inset-0 bg-zinc-300" />
-                        </div>
-                     ))}
-                  </div>
+                   <div className="flex -space-x-4">
+                      {[1,2,3].map((i) => (
+                         <div key={i} className="w-12 h-12 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center shadow-sm">
+                            <User className="w-6 h-6 text-zinc-400" />
+                         </div>
+                      ))}
+                   </div>
                   <div className="text-left">
                      <p className="font-bold text-lg leading-none">1k+</p>
                      <p className="text-xs text-zinc-500 uppercase tracking-wide">Happy Clients</p>
@@ -73,10 +105,10 @@ export default function AboutPage() {
           <div className="relative h-[500px] w-full hidden lg:block">
              
              {/* Image 1: Main (Center) - Larger */}
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[22rem] h-[26rem] bg-zinc-200 rounded-[2rem] shadow-2xl rotate-0 z-20 overflow-hidden border-[6px] border-white">
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[22rem] h-[26rem] bg-zinc-200 rounded-[2rem] shadow-2xl rotate-0 z-20 overflow-hidden border-[6px] border-white">
                 <Image 
-                  src="/premium-leather-handbag.jpg" 
-                  alt="Wedding Decor" 
+                  src={displayImages[0]} 
+                  alt="Event Decor" 
                   fill 
                   className="object-cover hover:scale-110 transition-transform duration-700"
                 />
@@ -85,8 +117,8 @@ export default function AboutPage() {
              {/* Image 2: Left Tilted */}
              <div className="absolute top-1/2 left-1/2 -translate-x-[80%] -translate-y-[40%] w-[19rem] h-[23rem] bg-zinc-300 rounded-[2rem] shadow-xl -rotate-6 z-10 overflow-hidden border-[6px] border-white opacity-90">
                 <Image 
-                  src="/premium-leather-handbag.jpg" 
-                  alt="Birthday Decor" 
+                  src={displayImages[1]} 
+                  alt="Event Decor" 
                   fill 
                   className="object-cover"
                 />
@@ -95,8 +127,8 @@ export default function AboutPage() {
              {/* Image 3: Right Tilted */}
              <div className="absolute top-1/2 left-1/2 -translate-x-[20%] -translate-y-[60%] w-[19rem] h-[23rem] bg-zinc-300 rounded-[2rem] shadow-xl rotate-6 z-10 overflow-hidden border-[6px] border-white opacity-90">
                 <Image 
-                  src="/premium-leather-handbag.jpg" 
-                  alt="Corporate Event" 
+                  src={displayImages[2]} 
+                  alt="Event Decor" 
                   fill 
                   className="object-cover"
                 />
@@ -113,9 +145,9 @@ export default function AboutPage() {
       {/* 2. THE STORY */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div className="relative aspect-[4/5] md:aspect-square bg-zinc-100 rounded-[3rem] overflow-hidden shadow-lg">
+           <div className="relative aspect-[4/5] md:aspect-square bg-zinc-100 rounded-[3rem] overflow-hidden shadow-lg border-8 border-white">
             <Image 
-                src="/premium-leather-handbag.jpg" 
+                src="/logoname.jpeg" 
                 alt="Our Journey" 
                 fill 
                 className="object-cover" 
@@ -259,16 +291,16 @@ export default function AboutPage() {
             </h2>
             
             <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-zinc-200 rounded-full mb-4 overflow-hidden relative border-4 border-white shadow-md">
-                     <div className="absolute inset-0 flex items-center justify-center text-zinc-400">
-                         <Users className="w-6 h-6" />
-                     </div>
+                <div className="w-16 h-16 bg-zinc-100 rounded-full mb-4 overflow-hidden relative border-4 border-white shadow-md flex items-center justify-center">
+                     <User className="w-8 h-8 text-zinc-400" />
                 </div>
                 <div className="text-lg font-bold font-serif text-zinc-900">Kailas Chavan</div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">Founder & Director</div>
             </div>
         </div>
       </section>
+
+      <Footer />
 
     </div>
   );

@@ -60,6 +60,7 @@ export default function HomePage() {
   const [activeCategorySlugs, setActiveCategorySlugs] = useState<Set<string>>(new Set());
   const [categoryImages, setCategoryImages] = useState<Map<string, string>>(new Map());
   const [isLoadingCats, setIsLoadingCats] = useState(true);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -691,7 +692,7 @@ export default function HomePage() {
   {/* Featured - Horizontal Scroll (7 items) */}
   <div className="relative -mx-4 mb-6">
     <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory">
-      {categoriesList.slice(0, 7).map((cat, index) => (
+      {categoriesList.map((cat, index) => (
         <Link
           key={cat.name}
           href={cat.href}
@@ -731,9 +732,9 @@ export default function HomePage() {
     </div>
   </div>
 
-  {/* Remaining Categories - Compact 3-Column Grid (9 items) */}
+  {/* Remaining Categories - Compact 3-Column Grid */}
   <div className="grid grid-cols-3 gap-2">
-    {categoriesList.slice(7).map((cat) => (
+    {(showAllCategories ? categoriesList : categoriesList.slice(0, 9)).map((cat) => (
       <Link
         key={cat.name}
         href={cat.href}
@@ -755,12 +756,16 @@ export default function HomePage() {
   </div>
 
   {/* Mobile View All Button */}
-  <Link href="/shop" className="block mt-6">
-    <Button variant="outline" className="w-full rounded-full border-zinc-200 h-12 font-bold text-zinc-700">
-      View All Categories
-      <ArrowRight className="w-4 h-4 ml-2" />
+  <div className="mt-6">
+    <Button 
+      variant="outline" 
+      onClick={() => setShowAllCategories(!showAllCategories)}
+      className="w-full rounded-full border-zinc-200 h-12 font-bold text-zinc-700 hover:bg-zinc-50 transition-colors"
+    >
+      {showAllCategories ? "Show Less" : "View All Categories"}
+      <ArrowRight className={`w-4 h-4 ml-2 transition-transform duration-300 ${showAllCategories ? 'rotate-90' : ''}`} />
     </Button>
-  </Link>
+  </div>
 </div>
 
     {/* ════════════════════════════════════════════════════════
