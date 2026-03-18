@@ -17,7 +17,7 @@ export function FeaturedCollection() {
     "birthday", "wedding", "haldi-mehandi", "engagement", "festival",
     "anniversary", "babyshower", "babywelcome", "namingceremony",
     "annaprashan", "agedtoperfection", "housewarming", "bridetobe",
-    "romantic", "corporate", "catering", "games"
+    "romantic", "corporate", "catering"
   ];
 
   const formatTitle = (slug: string) => {
