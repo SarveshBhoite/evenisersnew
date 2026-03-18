@@ -8,7 +8,10 @@ import Image from "next/image";
 import { FeaturedCollection } from "@/components/home/FeaturedCollection";
 import { CityShowcase } from "@/components/home/CityShowcase";
 import { FAQSection } from "@/components/home/FAQSection";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
+
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
 
 // Wavy SVG Divider Component
 const WaveDivider = ({ 
@@ -54,32 +57,59 @@ const BlobShape = ({ className = "", fill = "#D4AF37" }: { className?: string; f
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [activeCategorySlugs, setActiveCategorySlugs] = useState<Set<string>>(new Set());
+  const [isLoadingCats, setIsLoadingCats] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll);
+    
+    // Fetch products to determine active categories
+    const fetchActiveCategories = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/products`);
+        const products = Array.isArray(res.data) ? res.data : (res.data.products || []);
+        const slugs = new Set((products as any[]).map((p: any) => String(p.category).toLowerCase().trim()));
+        setActiveCategorySlugs(slugs as Set<string>);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setIsLoadingCats(false);
+      }
+    };
+
+    fetchActiveCategories();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const categoriesList = [
-    { name: "Birthdays", image: "/category/birthday.jpg", href: "/shop?category=birthday" },
-    { name: "Weddings", image: "/category/agedtoperfection.jpg", href: "/shop?category=wedding" },
-    { name: "Haldi & Mehandi", image: "/category/haldimehandi.jpg", href: "/shop?category=haldi-mehandi" },
-    { name: "Engagement", image: "/category/agedtoperfection.jpg", href: "/shop?category=engagement" },
-    { name: "Anniversary", image: "/category/agedtoperfection.jpg", href: "/shop?category=anniversary" },
-    { name: "Festivals", image: "/category/agedtoperfection.jpg", href: "/shop?category=festival" },
-    { name: "Baby Shower", image: "/category/babyshower.jpg", href: "/shop?category=babyshower" },
-    { name: "Baby Welcome", image: "/category/babywelcome.jpg", href: "/shop?category=babywelcome" },
-    { name: "Naming Ceremony", image: "/category/namingceremony.jpg", href: "/shop?category=namingceremony" },
-    { name: "Annaprashan", image: "/category/annaprashan.png", href: "/shop?category=annaprashan" },
-    { name: "Aged To Perfection", image: "/category/agedtoperfection.jpg", href: "/shop?category=agedtoperfection" },
-    { name: "House Warming", image: "/category/agedtoperfection.jpg", href: "/shop?category=housewarming" },
-    { name: "Bride To Be", image: "/category/bridetobe.jpg", href: "/shop?category=bridetobe" },
-    { name: "Romantic", image: "/category/romantic.jpg", href: "/shop?category=romantic" },
-    { name: "Corporate", image: "/category/agedtoperfection.jpg", href: "/corporate" },
-    { name: "Catering", image: "/category/agedtoperfection.jpg", href: "/catering" },
+  const fullCategoriesList = [
+    { name: "Birthdays", image: "/category/birthday.jpg", href: "/shop?category=birthday", slug: "birthday" },
+    { name: "Weddings", image: "/category/agedtoperfection.jpg", href: "/shop?category=wedding", slug: "wedding" },
+    { name: "Haldi & Mehandi", image: "/category/haldimehandi.jpg", href: "/shop?category=haldi-mehandi", slug: "haldi-mehandi" },
+    { name: "Engagement", image: "/category/agedtoperfection.jpg", href: "/shop?category=engagement", slug: "engagement" },
+    { name: "Anniversary", image: "/category/agedtoperfection.jpg", href: "/shop?category=anniversary", slug: "anniversary" },
+    { name: "Festivals", image: "/category/agedtoperfection.jpg", href: "/shop?category=festival", slug: "festival" },
+    { name: "Baby Shower", image: "/category/babyshower.jpg", href: "/shop?category=babyshower", slug: "babyshower" },
+    { name: "Baby Welcome", image: "/category/babywelcome.jpg", href: "/shop?category=babywelcome", slug: "babywelcome" },
+    { name: "Naming Ceremony", image: "/category/namingceremony.jpg", href: "/shop?category=namingceremony", slug: "namingceremony" },
+    { name: "Annaprashan", image: "/category/annaprashan.png", href: "/shop?category=annaprashan", slug: "annaprashan" },
+    { name: "Aged To Perfection", image: "/category/agedtoperfection.jpg", href: "/shop?category=agedtoperfection", slug: "agedtoperfection" },
+    { name: "House Warming", image: "/category/agedtoperfection.jpg", href: "/shop?category=housewarming", slug: "housewarming" },
+    { name: "Bride To Be", image: "/category/bridetobe.jpg", href: "/shop?category=bridetobe", slug: "bridetobe" },
+    { name: "Romantic", image: "/category/romantic.jpg", href: "/shop?category=romantic", slug: "romantic" },
+    { name: "Corporate", image: "/category/agedtoperfection.jpg", href: "/corporate", slug: "corporate" },
+    { name: "Catering", image: "/category/agedtoperfection.jpg", href: "/catering", slug: "catering" },
   ];
+
+  const categoriesList = useMemo(() => {
+    // Partition full list into available and unavailable
+    const available = fullCategoriesList.filter(cat => activeCategorySlugs.has(cat.slug));
+    const unavailable = fullCategoriesList.filter(cat => !activeCategorySlugs.has(cat.slug));
+    
+    // Combine them, putting available ones at the front
+    return [...available, ...unavailable];
+  }, [activeCategorySlugs]);
 
   return (
     <div className="min-h-screen bg-[#FDFCF8] text-zinc-900 selection:bg-[#D4AF37] selection:text-white overflow-x-hidden">
@@ -215,7 +245,7 @@ export default function HomePage() {
         <div className="relative overflow-hidden py-4 bg-gradient-to-r from-[#D4AF37]/5 via-[#B8860B]/5 to-[#D4AF37]/5">
           {/* First Row - Scrolling Left */}
           <div className="flex gap-4 animate-scroll-left mb-4">
-            {[...categoriesList, ...categoriesList].map((cat, i) => (
+            {(categoriesList.length > 0 ? [...categoriesList, ...categoriesList] : []).map((cat, i) => (
               <div 
                 key={`row1-${i}`} 
                 className="relative flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden border-2 border-white shadow-lg"
@@ -239,7 +269,7 @@ export default function HomePage() {
           
           {/* Second Row - Scrolling Right */}
           <div className="flex gap-4 animate-scroll-right">
-            {[...categoriesList.slice().reverse(), ...categoriesList.slice().reverse()].map((cat, i) => (
+            {(categoriesList.length > 0 ? [...categoriesList.slice().reverse(), ...categoriesList.slice().reverse()] : []).map((cat, i) => (
               <div 
                 key={`row2-${i}`} 
                 className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-lg"
