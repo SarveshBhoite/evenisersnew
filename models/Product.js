@@ -21,13 +21,14 @@ const eventSchema = new mongoose.Schema({
   image: { type: String, required: true },
   category: {
     type: String,
-    lowercase: true, // This solves your Anniversary vs anniversary problem!
+    lowercase: true,
     trim: true,
     enum: ['wedding', 'anniversary', 'haldi-mehandi', 'birthday', 'corporate', 'babywelcome', 'namingceremony', 'romantic', 'babyshower', 'bridetobe', 'agedtoperfection', 'festival','engagement','housewarming','annaprashan', 'catering', 'games'], 
-    required: true
+    required: true,
+    index: true
   },
   description: { type: String, default: "" },
-  theme: { type: String, default: "" },// Saved as "item1, item2, item3"
+  theme: { type: String, default: "", index: true }, // Index added for performance
   setupTime: { type: String },
   included: { type: String ,default: "" }, 
   notIncluded: { type: String, default: "" },
@@ -44,6 +45,8 @@ const eventSchema = new mongoose.Schema({
   rating: { type: Number, required: true, default: 0 },
   numReviews: { type: Number, required: true, default: 0 },
 }, { timestamps: true });
+
+eventSchema.index({ createdAt: -1 }); // Faster sorting for getProducts
 
 // Export ONE name consistently
 module.exports = mongoose.models.Product || mongoose.model("Product", eventSchema);
