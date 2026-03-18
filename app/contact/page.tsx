@@ -25,6 +25,7 @@ export default function ContactPage() {
     const data = {
       name: formData.get("name"),
       email: formData.get("email"),
+      phone: formData.get("phone"), // Added phone field
       subject: formData.get("subject"),
       message: formData.get("message"),
     }
@@ -234,21 +235,41 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Subject */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="subject" className="text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    Subject
-                  </Label>
-                  <div className="relative group">
-                    <Input
-                      id="subject"
-                      name="subject"
-                      required
-                      placeholder="What's this about?"
-                      className="h-12 bg-zinc-50 border-2 border-zinc-200 rounded-none focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-[#D4AF37]/10 transition-all text-sm"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] transform scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300 origin-left" />
+                {/* Phone & Subject Row */}
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone" className="text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+                      Phone Number
+                    </Label>
+                    <div className="relative group">
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        className="h-12 bg-zinc-50 border-2 border-zinc-200 rounded-none focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-[#D4AF37]/10 transition-all text-sm"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] transform scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300 origin-left" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="subject" className="text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-[#D4AF37]" />
+                      Subject
+                    </Label>
+                    <div className="relative group">
+                      <Input
+                        id="subject"
+                        name="subject"
+                        required
+                        placeholder="What's this about?"
+                        className="h-12 bg-zinc-50 border-2 border-zinc-200 rounded-none focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-[#D4AF37]/10 transition-all text-sm"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] transform scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300 origin-left" />
+                    </div>
                   </div>
                 </div>
 
