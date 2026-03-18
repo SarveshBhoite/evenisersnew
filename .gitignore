@@ -1,0 +1,9 @@
+# Root .gitignore
+node_modules/
+.env
+.DS_Store
+
+# Ignore build artifacts from subfolders if they accidentally end up in the root
+/backend/node_modules/
+/frontend/node_modules/
+/frontend/.next/
