@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, ArrowUpRight, Phone } from "lucide-react";
 import { useState } from "react";
 
@@ -533,9 +534,11 @@ export function CityShowcase() {
                           <p className="text-xl font-serif font-bold text-[#D4AF37]">{city.events}</p>
                           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Events</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white hover:bg-[#D4AF37] transition-colors">
-                          <ArrowUpRight className="w-4 h-4" />
-                        </div>
+                        <Link href="/contact">
+                          <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white hover:bg-[#D4AF37] transition-colors cursor-pointer">
+                            <ArrowUpRight className="w-4 h-4" />
+                          </div>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -571,10 +574,12 @@ export function CityShowcase() {
                     })()}
                   </div>
                 </div>
-                <button className="w-full mt-6 py-4 rounded-full bg-zinc-900 text-white font-bold flex items-center justify-center gap-2 hover:bg-[#D4AF37] transition-colors">
-                  <Phone className="w-5 h-5" />
-                  Book Event in {CITIES[activeCity].name}
-                </button>
+                <Link href="/contact">
+                  <button className="w-full mt-6 py-4 rounded-full bg-zinc-900 text-white font-bold flex items-center justify-center gap-2 hover:bg-[#D4AF37] transition-colors">
+                    <Phone className="w-5 h-5" />
+                    Book Event in {CITIES[activeCity].name}
+                  </button>
+                </Link>
               </div>
             </div>
 
@@ -621,9 +626,11 @@ export function CityShowcase() {
                     <p className="text-zinc-500 text-sm">Can't find your city?</p>
                     <p className="text-zinc-900 font-bold">We're expanding rapidly!</p>
                   </div>
-                  <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-zinc-900 text-zinc-900 font-bold text-sm hover:bg-zinc-900 hover:text-white transition-all">
-                    Request Location <ArrowUpRight className="w-4 h-4" />
-                  </button>
+                  <Link href="/contact">
+                    <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-zinc-900 text-zinc-900 font-bold text-sm hover:bg-zinc-900 hover:text-white transition-all">
+                      Request Location <ArrowUpRight className="w-4 h-4" />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

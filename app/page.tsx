@@ -431,13 +431,15 @@ export default function HomePage() {
             </Button>
           </Link>
           
-          <button className="group flex items-center gap-3 px-2 py-2 text-zinc-700 hover:text-zinc-900 transition-colors">
-            <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-zinc-100 group-hover:border-[#D4AF37] shadow-lg transition-all duration-300">
-              <Play className="w-5 h-5 fill-zinc-700 group-hover:fill-[#D4AF37] ml-0.5 transition-colors" />
-              <span className="absolute inset-0 rounded-full border-2 border-[#D4AF37]/30 animate-ping opacity-0 group-hover:opacity-100" />
-            </span>
-            <span className="text-sm font-semibold">Watch Our Story</span>
-          </button>
+          <Link href="/contact">
+            <button className="group flex items-center gap-3 px-2 py-2 text-zinc-700 hover:text-zinc-900 transition-colors">
+              <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-zinc-100 group-hover:border-[#D4AF37] shadow-lg transition-all duration-300">
+                <Play className="w-5 h-5 fill-zinc-700 group-hover:fill-[#D4AF37] ml-0.5 transition-colors" />
+                <span className="absolute inset-0 rounded-full border-2 border-[#D4AF37]/30 animate-ping opacity-0 group-hover:opacity-100" />
+              </span>
+              <span className="text-sm font-semibold">Watch Our Story</span>
+            </button>
+          </Link>
         </div>
       </div>
 
