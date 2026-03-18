@@ -203,7 +203,7 @@ function NavbarContent() {
                                 </DropdownMenuTrigger>
 
                                 {/* ✅ PREMIUM CITY DROPDOWN */}
-                                <DropdownMenuContent align="start" className="w-72 bg-white backdrop-blur-xl rounded-2xl p-2 shadow-2xl border border-zinc-100 mt-4">
+                                <DropdownMenuContent align="start" className="w-[480px] bg-white backdrop-blur-xl rounded-2xl p-3 shadow-2xl border border-zinc-100 mt-4">
                                     {/* Header */}
                                     <div className="flex items-center gap-2 px-3 py-2.5 mb-1">
                                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center">
@@ -211,29 +211,31 @@ function NavbarContent() {
                                         </div>
                                         <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Select City</span>
                                     </div>
-                                    <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent mb-1" />
+                                    <div className="h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent mb-2" />
                                     
-                                    {CITIES.map((c) => (
-                                        <DropdownMenuItem 
-                                            key={c} 
-                                            onClick={() => setCity(c)} 
-                                            className={`cursor-pointer rounded-xl py-3 px-4 text-sm font-medium transition-all my-0.5 ${
-                                                city === c 
-                                                    ? "bg-gradient-to-r from-[#D4AF37]/10 to-[#B8860B]/5 text-[#B8860B] border border-[#D4AF37]/20" 
-                                                    : "hover:bg-zinc-50 text-zinc-700"
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-between w-full">
-                                                <div className="flex items-center gap-2">
-                                                    <MapPin className={`w-3.5 h-3.5 ${city === c ? 'text-[#D4AF37]' : 'text-zinc-400'}`} />
-                                                    {c}
+                                    <div className="grid grid-cols-2 gap-1 px-1">
+                                        {CITIES.map((c) => (
+                                            <DropdownMenuItem 
+                                                key={c} 
+                                                onClick={() => setCity(c)} 
+                                                className={`cursor-pointer rounded-xl py-2.5 px-4 text-sm font-medium transition-all ${
+                                                    city === c 
+                                                        ? "bg-gradient-to-r from-[#D4AF37]/10 to-[#B8860B]/5 text-[#B8860B] border border-[#D4AF37]/20" 
+                                                        : "hover:bg-zinc-50 text-zinc-700"
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between w-full">
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin className={`w-3.5 h-3.5 ${city === c ? 'text-[#D4AF37]' : 'text-zinc-400'}`} />
+                                                        {c}
+                                                    </div>
+                                                    {city === c && (
+                                                        <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+                                                    )}
                                                 </div>
-                                                {city === c && (
-                                                    <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
-                                                )}
-                                            </div>
-                                        </DropdownMenuItem>
-                                    ))}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </div>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

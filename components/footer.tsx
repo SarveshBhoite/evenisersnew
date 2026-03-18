@@ -67,6 +67,7 @@ export function Footer() {
               <li><Link href="/about" className="hover:text-black transition-colors">About Us</Link></li>
               <li><Link href="/contact" className="hover:text-black transition-colors">Contact Us</Link></li>
               <li><Link href="/why" className="hover:text-black transition-colors">Why Evenizers</Link></li>
+              <li><Link href="/platform-sitemap" className="hover:text-black transition-colors">Sitemap</Link></li>
               <li className="pt-4 block font-bold text-xs uppercase tracking-[0.2em] text-zinc-900">Legal</li>
               <li><Link href="/terms" className="hover:text-black transition-colors">Terms & Conditions</Link></li>
               <li><Link href="/privacy" className="hover:text-black transition-colors">Privacy Policy</Link></li>
@@ -109,7 +110,7 @@ export function Footer() {
           <div className="flex gap-6 text-[10px] text-zinc-400 uppercase tracking-widest">
             <Link href="/privacy" className="hover:text-black">Privacy</Link>
             <Link href="/terms" className="hover:text-black">Terms</Link>
-            <Link href="/sitemap" className="hover:text-black">Sitemap</Link>
+            <Link href="/platform-sitemap" className="hover:text-black">Sitemap</Link>
           </div>
         </div>
       </div>
